@@ -23,4 +23,16 @@ public class BloggerController {
         model.addAttribute("bloggers", bloggers);
         return "bloggers";
     }
+    
+
+    @GetMapping("/posts")
+    public String showPosts(Model model) {
+    	String sql = "SELECT * FROM posts";
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
+
+        model.addAttribute("posts", posts);
+        return "show";
+    }
+    
+    
 }

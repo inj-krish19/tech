@@ -80,8 +80,9 @@
       <ul>
         <li><a th:href="@{/}">Home</a></li>
         <li><a th:href="@{/bloggers}">Bloggers</a></li>
-        <li><a href="#">About</a></li>
-        <li><a th:href="@{/create}">Post</a></li>
+        <li><a th:href="@{/posts}">Posts</a></li>
+        <li><a href="@{/about}">About</a></li>
+        <li><a th:href="@{/create}"> New Post</a></li>
 
         <li th:if="${user != null}">
           <a href="#" class="userinfo">

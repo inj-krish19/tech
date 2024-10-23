@@ -10,6 +10,7 @@ public class EnvController {
 
 
     private Dotenv dotenv = Dotenv.load();
+    // if want to access environment variable from system
     @Value("${WHATS_NAME:not working}")
     private String myEnvVariable;
 

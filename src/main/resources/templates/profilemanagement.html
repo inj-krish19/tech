@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Profile Management - Tech2xplore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}"> <!-- Include your custom stylesheet -->
+    <link rel="stylesheet" th:href="@{/css/signup.css}"> <!-- Include your signup.css for theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> <!-- Bootstrap Icons -->
+</head>
+<body class="bg-dark text-light">
+
+<nav class="navbar navbar-expand-lg navbar-light">
+    <div class="container-fluid">
+        <a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/logout">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <h2>Profile Management</h2>
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" disabled>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editUsernameModal">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <div class="input-group">
+            <input type="email" class="form-control" id="email" name="email" th:value="${user.email}" disabled>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editEmailModal">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="mobileNumber" class="form-label">Mobile Number</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="mobileNumber" name="mobileNumber" th:value="${user.mobileNumber}" disabled>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editMobileModal">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <div class="input-group">
+            <textarea class="form-control" id="bio" name="bio" rows="3" th:text="${user.bio}" disabled></textarea>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editBioModal">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modals for Editing -->
+<!-- Edit Username Modal -->
+<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" id="editUsername" name="editUsername" th:value="${user.username}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile('username')">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Email Modal -->
+<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEmailModalLabel">Edit Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="email" class="form-control" id="editEmail" name="editEmail" th:value="${user.email}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile('email')">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Mobile Number Modal -->
+<div class="modal fade" id="editMobileModal" tabindex="-1" aria-labelledby="editMobileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editMobileModalLabel">Edit Mobile Number</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="text" class="form-control" id="editMobileNumber" name="editMobileNumber" th:value="${user.mobileNumber}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile('mobileNumber')">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Bio Modal -->
+<div class="modal fade" id="editBioModal" tabindex="-1" aria-labelledby="editBioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editBioModalLabel">Edit Bio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <textarea class="form-control" id="editBio" name="editBio" rows="3" th:text="${user.bio}"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateProfile('bio')">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function updateProfile(field) {
+        let value;
+        switch(field) {
+            case 'username':
+                value = document.getElementById('editUsername').value;
+                break;
+            case 'email':
+                value = document.getElementById('editEmail').value;
+                break;
+            case 'mobileNumber':
+                value = document.getElementById('editMobileNumber').value;
+                break;
+            case 'bio':
+                value = document.getElementById('editBio').value;
+                break;
+            default:
+                return; // Exit if the field is not recognized
+        }
+
+        // Make an AJAX call to update the user profile in the database
+        fetch('/updateProfile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                field: field,
+                value: value
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            // Update the displayed value
+            switch(field) {
+                case 'username':
+                    document.getElementById('username').value = data.username;
+                    break;
+                case 'email':
+                    document.getElementById('email').value = data.email;
+                    break;
+                case 'mobileNumber':
+                    document.getElementById('mobileNumber').value = data.mobileNumber;
+                    break;
+                case 'bio':
+                    document.getElementById('bio').value = data.bio;
+                    break;
+            }
+            // Hide the modal after saving changes
+            var modal = bootstrap.Modal.getInstance(document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Modal`));
+            modal.hide();
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+            alert('An error occurred while updating the profile. Please try again.');
+        });
+    }
+</script>
+
+</body>
+</html>

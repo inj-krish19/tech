@@ -24,7 +24,7 @@ public class HomeController {
 
     @GetMapping("/login") // Maps to /login (http://localhost:8080/login)
     public String login(Model model) {
-        return "login"; // Login page
+        return "mylogin"; // Login page
     }
 
     @GetMapping("/register") // Maps to /register (http://localhost:8080/register)
@@ -54,6 +54,31 @@ public class HomeController {
 //        model.addAttribute("bloggers", bloggers);
 //        return "bloggers"; // This will render the bloggers.html template
 //    }
+    
+    @GetMapping("/error")
+    public String getError() {
+    	return "error";
+    }
+    
+    @GetMapping("/about")
+    public String getAbout() {
+    	return "about";
+    }
+    
+    @GetMapping("/create_post")
+    public String getPost() {
+    	return "show";
+    }
+    
+    @GetMapping("/profile")
+    public String getProfile() {
+    	return "profilemanagement";
+    }
+    
+    @GetMapping("/signup")
+    public String getSignup() {
+    	return "signup";
+    }
     
     @PostMapping("/create") // Handles form submission for creating a post
     public String savePost(Model model, String title, String body, String topic, boolean publish) {
