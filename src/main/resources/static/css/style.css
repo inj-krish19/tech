@@ -700,3 +700,8 @@ a:hover, a:active {
     width: 80%;
   }
 }
+a{
+    color: #5c5b5b;
+    list-style: none;
+    text-decoration: double;
+}
