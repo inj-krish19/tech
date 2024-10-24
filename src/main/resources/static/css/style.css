@@ -1,3 +1,101 @@
+@import url('https://fonts.googleapis.com/css?family=Lora');
+@import url('https://fonts.googleapis.com/css?family=Candal');
+html, body {
+  padding: 0px;
+  margin: 0px;
+  font-family: 'Lora', serif;
+  height: 100%;
+  background: #f6f6f6;
+}
+a {
+  text-decoration: none;
+  color: inherit;
+}
+a:hover, a:active {
+  color: #008489;
+}
+.logo-text, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Candal', sans-serif;
+  margin: 5px;
+  color: #5c5b5b;
+  font-weight: normal;
+}
+.clearfix::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.msg {
+  width: 100%;
+  list-style-type: none;
+  margin: 5px auto;
+  padding: 7px;
+  box-sizing: border-box;
+  border-radius: 3px;
+}
+.error {
+  color: #884b4b;
+  background: rgb(245, 188, 188);
+  border: 1px solid #6e3a3d;
+}
+.success {
+  color: #3a6e3a;
+  background: #bcf5bc;
+  border: 1px solid #3a6e3a;
+}
+.btn {
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  padding: .7rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  background: #008489;
+  color: #fff;
+}
+.btn-sm {
+  padding: .5rem .8rem;
+  line-height: 1.3;
+  border-radius: .25rem;
+}
+.btn:hover {
+  cursor: pointer;
+  background: #00767a;
+}
+.input-group {
+  display: block;
+  margin: 10px auto 10px;
+}
+.text-input {
+  border: 1px solid #e0e0e0;
+  outline: none;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  padding: .6rem 1.1rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  border-radius: .3rem;
+  font-family: 'Lora', serif;
+}
+.delete {
+  color: red;
+}
+.edit {
+  color: blue;
+}
+.publish {
+  color: green;
+}
+.unpublish {
+  color: orange;
+}
+
 body {
   background-color: #1e1f23;
   /* Set the background color to dark */
