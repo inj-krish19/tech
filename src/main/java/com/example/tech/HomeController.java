@@ -23,13 +23,13 @@ public class HomeController {
     }
 
     @GetMapping("/login") // Maps to /login (http://localhost:8080/login)
-    public String login(Model model) {
+    public String login() {
         return "mylogin"; // Login page
     }
 
     @GetMapping("/register") // Maps to /register (http://localhost:8080/register)
     public String register(Model model) {
-        return "register"; // Register page
+        return "signup"; // Register page
     }
     
     @GetMapping("/create") // Maps to /create (http://localhost:8080/create)
@@ -67,7 +67,7 @@ public class HomeController {
     
     @GetMapping("/create_post")
     public String getPost() {
-    	return "show";
+    	return "createPost";
     }
     
     @GetMapping("/profile")

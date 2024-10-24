@@ -9,6 +9,8 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #343a40; /* Dark background for the body */
@@ -23,66 +25,94 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item dropdown" th:if="${loggedInUser != null}">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> Profile
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
-                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i> Profile</a></li>
-                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
-                        </ul>
-                    </li>
+	<nav class="navbar navbar-expand-lg navbar-light">
+		<div class="container-fluid">
+			<a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/posts"><i class="bi bi-person-badge"></i> Posts</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
+					</li>
 
-                    <li class="nav-item" th:if="${loggedInUser != null}">
-                        <a class="nav-link" href="/myPosts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+					<!-- Login and Sign Up options for unauthenticated users -->
+					<li class="nav-item" th:if="${loggedInUser == null}">
+						<a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+					</li>
+					<li class="nav-item" th:if="${loggedInUser == null}">
+						<a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
+					</li>
 
+					<!-- Options for authenticated users -->
+					<li class="nav-item dropdown" th:if="${loggedInUser != null}">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bi bi-person-circle"></i> Profile
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
+							<li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i> Profile</a>
+							</li>
+							<li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+							</li>
+						</ul>
+					</li>
+
+					<!-- Post option for authenticated users -->
+					<li class="nav-item" th:if="${loggedInUser != null}">
+						<a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
+					</li>
+
+					<!-- My Posts option for authenticated users -->
+					<li class="nav-item" th:if="${loggedInUser != null}">
+						<a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
+					</li>
+
+				</ul>
+			</div>
+		</div>
+	</nav>
     <!-- Centered Post Form -->
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
                 <div class="card shadow-lg border-light">
-                    <div class="card-body p-4">
+                    <div class="card-body p-4" style="background: grey;" >
                         <h2 class="text-center">Create Post</h2>
-                        <form action="#" th:action="@{/createPost}" method="post" enctype="multipart/form-data">
+                        <form th:action="@{/doPost}" method="post" enctype="multipart/form-data">
+                           
+                           	
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Select a category</option>
+                                    <option value="Lessons">News</option>
+                                    <option value="Life">Coding</option>
+                                    <option value="Poetry">Technology</option>
+                                    <option value="Inspiration">Robotics</option>
+                                </select>
+                            </div>
+                           	
                             <div class="mb-3">
                                 <label for="title" class="form-label">Title</label>
                                 <input type="text" class="form-control" id="title" name="title" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="body" class="form-label">Body</label>
+                                <label for="description" class="form-label">Body</label>
                                 <div id="editor" style="min-height: 150px;"></div>
-                                <input type="hidden" name="body" id="body-input" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="category" class="form-label">Category</label>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Select a category</option>
-                                    <option value="Life">Life</option>
-                                    <option value="Poetry">Poetry</option>
-                                    <option value="Inspiration">Inspiration</option>
-                                    <option value="Lessons">Lessons</option>
-                                </select>
+                                <input type="hidden" name="description" id="body-input" required>
                             </div>
 
                             <div class="mb-3">
@@ -112,6 +142,8 @@
     <!-- Quill JS -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // Preview Image Function
         function previewImage(event) {

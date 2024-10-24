@@ -12,20 +12,63 @@
 <body class="bg-dark text-light">
 
 <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="container-fluid">
-        <a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+		<div class="container-fluid">
+			<a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav ms-auto">
+					<li class="nav-item">
+						<a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/posts"><i class="bi bi-person-badge"></i> Posts</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
+					</li>
+
+					<!-- Login and Sign Up options for unauthenticated users -->
+					<li class="nav-item" th:if="${loggedInUser == null}">
+						<a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
+					</li>
+					<li class="nav-item" th:if="${loggedInUser == null}">
+						<a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
+					</li>
+
+					<!-- Options for authenticated users -->
+					<li class="nav-item dropdown" th:if="${loggedInUser != null}">
+						<a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="bi bi-person-circle"></i> Profile
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
+							<li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i> Profile</a>
+							</li>
+							<li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+							</li>
+						</ul>
+					</li>
+
+					<!-- Post option for authenticated users -->
+					<li class="nav-item" th:if="${loggedInUser != null}">
+						<a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
+					</li>
+
+					<!-- My Posts option for authenticated users -->
+					<li class="nav-item" th:if="${loggedInUser != null}">
+						<a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
+					</li>
+
+				</ul>
+			</div>
+		</div>
+	</nav>
 
 <div class="container mt-5">
     <h2>Profile Management</h2>
