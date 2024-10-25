@@ -19,6 +19,9 @@ public class HomeController {
 
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
     public String home(Model model) {
+
+        List<String> topics = List.of("News","Coding","Robotics","Technology");
+    	model.addAttribute("topics", topics);
         return "home"; // Home page
     }
 

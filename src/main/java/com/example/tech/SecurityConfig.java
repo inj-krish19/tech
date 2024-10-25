@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 // import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
-public class SecurityConfig {
+public class SecurityConfig{
 
 //    private final Dotenv dotenv = Dotenv.configure().load();
     // Fetch the password from the .env file with a fallback to "defaultpassword" if not found.
@@ -26,17 +26,24 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-            	.loginPage("/login")
-                .permitAll()
-                .and()
-            .csrf().disable();
+    	http
+        .authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/", "/home", "/public/**", "/resources/**", "/css/**", "/js/**", "/images/**", "/signup", "/about").permitAll()
+            .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/login")
+            .permitAll()
+            .defaultSuccessUrl("/", true)
+        )
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login?logout")
+            .permitAll()
+        )
+        .csrf(csrf -> csrf.disable());  // Disable CSRF for development; enable in production
 
-        return http.build();
+    return http.build();
     }
 
     @Bean

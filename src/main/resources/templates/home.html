@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
 
 <head>
 	<meta charset="UTF-8">
@@ -80,29 +80,7 @@
 	      <h1 class="slider-title">Trending Posts</h1>
 	</div>
 
-	<div class="page-wrapper">
-    <!-- Posts Slider -->
-    <div class="posts-slider">
-      <i class="fa fa-chevron-right next"></i>
-      <i class="fa fa-chevron-left prev"></i>
-      <div class="posts-wrapper">
-        <div th:each="post : ${trendingPosts}">
-          <div class="post">
-            <div class="inner-post">
-              <img th:src="@{/images/logo.jpg}" alt="Post Image" style="height: 200px; width: 100%; border-top-left-radius: 5px; border-top-right-radius: 5px;">
-              <div class="post-info">
-                <h4><a th:href="@{/single/{id}(id=${post.id})}" th:text="${post.title}"></a></h4>
-                <div>
-                  <i class="fa fa-user-o"></i> <span th:text="${post.author}"></span>
-                  &nbsp;
-                  <i class="fa fa-calendar"></i> <span th:text="${post.date}"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
     <!-- // Posts Slider -->
     <!-- content -->
     <div class="content clearfix">
@@ -134,8 +112,8 @@
         <div class="section topics">
           <h2>Topics</h2>
           <ul>
-            <a th:each="topic : ${topics}" th:href="@{/topic/{id}(id=${topic.id})}">
-              <li th:text="${topic.name}"></li>
+            <a th:each="topic : ${topics}" >
+              <li style="color: #5c5b5b; text-decoration:double;" th:text="${topic}"></li>
             </a>
           </ul>
         </div>
