@@ -819,7 +819,74 @@ a {
   text-decoration: double;
 }
 
-
+.not-found-message {
+    text-align: center;
+    margin: 20px 0;
+}
+    
 html {
   background: #343a40;
 }
+
+.black-hr{
+	color:black;
+}
+
+
+    .posts-list {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .post-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .post {
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        width: 500px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .post:hover {
+        transform: scale(1.05);
+    }
+
+    .post-image {
+        width: 100%;
+        border-radius: 50%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    .post-name {
+        font-size: 1.2em;
+        color: #333;
+    }
+
+    .post-bio {
+        font-size: 0.9em;
+        color: #777;
+        margin-bottom: 10px;
+    }
+
+    .view-profile {
+        display: inline-block;
+        padding: 8px 12px;
+        background: #007bff;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .view-profile:hover {
+        background: #0056b3;
+    }
+    

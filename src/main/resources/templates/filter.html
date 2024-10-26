@@ -141,6 +141,9 @@
     <div class="posts-list" style="margin-bottom: 300px;">
         <h1 th:text="${topic} + ' Posts'"></h1>
         <div class="post-container">
+                <div th:if="${#lists.isEmpty(posts)}" class="not-found-message">
+					    <h2>Posts Are Currently Not Available</h2>
+					</div>
             <div th:each="post : ${posts}" class="post">
                 <div class="post-info">
                     <!-- <img th:src="@{/images/{image}(image=${post.image})}" alt="post Image" class="post-image" /> -->
@@ -167,6 +170,8 @@
                 </div>
 
                 <div class="social">
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                    <a href="#"><i class="fa fa-instagram"></i></a>
                     <a href="#"><i class="fa fa-facebook"></i></a>
                     <a href="#"><i class="fa fa-twitter"></i></a>
                 </div>

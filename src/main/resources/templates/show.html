@@ -12,64 +12,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-<style>
-    .posts-list {
-        padding: 20px;
-        text-align: center;
-    }
-
-    .post-container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    .post {
-        background: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 15px;
-        width: 500px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s;
-    }
-
-    .post:hover {
-        transform: scale(1.05);
-    }
-
-    .post-image {
-        width: 100%;
-        border-radius: 50%;
-        height: auto;
-        margin-bottom: 10px;
-    }
-
-    .post-name {
-        font-size: 1.2em;
-        color: #333;
-    }
-
-    .post-bio {
-        font-size: 0.9em;
-        color: #777;
-        margin-bottom: 10px;
-    }
-
-    .view-profile {
-        display: inline-block;
-        padding: 8px 12px;
-        background: #007bff;
-        color: white;
-        border-radius: 5px;
-        text-decoration: none;
-    }
-
-    .view-profile:hover {
-        background: #0056b3;
-    }
-</style>
 
 <body style="background:#343a40">
 
@@ -141,6 +83,9 @@
     <div class="posts-list" style="margin-bottom: 300px;">
         <h1>Our Posts</h1>
         <div class="post-container">
+        <div th:if="${#lists.isEmpty(posts)}" class="not-found-message">
+					    <h2>Posts Are Currently Not Available</h2>
+					</div>
             <div th:each="post : ${posts}" class="post">
                 <div class="post-info">
                     <!-- <img th:src="@{/images/{image}(image=${post.image})}" alt="post Image" class="post-image" /> -->

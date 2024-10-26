@@ -7,9 +7,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 public class BloggerController {
@@ -17,6 +19,18 @@ public class BloggerController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private static Integer start = 1;
+    
+
+    @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
+    public String home(Model model) {
+
+        List<String> topics = List.of("News","Coding","Robotics","Technology");
+    	model.addAttribute("topics", topics);
+        String sql = "SELECT * FROM posts";
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
+        model.addAttribute("posts", posts);
+        return "home"; // Home page
+    }
     
     // Get all bloggers
     @GetMapping("/bloggers")
@@ -80,4 +94,26 @@ public class BloggerController {
             return "create_post"; // Assuming this is your creation page
         }
     }
+
+    @GetMapping("/load-more-posts")
+    @ResponseBody
+    public Map<String, Object> loadMorePosts(@RequestParam("page") int page) {
+        int pageSize = 5; // Number of posts per page
+        int offset = (page - 1) * pageSize;
+
+        // SQL query to fetch posts based on the page and pageSize
+        String sql = "SELECT * FROM posts ORDER BY id LIMIT " + pageSize + " OFFSET " + offset;
+
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
+        // Determine if there are more posts to load
+        boolean hasMore = posts.size() == pageSize;
+
+        // Prepare the response map
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", posts);
+        response.put("hasMore", hasMore);
+
+        return response;
+    }
+    
 }
