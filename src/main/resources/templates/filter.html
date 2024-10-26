@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Posts</title>
+    <title th:text="${topic} + ' Posts'"> </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -139,7 +139,7 @@
     <!-- // header -->
 
     <div class="posts-list" style="margin-bottom: 300px;">
-        <h1>Our Posts</h1>
+        <h1 th:text="${topic} + ' Posts'"></h1>
         <div class="post-container">
             <div th:each="post : ${posts}" class="post">
                 <div class="post-info">

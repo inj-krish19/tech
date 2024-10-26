@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,25 @@ public class BloggerController {
         model.addAttribute("posts", posts);
         return "show"; // Assuming there's a Thymeleaf template named "show"
     }
+    
+    @GetMapping("/filter/{category}")
+    public String filterPosts(Model model, @PathVariable String category) {
+        String sql = "SELECT * FROM posts where category='" + category + "';";
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
+        model.addAttribute("posts", posts);
+        model.addAttribute("topic", category);
+        return "filter"; // Assuming there's a Thymeleaf template named "show"
+    }
 
+    @PostMapping("/search")
+    public String seacrhKeyword(Model model, String keyword ) {
+        String sql = "SELECT * FROM posts where category='" + keyword + "' or description='" + keyword + "' or title='" + keyword + "';";
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
+        model.addAttribute("posts", posts);
+        model.addAttribute("topic", keyword);
+        return "filter"; // Assuming there's a Thymeleaf template named "show"
+    }
+    
     // Create a new post
     @PostMapping("/doPost")
     public String makePost(Model model, String title, String category, String description) {
