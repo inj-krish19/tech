@@ -26,7 +26,7 @@ public class BloggerController {
 
         List<String> topics = List.of("News","Coding","Robotics","Technology");
     	model.addAttribute("topics", topics);
-        String sql = "SELECT * FROM posts";
+        String sql = "SELECT * FROM posts limit 5";
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
         model.addAttribute("posts", posts);
         return "home"; // Home page
@@ -61,7 +61,7 @@ public class BloggerController {
 
     @PostMapping("/search")
     public String seacrhKeyword(Model model, String keyword ) {
-        String sql = "SELECT * FROM posts where category='" + keyword + "' or description='" + keyword + "' or title='" + keyword + "';";
+        String sql = "SELECT * FROM posts where category='%" + keyword + "%' or description='%" + keyword + "%' or title='%" + keyword + "%';";
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
         model.addAttribute("posts", posts);
         model.addAttribute("topic", keyword);
@@ -94,7 +94,7 @@ public class BloggerController {
             return "create_post"; // Assuming this is your creation page
         }
     }
-
+    
     @GetMapping("/load-more-posts")
     @ResponseBody
     public Map<String, Object> loadMorePosts(@RequestParam("page") int page) {
@@ -102,10 +102,10 @@ public class BloggerController {
         int offset = (page - 1) * pageSize;
 
         // SQL query to fetch posts based on the page and pageSize
-        String sql = "SELECT * FROM posts ORDER BY id LIMIT " + pageSize + " OFFSET " + offset;
+        String sql = "SELECT * FROM posts ORDER BY id LIMIT ? OFFSET ?";
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, pageSize, offset);
 
-        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
-        // Determine if there are more posts to load
+        // Check if there are more posts to load
         boolean hasMore = posts.size() == pageSize;
 
         // Prepare the response map
@@ -115,5 +115,6 @@ public class BloggerController {
 
         return response;
     }
-    
+
+
 }
