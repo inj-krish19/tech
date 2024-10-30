@@ -890,3 +890,15 @@ html {
         background: #0056b3;
     }
     
+    
+#load-more{
+	font-family : Candal,sans-serif;
+	border-radius : 5px;
+    text-decoration: double;
+    background: #777777;
+    font-weight: 900;
+    font-size: medium;
+    width: 95%;
+    border: 2px solid whitesmoke;
+    color : white;
+}

@@ -274,12 +274,17 @@ function loadMorePosts() {
 
             // Hide the "Load More" button if there are no more posts
             if (!data.hasMore) {
+                alert('You came far in way');
                 document.getElementById('load-more').style.display = 'none';
             }
         })
         .catch(error => {
-            console.error('Error loading more posts:', error);
-            alert('Failed to load more posts. Please try again later.');
+        	setTimeout( () => {
+				window.location.href = '/login';
+        	} , 3000);
+        	
+        	//            console.error('Error loading more posts:', error);
+            alert('Please Login For Loading More Posts');
         });
 }
 
