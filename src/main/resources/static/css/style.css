@@ -86,7 +86,7 @@ h6 {
 }
 
 .input-group {
-  display: block;
+  display: flex;
   margin: 10px auto 10px;
 }
 
@@ -341,7 +341,7 @@ h6 {
 }
 
 .input-group {
-  display: block;
+  display: flex;
   margin: 10px auto 10px;
 }
 
@@ -901,4 +901,20 @@ html {
     width: 95%;
     border: 2px solid whitesmoke;
     color : white;
+}
+
+h1{
+	margin-bottom : 15px;
+}
+
+.top-75{
+	top: 75% !important;	
+}
+
+.input-group>.custom-input-box{
+	width : 92%;
+}
+
+.input-group>.custom-icon-box{
+	width:7%;
 }

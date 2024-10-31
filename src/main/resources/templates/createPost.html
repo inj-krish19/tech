@@ -60,7 +60,7 @@
 					</li>
 
 					<!-- Options for authenticated users -->
-					<li class="nav-item dropdown" th:if="${loggedInUser != null}">
+					<li class="nav-item dropdown" th:if="${loggedInUser == null}">
 						<a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">
 							<i class="bi bi-person-circle"></i> Profile
@@ -158,6 +158,8 @@
                 <div class="social">
                     <a href="#"><i class="fa fa-facebook"></i></a>
                     <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-instagram"></i></a>
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
                 </div>
 
             </div>

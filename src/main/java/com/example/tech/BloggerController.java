@@ -50,6 +50,15 @@ public class BloggerController {
         return "show"; // Assuming there's a Thymeleaf template named "show"
     }
     
+    @GetMapping("/posts/{id}")
+    public String viewPost(Model model, @PathVariable String id) {
+        String sql = "SELECT * FROM posts WHERE id = ?";
+        List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, id);
+        model.addAttribute("post", post);
+        return "viewPost"; // Assuming there's a Thymeleaf template named "viewPost"
+    }
+
+    
     @GetMapping("/filter/{category}")
     public String filterPosts(Model model, @PathVariable String category) {
         String sql = "SELECT * FROM posts where category='" + category + "';";
@@ -61,7 +70,7 @@ public class BloggerController {
 
     @PostMapping("/search")
     public String seacrhKeyword(Model model, String keyword ) {
-        String sql = "SELECT * FROM posts where category='%" + keyword + "%' or description='%" + keyword + "%' or title='%" + keyword + "%';";
+    	String sql = "SELECT * FROM posts where category like '%" + keyword + "%' or description like '%" + keyword + "%' or title like '%" + keyword + "%';";
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
         model.addAttribute("posts", posts);
         model.addAttribute("topic", keyword);

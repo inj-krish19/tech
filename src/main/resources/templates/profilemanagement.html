@@ -4,11 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Profile Management - Tech2xplore</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/css/style.css}"> <!-- Include your custom stylesheet -->
     <link rel="stylesheet" th:href="@{/css/signup.css}"> <!-- Include your signup.css for theme -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"> <!-- Bootstrap Icons -->
-</head>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    
+    </head>
 <body class="bg-dark text-light">
 
 <nav class="navbar navbar-expand-lg navbar-light">
@@ -42,7 +46,7 @@
 					</li>
 
 					<!-- Options for authenticated users -->
-					<li class="nav-item dropdown" th:if="${loggedInUser != null}">
+					<li class="nav-item dropdown" th:if="${loggedInUser == null}">
 						<a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
 							data-bs-toggle="dropdown" aria-expanded="false">
 							<i class="bi bi-person-circle"></i> Profile
@@ -71,12 +75,12 @@
 	</nav>
 
 <div class="container mt-5">
-    <h2>Profile Management</h2>
+    <h2 style="margin-bottom: 15px;">Profile </h2>
     <div class="mb-3">
         <label for="username" class="form-label">Username</label>
         <div class="input-group">
-            <input type="text" class="form-control" id="username" name="username" th:value="${user.username}" disabled>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editUsernameModal">
+            <input type="text" class="form-control custom-input-box" id="username" name="username" th:value="${user.username}" disabled>
+            <button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal" data-bs-target="#editUsernameModal">
                 <i class="bi bi-pencil"></i>
             </button>
         </div>
@@ -84,8 +88,8 @@
     <div class="mb-3">
         <label for="email" class="form-label">Email</label>
         <div class="input-group">
-            <input type="email" class="form-control" id="email" name="email" th:value="${user.email}" disabled>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editEmailModal">
+            <input type="email" class="form-control custom-input-box" id="email" name="email" th:value="${user.email}" disabled>
+            <button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal" data-bs-target="#editEmailModal">
                 <i class="bi bi-pencil"></i>
             </button>
         </div>
@@ -93,8 +97,8 @@
     <div class="mb-3">
         <label for="mobileNumber" class="form-label">Mobile Number</label>
         <div class="input-group">
-            <input type="text" class="form-control" id="mobileNumber" name="mobileNumber" th:value="${user.mobileNumber}" disabled>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editMobileModal">
+            <input type="text" class="form-control custom-input-box" id="mobileNumber" name="mobileNumber" th:value="${user.mobileNumber}" disabled>
+            <button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal" data-bs-target="#editMobileModal">
                 <i class="bi bi-pencil"></i>
             </button>
         </div>
@@ -102,8 +106,8 @@
     <div class="mb-3">
         <label for="bio" class="form-label">Bio</label>
         <div class="input-group">
-            <textarea class="form-control" id="bio" name="bio" rows="3" th:text="${user.bio}" disabled></textarea>
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#editBioModal">
+            <textarea class="form-control custom-input-box" id="bio" name="bio" rows="3" th:text="${user.bio}" disabled></textarea>
+            <button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal" data-bs-target="#editBioModal">
                 <i class="bi bi-pencil"></i>
             </button>
         </div>
@@ -187,8 +191,66 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<div class="footer">
+        <div class="footer-content">
+            <div class="footer-section about">
+                <h1 class="logo-text">Tech2<span>xplore</span></h1>
+                <p>
+                    Tech2xplore is a Blog Type Web Side.
+                </p>
+
+                <div class="contact">
+                    <i class="fa fa-phone"> &nbsp; 9328480107</i>
+                </div>
+
+                <div class="social">
+                    <a href="#"><i class="fa fa-facebook"></i></a>
+                    <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-instagram"></i></a>
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                </div>
+
+            </div>
+
+            <div class="footer-section quick-links">
+                <h2>QUICK LINKS</h2>
+                <ul>
+                    <a href="#">
+                        <li>Events</li>
+                    </a>
+                    <a href="#">
+                        <li>Contact</li>
+                    </a>
+                    <a href="#">
+                        <li>Write for us</li>
+                    </a>
+                    <a href="#">
+                        <li>Terms and conditions</li>
+                    </a>
+                </ul>
+            </div>
+
+            <div class="footer-section contact-form-div">
+                <h2>Contact Us</h2>
+                <form th:action="@{/contact}" method="post">
+                    <input type="text" name="email-address" class="text-input contact-input"
+                        placeholder="Your email address">
+                    <textarea name="message" cols="30" rows="3" class="text-input contact-input"
+                        placeholder="Message..."></textarea>
+                    <button type="submit" name="send-msg-btn" class="send-msg-btn">
+                        <i class="fa fa-send"></i> Send
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scripts.js"></script>
+    <script>
     function updateProfile(field) {
         let value;
         switch(field) {

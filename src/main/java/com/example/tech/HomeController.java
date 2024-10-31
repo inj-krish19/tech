@@ -66,7 +66,17 @@ public class HomeController {
     }
     
     @GetMapping("/profile")
-    public String getProfile() {
+    public String getProfile(Model model) {
+    	Map<String, String> user = new HashMap<>();
+            
+    	user.put("id", String.valueOf(1)); // Example image names
+    	user.put("username", "inj_krish19");
+    	user.put("email", "masterofc28819@gmail.com" );
+    	user.put("mobileNumber","9328480107");
+    	user.put("bio","This Is Krish Shah");
+
+        
+        model.addAttribute("user", user);
     	return "profilemanagement";
     }
     
