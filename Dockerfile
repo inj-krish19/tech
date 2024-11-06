@@ -18,6 +18,8 @@ ENV PATH=/opt/maven/bin:${PATH}
 # Set the working directory in the container
 WORKDIR /app
 
+RUN ls
+
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
