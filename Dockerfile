@@ -30,6 +30,8 @@ RUN mvn -v
 
 RUN mvn clean package
 
+RUN mvn clean install
+
 # Set the JAR file path
 ARG JAR_FILE=target/tech-0.0.1-SNAPSHOT.jar
 ENV JAR_FILE=$JAR_FILE
