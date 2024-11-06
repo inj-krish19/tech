@@ -65,6 +65,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
@@ -78,11 +83,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-		<dependency>
+		<!-- dependency>
 		    <groupId>io.github.cdimascio</groupId>
 		    <artifactId>java-dotenv</artifactId>
 		    <version>5.2.2</version>
+		</dependency -->
+		<dependency>
+		    <groupId>io.github.cdimascio</groupId>
+		    <artifactId>dotenv-java</artifactId>
+		    <version>3.0.2</version>
 		</dependency>
+
 	</dependencies>
 
 	<build>

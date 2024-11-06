@@ -125,5 +125,82 @@ public class BloggerController {
         return response;
     }
 
+    @GetMapping("/truncate")
+    public String truncateTables(){
+    	
+    	String query = "truncate table posts cascade";
+    	jdbcTemplate.execute(query);
+    	
+    	query = "truncate table blogger cascade";
+    	jdbcTemplate.execute(query);
+    	
+    	return "show";
+    }
+    
+    @GetMapping("/destroy")
+    public String destroyTables(){
+
+    	String query = "drop table posts";
+    	jdbcTemplate.execute(query);
+    	
+    	query = "drop table blogger";
+    	jdbcTemplate.execute(query);
+    	
+    	return "show";
+    }
+    
+    @GetMapping("/create_tables")
+    public String addTables() {
+    	
+    	String createBloggerTable = "CREATE TABLE IF NOT EXISTS blogger (\n" +
+                "    id SERIAL PRIMARY KEY,\n" +
+                "    name VARCHAR(100) NOT NULL\n" +
+                ");";
+        jdbcTemplate.execute(createBloggerTable);
+
+        // Create posts table
+        String createPostsTable = "CREATE TABLE IF NOT EXISTS posts (\n" +
+                "    id SERIAL PRIMARY KEY,\n" +
+                "    title VARCHAR(255) NOT NULL,\n" +
+                "    category VARCHAR(100) NOT NULL,\n" +
+                "    description TEXT NOT NULL,\n" +
+                "    blogger_id INT REFERENCES blogger(id) ON DELETE CASCADE\n" +
+                ");";
+        jdbcTemplate.execute(createPostsTable);
+
+        String addUniqueConstraint = "ALTER TABLE blogger ADD CONSTRAINT unique_name UNIQUE (name);";
+        jdbcTemplate.execute(addUniqueConstraint);
+        
+        return "home";
+        
+    }
+    
+    
+    @GetMapping("/insert_data")
+    public String insertIntoTables() {
+    
+        // Insert bloggers
+        String insertBloggers = "INSERT INTO blogger (name) VALUES\n" +
+                "('KRISH'),\n" +
+                "('DHRUV'),\n" +
+                "('RAHIL'),\n" +
+                "('VISHAL'),\n" +
+                "('MOHIT')\n"; // Prevents duplicates
+        jdbcTemplate.update(insertBloggers);
+
+        // Insert posts
+        String insertPosts = "INSERT INTO posts (title, category, description, blogger_id) VALUES\n" +
+                "('First Blog Post', 'Coding', 'This is a description of the first blog post.', 1),\n" +
+                "('Second Blog Post', 'Technology', 'This is a description of the second blog post.', 2),\n" +
+                "('Third Blog Post', 'Robotics', 'This is a description of the third blog post.', 3),\n" +
+                "('Fourth Blog Post', 'News', 'This is a description of the fourth blog post.', 4),\n" +
+                "('Fifth Blog Post', 'Coding', 'This is a description of the fifth blog post.', 5)\n"; // Prevents duplicates
+        jdbcTemplate.update(insertPosts); 
+        
+    	return "show";
+    }
+    
+    
+    
 
 }
