@@ -21,7 +21,7 @@ WORKDIR /app
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
-# COPY .env /app/.env
+COPY .env /app/.env
 
 # Build the application
 RUN java -version
