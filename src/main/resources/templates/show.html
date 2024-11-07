@@ -38,7 +38,6 @@
                             <a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
                         </li>
 
-                        <!-- Login and Sign Up options for unauthenticated users -->
                         <li class="nav-item" th:if="${loggedInUser == null}">
                             <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                         </li>
@@ -46,7 +45,6 @@
                             <a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
                         </li>
 
-                        <!-- Options for authenticated users -->
                         <li class="nav-item dropdown" th:if="${loggedInUser == null}">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
@@ -62,12 +60,10 @@
                             </ul>
                         </li>
 
-                        <!-- Post option for authenticated users -->
                         <li class="nav-item" th:if="${loggedInUser != null}">
                             <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
                         </li>
 
-                        <!-- My Posts option for authenticated users -->
                         <li class="nav-item" th:if="${loggedInUser != null}">
                             <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
                         </li>
@@ -79,6 +75,8 @@
 
     </header>
     <!-- // header -->
+
+	<!-- div th:replace="header :: header"></div -->
 
     <div class="posts-list" style="margin-bottom: 300px;">
         <h1 style="margin-bottom : 15px;" >Our Posts</h1>
@@ -97,8 +95,9 @@
             </div>
         </div>
     </div>
+	
+    <!--  div th:replace="footer :: footer"></div -->
 
-    <!-- FOOTER -->
     <div class="footer">
         <div class="footer-content">
             <div class="footer-section about">
