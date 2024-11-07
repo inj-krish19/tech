@@ -10,7 +10,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class TechApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TechApplication.class, args);
+		try{
+			SpringApplication.run(TechApplication.class, args);
+		}catch( Exception e ){
+			System.out.println("Some Error Occured");
+		}
 	}
 
 }
