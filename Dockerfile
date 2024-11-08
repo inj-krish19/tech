@@ -23,7 +23,7 @@ COPY pom.xml ./
 COPY src ./src
 COPY .env /app/.env
 
-RUN ls -a
+RUN pwd && ls -a
 
 # RUN echo "WHATS_NAME=krish" > /app/.env && \
 #     echo "DB_URL=<db-url>" >> /app/.env && \
