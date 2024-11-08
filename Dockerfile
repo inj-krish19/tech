@@ -28,7 +28,8 @@ RUN echo "WHATS_NAME=krish" > /app/.env && \
     echo "DB_USERNAME=<db-un>" >> /app/.env && \
     echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
     echo "DB_DATABASE=<db>" >> /app/.env && \
-    ls /app/
+    if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
+
 
 
 
