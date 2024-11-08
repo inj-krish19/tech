@@ -21,7 +21,7 @@ WORKDIR /app
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
-# COPY .env /app/.env
+COPY .env /app/.env
 
 # RUN pwd && ls -a
 
@@ -46,12 +46,12 @@ RUN mvn clean package
 ARG JAR_FILE=target/tech-0.0.1-SNAPSHOT.jar
 ENV JAR_FILE=$JAR_FILE
 
-RUN echo "WHATS_NAME=krish" > /app/.env && \
-    echo "DB_URL=<db-url>" >> /app/.env && \
-    echo "DB_USERNAME=<db-un>" >> /app/.env && \
-    echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
-    echo "DB_DATABASE=<db>" >> /app/.env && \
-    if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
+# RUN echo "WHATS_NAME=krish" > /app/.env && \
+#     echo "DB_URL=<db-url>" >> /app/.env && \
+#     echo "DB_USERNAME=<db-un>" >> /app/.env && \
+#     echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
+#     echo "DB_DATABASE=<db>" >> /app/.env && \
+#     if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
 
 # Run the Spring Boot application
 ENTRYPOINT ["sh", "-c", "java -jar $JAR_FILE"]
