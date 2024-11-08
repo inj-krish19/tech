@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 @RestController
 public class EnvController {
 
@@ -21,6 +24,9 @@ public class EnvController {
     		myEnvVariable = dotenv.get("WHATS_NAME");
     	}
     	
+        Path envFilePath = Paths.get(dotenv.get("DOTENV_PATH", ".env")).toAbsolutePath();
+        System.out.println("Location of .env file: " + envFilePath);
+
         return "Value of WHATS_NAME: " + myEnvVariable;
     }
 }
