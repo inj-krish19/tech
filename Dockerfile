@@ -23,7 +23,11 @@ COPY pom.xml ./
 COPY src ./src
 #COPY .env /app/.env
 
-RUN touch /app/.env
+RUN echo "WHATS_NAME=krish" > /app/.env && \
+    echo "DB_URL=<db-url>" >> /app/.env && \
+    echo "DB_USERNAME=<db-un>" >> /app/.env && \
+    echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
+    echo "DB_DATABASE=<db>" >> /app/.env
 
 # Build the application
 RUN java -version
