@@ -21,13 +21,13 @@ WORKDIR /app
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
-#COPY .env /app/.env
+COPY .env /app/.env
 
-RUN echo "WHATS_NAME=krish" > /.env && \
-    echo "DB_URL=<db-url>" >> /.env && \
-    echo "DB_USERNAME=<db-un>" >> /.env && \
-    echo "DB_PASSWORD=<db-pass>" >> /.env && \
-    echo "DB_DATABASE=<db>" >> /.env
+# RUN echo "WHATS_NAME=krish" > /.env && \
+#     echo "DB_URL=<db-url>" >> /.env && \
+#     echo "DB_USERNAME=<db-un>" >> /.env && \
+#     echo "DB_PASSWORD=<db-pass>" >> /.env && \
+#     echo "DB_DATABASE=<db>" >> /.env
 
 # Build the application
 RUN java -version
