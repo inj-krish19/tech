@@ -21,14 +21,16 @@ WORKDIR /app
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
-#COPY .env /app/.env
+COPY .env /app/.env
 
-RUN echo "WHATS_NAME=krish" > /app/.env && \
-    echo "DB_URL=<db-url>" >> /app/.env && \
-    echo "DB_USERNAME=<db-un>" >> /app/.env && \
-    echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
-    echo "DB_DATABASE=<db>" >> /app/.env && \
-    if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
+RUN ls -a
+
+# RUN echo "WHATS_NAME=krish" > /app/.env && \
+#     echo "DB_URL=<db-url>" >> /app/.env && \
+#     echo "DB_USERNAME=<db-un>" >> /app/.env && \
+#     echo "DB_PASSWORD=<db-pass>" >> /app/.env && \
+#     echo "DB_DATABASE=<db>" >> /app/.env && \
+#     if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
 
 
 
