@@ -50,6 +50,32 @@ public class BloggerController {
         return "show"; // Assuming there's a Thymeleaf template named "show"
     }
     
+    @PostMapping("/review")
+    public String reviewPost(Model model, String title, String category, String description) {
+        Map<String, Object> postData = new HashMap<>();
+        postData.put("title", title);
+        postData.put("category", category);
+        postData.put("description", description);
+        
+        // Add the Map to the model
+        model.addAttribute("post", postData);
+        
+        return "reviewPost"; // Assuming there's a Thymeleaf template named "show"
+    }
+    
+    // @GetMapping("/review")
+    // public String review(Model model, String title, String category, String description) {
+    //     Map<String, Object> postData = new HashMap<>();
+    //     postData.put("title", "title");
+    //     postData.put("category", "category");
+    //     postData.put("description", "description");
+        
+    //     // Add the Map to the model
+    //     model.addAttribute("post", postData);
+        
+    //     return "reviewPost"; // Assuming there's a Thymeleaf template named "show"
+    // }
+
     @GetMapping("/posts/{id}")
     public String viewPost(Model model, @PathVariable String id) {
         String sql = "SELECT * FROM posts WHERE id = ?";

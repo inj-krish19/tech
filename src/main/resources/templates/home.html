@@ -12,36 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-<style>
-    .slider-container {
-        width: 100%;
-        max-width: 600px;
-        margin: 20px auto;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .carousel-item img {
-        width: 100%;
-        height: auto;
-        border-radius: 10px;
-    }
-
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 50%;
-        padding: 10px;
-    }
-
-    .topics {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-</style>
 
 <body style="background:#343a40">
 
@@ -174,21 +144,68 @@
             <h1>Our Posts</h1>
             <div class="post-container" id="post-container">
                 <!-- Initial posts will be rendered here by Thymeleaf -->
-                <div th:each="post : ${posts}" class="post" style="height: auto;">
+                <div th:each="post : ${posts}" class="post" style="height: auto; background:#1e1f23;">
                     <div class="post-info">
-                        <h2 class="post-name" th:text="${post['id']}"></h2>
-                        <h2 class="post-bio" th:text="${post['title'] + ' - ' + post['category']}"></h2>
-                        <h5 class="post-bio" th:text="${post['description']}"></h5>
+                    
+                    <div class="container">
+                    	<div class="author-box">
+				    <div class="author-profile">
+				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
+				    </div>
+				    <div class="author-details">
+				        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
+				        <p class="author-bio">
+				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
+				        </p>
+				    </div>
+				    </div>
+				    <div class="post-header d-flex align-items-center">
+				    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
+				    <div class="post-category">
+				        <span class="badge bg-secondary" th:text="${post.category}"></span>
+				    </div>
+				</div>
+				  <div class="container" style="display: flex; flex-wrap:wrap;">
+				    <div class="post-content" style="overflow-wrap:anywhere;">
+				       <p class="post-description" 
+				   th:text="${post.description}" 
+				   th:if="${post.description.length() <= 1000}" 
+				   style="text-align: left;">
+				</p>
+				
+				<p class="post-description" 
+				   th:if="${post.description.length() > 1000}" 
+				   style="text-align: left;">
+				    <span th:text="${post.description.substring(0, 2500)}"></span>
+				    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
+				    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
+				</p>
+				
+				    </div>
+				<div class="post-metadata">
+			        <div class="author-info">
+			            <i class="icon-user"></i>
+			            <span class="author-name" th:text="'inj_krish19'"></span>
+			        </div>
+			        <div class="post-date">
+			            <i class="icon-calendar"></i>
+			            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+			        </div>
+			    </div>
                     </div>
+                        </div>
+                    
+                    
                 </div>
             </div>
             <button id="load-more" onclick="loadMorePosts()">Load More</button>
         </div>
     </div>
 </div>
+</div>
     <!-- // page wrapper -->
     <!-- FOOTER -->
-    <div class="footer">
+    <div class="footer" style="margin-top:auto;">
         <div class="footer-content">
             <div class="footer-section about">
                 <h1 class="logo-text">Tech2<span>xplore</span></h1>
@@ -266,9 +283,53 @@ function loadMorePosts() {
                 postDiv.style.height = 'auto';
                 postDiv.innerHTML = `
                     <div class="post-info">
-                        <h2 class="post-name">${post.id}</h2>
-                        <h2 class="post-bio">${post.title} - ${post.category}</h2>
-                        <h5 class="post-bio">${post.description}</h5>
+                	<div class="container">
+                	<div class="author-box">
+			    <div class="author-profile">
+			        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
+			    </div>
+			    <div class="author-details">
+			        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
+			        <p class="author-bio">
+			            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
+			        </p>
+			    </div>
+			    </div>
+			    <div class="post-header d-flex align-items-center">
+			    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
+			    <div class="post-category">
+			        <span class="badge bg-secondary" th:text="${post.category}"></span>
+			    </div>
+			</div>
+			  <div class="container" style="display: flex; flex-wrap:wrap;">
+			    <div class="post-content" style="overflow-wrap:anywhere;">
+			       <p class="post-description" 
+			   th:text="${post.description}" 
+			   th:if="${post.description.length() <= 1000}" 
+			   style="text-align: left;">
+			</p>
+			
+			<p class="post-description" 
+			   th:if="${post.description.length() > 1000}" 
+			   style="text-align: left;">
+			    <span th:text="${post.description.substring(0, 2500)}"></span>
+			    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
+			    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
+			</p>
+			
+			    </div>
+			<div class="post-metadata">
+		        <div class="author-info">
+		            <i class="icon-user"></i>
+		            <span class="author-name" th:text="'inj_krish19'"></span>
+		        </div>
+		        <div class="post-date">
+		            <i class="icon-calendar"></i>
+		            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+		        </div>
+		    </div>
+                </div>
+                    </div>
                     </div>
                 `;
                 postContainer.appendChild(postDiv);

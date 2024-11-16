@@ -1,8 +1,13 @@
 package com.example.tech;
 
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +26,10 @@ public class SecurityConfig{
     // private String password = dotenv.get("PASSWORD", "pass");
     private String password = "pass";
     
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+    
     @Value("${spring.security.user.name:defaultuser}")
     private String username;
     
@@ -28,7 +37,7 @@ public class SecurityConfig{
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     	http
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/", "/home", "/public/**", "/resources/**", "/css/**", "/js/**", "/images/**", "/signup", "/about").permitAll()
+            .requestMatchers("/", "/home", "/public/**", "/resources/**", "/css/**", "/js/**", "/images/**", "/about").permitAll()
             .anyRequest().authenticated()
         )
         .formLogin(form -> form
@@ -48,13 +57,19 @@ public class SecurityConfig{
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        UserDetails user = User.builder()
-            .username(username)
-            .password(passwordEncoder.encode(password))
-            .roles("USER")
-            .build();
         
-        return new InMemoryUserDetailsManager(user);
+    	String sql = "SELECT * FROM blogger";
+        List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql);
+        
+        List<UserDetails> users = jdbcTemplate.query(sql, (rs, rowNum) -> 
+        User.builder()
+	            .username(rs.getString("name"))
+	            .password(passwordEncoder.encode("pass"))
+	            .roles("USER")
+	            .build()
+	    );
+        
+        return new InMemoryUserDetailsManager(users);
     }
 
     @Bean

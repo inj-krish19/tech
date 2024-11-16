@@ -1,3 +1,18 @@
+function toggleReadMore(button) {
+    const parent = button.closest('.post-description');
+    const moreText = parent.querySelector('.more-text');
+
+    if (moreText.style.display === 'none' || !moreText.style.display) {
+        // Show more
+        moreText.style.display = 'inline';
+        button.innerText = 'Read less...';
+    } else {
+        // Show less
+        moreText.style.display = 'none';
+        button.innerText = 'Read more...';
+    }
+}
+
 $(document).ready(function () {
 
       $('.menu-toggle').click(function () {

@@ -1,22 +1,21 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org" style="background: #1e1f23; color: #e4e4e4;">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Posts</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
 </head>
 
-<body style="background:#343a40">
+<body>
 
     <header class="clearfix">
-        <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                 <a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -37,66 +36,100 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
                         </li>
-
                         <li class="nav-item" th:if="${loggedInUser == null}">
                             <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                         </li>
                         <li class="nav-item" th:if="${loggedInUser == null}">
                             <a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
                         </li>
-
-                        <li class="nav-item dropdown" th:if="${loggedInUser == null}">
+                        <li class="nav-item dropdown" th:if="${loggedInUser != null}">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-person-circle"></i> Profile
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end"
+                                aria-labelledby="navbarProfileDropdown">
                                 <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i>
-                                        Profile</a>
-                                </li>
+                                        Profile</a></li>
                                 <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i>
-                                        Logout</a>
-                                </li>
+                                        Logout</a></li>
                             </ul>
                         </li>
-
-                        <li class="nav-item" th:if="${loggedInUser != null}">
-                            <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
-                        </li>
-
-                        <li class="nav-item" th:if="${loggedInUser != null}">
-                            <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
-                        </li>
-
                     </ul>
                 </div>
             </div>
         </nav>
-
     </header>
-    <!-- // header -->
 
-	<!-- div th:replace="header :: header"></div -->
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Our Posts</h1>
+        <div class="posts-list">
+            <div th:if="${#lists.isEmpty(posts)}" class="alert alert-warning text-center">
+                <h2>Posts Are Currently Not Available</h2>
+            </div>
+            <div th:each="post : ${posts}" class="post mb-4">
+<div class="post-card p-4">
+				    <div class="post-content">
+				    <div class="container">
+				      
+				      <div class="author-box">
+				    <div class="author-profile">
+				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
+				    </div>
+				    <div class="author-details">
+				        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
+				        <p class="author-bio">
+				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
+				        </p>
+				    </div>
+				</div>
+				<div class="post-header d-flex align-items-center">
+				    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
+				    <div class="post-category">
+				        <span class="badge bg-secondary" th:text="${post.category}"></span>
+				    </div>
+				</div>
 
-    <div class="posts-list" style="margin-bottom: 300px;">
-        <h1 style="margin-bottom : 15px;" >Our Posts</h1>
-        <div class="post-container">
-        <div th:if="${#lists.isEmpty(posts)}" class="not-found-message">
-					    <h2>Posts Are Currently Not Available</h2>
-					</div>
-            <div th:each="post : ${posts}" class="post">
-                <div class="post-info">
-                    <!-- <img th:src="@{/images/{image}(image=${post.image})}" alt="post Image" class="post-image" /> -->
-                    <h2 class="post-name" th:text="${post['id']}"></h2>
-                    <h2 class="post-bio" th:text="${post['title'] + ' - ' + post['category']}"></h2>
-                    <h5 class="post-bio" th:text="${post['description']}"></h5>
-                    <!-- <a th:href="@{/post/{id}(id=${post.id})}" class="view-profile">View Profile</a> -->
-                </div>
+				        
+				        <div  th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'" 
+				     class="post-image">
+				    <img th:if="${post.id > 5 }" th:src="@{images/logo.jpg}" 
+				         alt="Post Image" 
+				         th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'"/>
+				    
+				    <div class="post-content" style="overflow-wrap:anywhere;">
+				       <p class="post-description" 
+				   th:text="${post.description}" 
+				   th:if="${post.description.length() <= 1000}" 
+				   style="text-align: left;">
+				</p>
+				
+				<p class="post-description" 
+				   th:if="${post.description.length() > 1000}" 
+				   style="text-align: left;">
+				    <span th:text="${post.description.substring(0, 2500)}"></span>
+				    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
+				    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
+				</p>
+				
+				    </div>
+				</div>
+				<div class="post-metadata">
+			        <div class="author-info">
+			            <i class="icon-user"></i>
+			            <span class="author-name" th:text="'inj_krish19'"></span>
+			        </div>
+			        <div class="post-date">
+			            <i class="icon-calendar"></i>
+			            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+			        </div>
+			    </div>
             </div>
         </div>
     </div>
-	
-    <!--  div th:replace="footer :: footer"></div -->
+    </div>
+    </div>
+    </div>
 
     <div class="footer">
         <div class="footer-content">
@@ -105,20 +138,16 @@
                 <p>
                     Tech2xplore is a Blog Type Web Side.
                 </p>
-
                 <div class="contact">
                     <i class="fa fa-phone"> &nbsp; 9328480107</i>
                 </div>
-
                 <div class="social">
                     <a href="#"><i class="fa fa-facebook"></i></a>
                     <a href="#"><i class="fa fa-twitter"></i></a>
                     <a href="#"><i class="fa fa-instagram"></i></a>
                     <a href="#"><i class="fa fa-linkedin"></i></a>
                 </div>
-
             </div>
-
             <div class="footer-section quick-links">
                 <h2>QUICK LINKS</h2>
                 <ul>
@@ -136,31 +165,25 @@
                     </a>
                 </ul>
             </div>
-
             <div class="footer-section contact-form-div">
                 <h2>Contact Us</h2>
                 <form th:action="@{/contact}" method="post">
-                    <input type="text" name="email-address" class="text-input contact-input"
-                        placeholder="Your email address">
-                    <textarea name="message" cols="30" rows="3" class="text-input contact-input"
-                        placeholder="Message..."></textarea>
+                    <input type="text" name="email-address" class="text-input contact-input" placeholder="Your email address">
+                    <textarea name="message" cols="30" rows="3" class="text-input contact-input" placeholder="Message..."></textarea>
                     <button type="submit" name="send-msg-btn" class="send-msg-btn">
                         <i class="fa fa-send"></i> Send
                     </button>
                 </form>
             </div>
-
         </div>
 
     </div>
-    <!-- // FOOTER -->
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/scripts.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+	   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scripts.js"></script>	
+	    
 </body>
 
 </html>
