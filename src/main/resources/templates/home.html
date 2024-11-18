@@ -144,7 +144,7 @@
             <h1>Our Posts</h1>
             <div class="post-container" id="post-container">
                 <!-- Initial posts will be rendered here by Thymeleaf -->
-                <div th:each="post : ${posts}" class="post" style="height: auto; background:#1e1f23;">
+                <div th:each="post : ${posts}" class="post" style="height: auto; background:#1e1f23; max-width:800px;	">
                     <div class="post-info">
                     
                     <div class="container">
@@ -166,7 +166,7 @@
 				    </div>
 				</div>
 				  <div class="container" style="display: flex; flex-wrap:wrap;">
-				    <div class="post-content" style="overflow-wrap:anywhere;">
+				    <div class="post-content" style="width: 100%;	overflow-wrap:anywhere;">
 				       <p class="post-description" 
 				   th:text="${post.description}" 
 				   th:if="${post.description.length() <= 1000}" 
@@ -267,7 +267,6 @@ function loadMorePosts() {
 
     fetch(`/load-more-posts?page=${currentPage}`)
         .then(response => {
-            // Check if the response is OK (status 200)
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
@@ -280,74 +279,82 @@ function loadMorePosts() {
             data.posts.forEach(post => {
                 const postDiv = document.createElement('div');
                 postDiv.classList.add('post');
+                postDiv.style.maxWidth = '800px';
                 postDiv.style.height = 'auto';
+                postDiv.style.background = "#1e1f23";
+               
                 postDiv.innerHTML = `
                     <div class="post-info">
-                	<div class="container">
-                	<div class="author-box">
-			    <div class="author-profile">
-			        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
-			    </div>
-			    <div class="author-details">
-			        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
-			        <p class="author-bio">
-			            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
-			        </p>
-			    </div>
-			    </div>
-			    <div class="post-header d-flex align-items-center">
-			    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
-			    <div class="post-category">
-			        <span class="badge bg-secondary" th:text="${post.category}"></span>
-			    </div>
-			</div>
-			  <div class="container" style="display: flex; flex-wrap:wrap;">
-			    <div class="post-content" style="overflow-wrap:anywhere;">
-			       <p class="post-description" 
-			   th:text="${post.description}" 
-			   th:if="${post.description.length() <= 1000}" 
-			   style="text-align: left;">
-			</p>
-			
-			<p class="post-description" 
-			   th:if="${post.description.length() > 1000}" 
-			   style="text-align: left;">
-			    <span th:text="${post.description.substring(0, 2500)}"></span>
-			    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
-			    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
-			</p>
-			
-			    </div>
-			<div class="post-metadata">
-		        <div class="author-info">
-		            <i class="icon-user"></i>
-		            <span class="author-name" th:text="'inj_krish19'"></span>
-		        </div>
-		        <div class="post-date">
-		            <i class="icon-calendar"></i>
-		            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
-		        </div>
-		    </div>
-                </div>
-                    </div>
+                        <div class="container">
+                            <div class="author-box">
+                                <div class="author-profile">
+                                    <img src="images/logo.jpg" alt="Author Profile Picture" class="author-image">
+                                </div>
+                                <div class="author-details">
+                                <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
+        				        <p class="author-bio">
+        				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
+        				        </p>    
+                                </div>
+                            </div>
+                            <div class="post-header d-flex align-items-center">
+                                <h2 class="post-title mb-0">${post.title}</h2>
+                                <div class="post-category">
+                                    <span class="badge bg-secondary">${post.category}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="container" style="display: flex; flex-wrap: wrap;">
+                            <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}" 
+                            	style="${post.description.length > 1000 ? 'width:100%' : 'width: 100%; '}">
+                            <img src="images/logo.jpg" 
+                                 alt="Post Image" 
+                                 style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}" />
+                            <div class="post-content" style="overflow-wrap:anywhere;	width:100%">
+                                ${post.description.length <= 1000 ? `
+                                    <p class="post-description" style="text-align: left;">
+                                        ${post.description}
+                                    </p>
+                                ` : `
+                                    <p class="post-description" style="text-align: left;">
+                                        <span>${post.description.substring(0, 2500)}</span>
+                                        <span class="more-text" style="display: none;">${post.description.substring(2500)}</span>
+                                        <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
+                                    </p>
+                                `}
+                            </div>
+                        </div>
+                                <div class="post-metadata">
+                                    <div class="author-info">
+                                        <i class="icon-user"></i>
+                                        <span class="author-name">inj_krish19</span>
+                                    </div>
+                                    <div class="post-date">
+                                        <i class="icon-calendar"></i>
+                                        <span class="date-text">14-11-2024 12:00:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
+
                 postContainer.appendChild(postDiv);
             });
 
             // Hide the "Load More" button if there are no more posts
             if (!data.hasMore) {
-                alert('You came far in way');
+                alert('You have reached the end of the posts!');
                 document.getElementById('load-more').style.display = 'none';
             }
         })
         .catch(error => {
-        	setTimeout( () => {
-				window.location.href = '/login';
-        	} , 3000);
-        	
-        	//            console.error('Error loading more posts:', error);
-            alert('Please Login For Loading More Posts');
+            // Handle error case: show alert and optional redirection
+            alert('Please log in to load more posts.');
+            console.error('Error loading more posts:', error);
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 3000);
         });
 }
 
