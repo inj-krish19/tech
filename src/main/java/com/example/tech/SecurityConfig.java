@@ -16,6 +16,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 // import io.github.cdimascio.dotenv.Dotenv;
 
 @Configuration
@@ -63,8 +66,8 @@ public class SecurityConfig{
         
         List<UserDetails> users = jdbcTemplate.query(sql, (rs, rowNum) -> 
         User.builder()
-	            .username(rs.getString("name"))
-	            .password(passwordEncoder.encode("pass"))
+	            .username(rs.getString("username"))
+	            .password(passwordEncoder.encode("password"))
 	            .roles("USER")
 	            .build()
 	    );
@@ -76,5 +79,43 @@ public class SecurityConfig{
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
     
+    @PostMapping("/register")
+    public String registerBlogger(
+            @RequestParam("username") String username,
+            @RequestParam("email") String email,
+            @RequestParam("password") String password,
+            @RequestParam("bio") String bio,
+            Model model) {
+
+        // Check if username or email already exists
+        String checkUserSql = "SELECT COUNT(*) FROM blogger WHERE username = ? OR email = ?";
+        int count = jdbcTemplate.queryForObject(checkUserSql, Integer.class, username, email);
+
+        if (count > 0) {
+            model.addAttribute("error", "Username or Email already exists!");
+            return "register"; // Return to the registration page if user already exists
+        }
+
+
+		// Encrypt the password before storing it
+        String encodedPassword = passwordEncoder().encode(password);
+
+        // Insert the new blogger into the database
+        String insertSql = """
+            INSERT INTO blogger (username, email, password, bio, created_at, updated_at)
+            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        """;
+        int rowsAffected = jdbcTemplate.update(insertSql, username, email, encodedPassword, bio);
+
+        if (rowsAffected > 0) {
+            model.addAttribute("success", "Registration successful! Please login.");
+            return "login"; // Redirect to the login page after successful registration
+        } else {
+            model.addAttribute("error", "Registration failed. Please try again.");
+            return "register"; // Return to the registration page on failure
+        }
+    }
+    
+}
+   

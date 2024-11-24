@@ -1252,3 +1252,26 @@ body {
         border-radius: 10px;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
+    
+    .operations{
+    background-color: #007bff !important;
+    color: white !important;
+}
+    
+    .post {
+    max-width: 100%;
+    margin: auto;
+}
+.author-box, .post-header, .post-content, .post-metadata, .post-actions {
+    flex-wrap: wrap;
+    text-align: center;
+}
+
+.post-actions{
+	flex-wrap : nowrap;
+}
+
+button {
+    width: 100%;
+    margin: 5px 0;
+}

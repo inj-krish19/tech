@@ -153,10 +153,8 @@
 				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
 				    </div>
 				    <div class="author-details">
-				        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
-				        <p class="author-bio">
-				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
-				        </p>
+				        <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@' + ${post.username}"> </span>
+				        <p class="author-bio" th:text="${post.bio}"></p>
 				    </div>
 				    </div>
 				    <div class="post-header d-flex align-items-center">
@@ -185,11 +183,11 @@
 				<div class="post-metadata">
 			        <div class="author-info">
 			            <i class="icon-user"></i>
-			            <span class="author-name" th:text="'inj_krish19'"></span>
+			            <span class="author-name" th:text="'@' + ${post.username}"></span>
 			        </div>
 			        <div class="post-date">
 			            <i class="icon-calendar"></i>
-			            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+			            <span class="date-text" th:text="${post.updatedat}"></span>
 			        </div>
 			    </div>
                     </div>
@@ -291,9 +289,9 @@ function loadMorePosts() {
                                     <img src="images/logo.jpg" alt="Author Profile Picture" class="author-image">
                                 </div>
                                 <div class="author-details">
-                                <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
+                                <h3 class="author-name">${post.name} <span> @${post.username} </span> </h3>
         				        <p class="author-bio">
-        				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
+        				            ${post.bio}
         				        </p>    
                                 </div>
                             </div>
@@ -327,11 +325,11 @@ function loadMorePosts() {
                                 <div class="post-metadata">
                                     <div class="author-info">
                                         <i class="icon-user"></i>
-                                        <span class="author-name">inj_krish19</span>
+                                        <span class="author-name">${post.username}</span>
                                     </div>
                                     <div class="post-date">
                                         <i class="icon-calendar"></i>
-                                        <span class="date-text">14-11-2024 12:00:00</span>
+                                        <span class="date-text">${post.publishedat}</span>
                                     </div>
                                 </div>
                             </div>

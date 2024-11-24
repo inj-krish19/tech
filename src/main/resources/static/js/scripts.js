@@ -13,6 +13,22 @@ function toggleReadMore(button) {
     }
 }
 
+document.querySelectorAll('.oper').forEach(button => {
+    button.addEventListener('click', function () {
+        const isActive = this.classList.contains('operations');
+        const actionType = this.textContent.trim();
+
+        // Reset all buttons
+        this.parentElement.querySelectorAll('button').forEach(btn => btn.classList.remove('operations'));
+
+        // Toggle the clicked button
+        if (!isActive) {
+            this.classList.add('operations');
+        }
+
+	 });
+});
+
 $(document).ready(function () {
 
       $('.menu-toggle').click(function () {

@@ -141,13 +141,34 @@
     <div class="bloggers-list" style="margin-bottom: 300px;">
         <h1>Our Bloggers</h1>
         <div class="blogger-container">
-            <div th:each="blogger : ${bloggers}" class="blogger">
-                <div class="blogger-info">
-                    <!-- <img th:src="@{/images/{image}(image=${blogger.image})}" alt="Blogger Image" class="blogger-image" /> -->
-                    <h2 class="blogger-name" th:text="${blogger['id']}"></h2>
-                    <h2 class="blogger-bio" th:text="${blogger['name']}"></h2>
-                    <!-- <a th:href="@{/blogger/{id}(id=${blogger.id})}" class="view-profile">View Profile</a> -->
-                </div>
+            <div th:each="blogger : ${bloggers}" class="post mb-4" style="max-width:800px;">
+					<div class="post-card p-4">
+				    <div class="post-content">
+				    <div class="container">
+				      
+				      <div class="author-box">
+				    <div class="author-profile">
+				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
+				    </div>
+				    <div class="author-details">
+				        <h3 class="author-name" th:text="${blogger.name}"></h3><span th:text="'@'+${blogger.username}"> </span>
+				        <p class="author-bio" th:text="${blogger.bio}"></p>
+				    </div>
+				</div>
+	            				
+				<div class="post-metadata">
+			        <div class="author-info">
+			            <i class="icon-user"></i>
+			            <span class="author-name" th:text="'@' + ${blogger.username}"></span>
+			        </div>
+			        <div class="post-date">
+			            <i class="icon-calendar"></i>
+			            <span class="date-text" th:text="${blogger.updatedat}"></span>
+			        </div>
+			    </div>
+            </div>
+        </div>
+    </div>
             </div>
         </div>
     </div>

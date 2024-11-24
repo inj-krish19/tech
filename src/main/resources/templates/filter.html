@@ -144,15 +144,80 @@
                 <div th:if="${#lists.isEmpty(posts)}" class="not-found-message">
 					    <h2>Posts Are Currently Not Available</h2>
 					</div>
-            <div th:each="post : ${posts}" class="post">
-                <div class="post-info">
-                    <!-- <img th:src="@{/images/{image}(image=${post.image})}" alt="post Image" class="post-image" /> -->
-                    <h2 class="post-name" th:text="${post['id']}"></h2>
-                    <h2 class="post-bio" th:text="${post['title'] + ' - ' + post['category']}"></h2>
-                    <h5 class="post-bio" th:text="${post['description']}"></h5>
-                    <!-- <a th:href="@{/post/{id}(id=${post.id})}" class="view-profile">View Profile</a> -->
-                </div>
+            <div th:each="post : ${posts}" class="post mb-4" style="max-width:800px;">
+<div class="post-card p-4">
+				    <div class="post-content">
+				    <div class="container">
+				      
+				      <div class="author-box">
+				    <div class="author-profile">
+				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
+				    </div>
+				    <div class="author-details">
+				        <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@'+${post.username}"> </span>
+				        <p class="author-bio" th:text="${post.bio}"></p>
+				    </div>
+				</div>
+				<div class="post-header d-flex align-items-center">
+				    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
+				    <div class="post-category">
+				        <span class="badge bg-secondary" th:text="${post.category}"></span>
+				    </div>
+				</div>
+
+				        
+				        <div  th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'" 
+				     class="post-image">
+				    <img th:if="${post.articleId > 5 }" th:src="@{images/logo.jpg}" 
+				         alt="Post Image" 
+				         th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'"/>
+				    
+				    <div class="post-content" style="overflow-wrap:anywhere;">
+				       <p class="post-description" 
+				   th:text="${post.description}" 
+				   th:if="${post.description.length() <= 1000}" 
+				   style="text-align: left;">
+				</p>
+				
+				<p class="post-description" 
+				   th:if="${post.description.length() > 1000}" 
+				   style="text-align: left;">
+				    <span th:text="${post.description.substring(0, 2500)}"></span>
+				    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
+				    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
+				</p>
+				
+				    </div>
+				</div>
+		        <div class="post-actions d-flex border-top pt-3" style="margin-top :0; gap: 5px; justify-content: space-between;">
+	                <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-hand-thumbs-up"></i> <span th:text="${post.likes} + ' Likes'"></span>
+	                </button>
+	                <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-hand-thumbs-down"></i> <span th:text="${post.dislikes} + ' DisLikes'"></span>
+	                </button>
+	                <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#commentModal" style="gap: 5px; position:sattic;">
+	                    <i class="bi bi-chat"></i> <span>Comment</span>
+	                </button>
+	                <button class="btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-reply"></i> <span>Reply</span>
+	                </button>
+	            </div>
+	            				
+				<div class="post-metadata">
+			        <div class="author-info">
+			            <i class="icon-user"></i>
+			            <span class="author-name" th:text="'@' + ${post.username}"></span>
+			        </div>
+			        <div class="post-date">
+			            <i class="icon-calendar"></i>
+			            <span class="date-text" th:text="${post.updatedat}"></span>
+			        </div>
+			    </div>
             </div>
+        </div>
+    </div>
+    </div>
         </div>
     </div>
 

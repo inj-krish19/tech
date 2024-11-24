@@ -77,10 +77,8 @@
 				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
 				    </div>
 				    <div class="author-details">
-				        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
-				        <p class="author-bio">
-				            John is a passionate blogger who writes about technology, programming, and the latest trends in software development.
-				        </p>
+				        <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@'+${post.username}"> </span>
+				        <p class="author-bio" th:text="${post.bio}"></p>
 				    </div>
 				</div>
 				<div class="post-header d-flex align-items-center">
@@ -93,7 +91,7 @@
 				        
 				        <div  th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'" 
 				     class="post-image">
-				    <img th:if="${post.id > 5 }" th:src="@{images/logo.jpg}" 
+				    <img th:if="${post.articleId > 5 }" th:src="@{images/logo.jpg}" 
 				         alt="Post Image" 
 				         th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'"/>
 				    
@@ -114,14 +112,29 @@
 				
 				    </div>
 				</div>
+		        <div class="post-actions d-flex border-top pt-3" style="margin-top :0; gap: 5px; justify-content: space-between;">
+	                <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-hand-thumbs-up"></i> <span th:text="${post.likes} + ' Likes'"></span>
+	                </button>
+	                <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-hand-thumbs-down"></i> <span th:text="${post.dislikes} + ' Dislikes'"></span>
+	                </button>
+	                <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#commentModal" style="gap: 5px; position:sattic;">
+	                    <i class="bi bi-chat"></i> <span>Comment</span>
+	                </button>
+	                <button class="btn btn-dark d-flex align-items-center" style="gap: 5px;">
+	                    <i class="bi bi-reply"></i> <span>Reply</span>
+	                </button>
+	            </div>
+	            				
 				<div class="post-metadata">
 			        <div class="author-info">
 			            <i class="icon-user"></i>
-			            <span class="author-name" th:text="'inj_krish19'"></span>
+			            <span class="author-name" th:text="'@' + ${post.username}"></span>
 			        </div>
 			        <div class="post-date">
 			            <i class="icon-calendar"></i>
-			            <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+			            <span class="date-text" th:text="${post.updatedat}"></span>
 			        </div>
 			    </div>
             </div>

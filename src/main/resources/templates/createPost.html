@@ -101,10 +101,9 @@
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Select a category</option>
-                                    <option value="News">News</option>
-                                    <option value="Coding">Coding</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Robotics">Robotics</option>
+                                    <th:block th:each="category : ${categories}">
+								        <option th:value="${category}" th:text="${category}"></option>
+								    </th:block>
                                 </select>
                             </div>
                            	

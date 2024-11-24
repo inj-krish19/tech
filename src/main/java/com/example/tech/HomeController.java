@@ -26,11 +26,6 @@ public class HomeController {
     public String register(Model model) {
         return "signup"; // Register page
     }
-    
-    @GetMapping("/create") // Maps to /create (http://localhost:8080/create)
-    public String createPost(Model model) {
-        return "create"; // Create post page
-    }
 
 //    @GetMapping("/bloggers")
 //    public String showBloggers(Model model) {
@@ -58,26 +53,6 @@ public class HomeController {
     @GetMapping("/about")
     public String getAbout() {
     	return "about";
-    }
-    
-    @GetMapping("/create_post")
-    public String getPost() {
-    	return "createPost";
-    }
-    
-    @GetMapping("/profile")
-    public String getProfile(Model model) {
-    	Map<String, String> user = new HashMap<>();
-            
-    	user.put("id", String.valueOf(1)); // Example image names
-    	user.put("username", "inj_krish19");
-    	user.put("email", "masterofc28819@gmail.com" );
-    	user.put("mobileNumber","9328480107");
-    	user.put("bio","This Is Krish Shah");
-
-        
-        model.addAttribute("user", user);
-    	return "profilemanagement";
     }
     
     @GetMapping("/signup")

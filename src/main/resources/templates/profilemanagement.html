@@ -95,15 +95,6 @@
         </div>
     </div>
     <div class="mb-3">
-        <label for="mobileNumber" class="form-label">Mobile Number</label>
-        <div class="input-group">
-            <input type="text" class="form-control custom-input-box" id="mobileNumber" name="mobileNumber" th:value="${user.mobileNumber}" disabled>
-            <button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal" data-bs-target="#editMobileModal">
-                <i class="bi bi-pencil"></i>
-            </button>
-        </div>
-    </div>
-    <div class="mb-3">
         <label for="bio" class="form-label">Bio</label>
         <div class="input-group">
             <textarea class="form-control custom-input-box" id="bio" name="bio" rows="3" th:text="${user.bio}" disabled></textarea>
