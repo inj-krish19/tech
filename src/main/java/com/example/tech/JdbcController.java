@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Controller
 public class JdbcController {
@@ -19,7 +21,6 @@ public class JdbcController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private static Integer start = 1;
-    
 
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
     public String home(Model model) {
@@ -68,8 +69,9 @@ public class JdbcController {
         Map<String, Object> postData = new HashMap<>();
         postData.put("title", title);
         postData.put("category", category);
+        description = description.replaceAll("<[^>]*>", "").trim();
         postData.put("description", description);
-        
+
         // Add the Map to the model
         model.addAttribute("post", postData);
         
@@ -101,21 +103,40 @@ public class JdbcController {
     @GetMapping("/filter/{category}")
     public String filterpost(Model model, @PathVariable String category) {
     	
-    	category = "'" + category + "'";
-    	String sql = "SELECT categoryid FROM Category where name=" + category;
-    	List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class);
-    	
-    	int categoryId = categories.get(0);
-    	
-        sql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category " +
-                "FROM Post p " +
-                "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
-                "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
-                "JOIN Category c ON pca.categoryid = c.categoryid WHERE c.categoryid = ?";
-        List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, categoryId);
-        model.addAttribute("post", post);
+    	String sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
+        List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class, "%" + category + "%");
+
+        if (categories.isEmpty()) {
+            model.addAttribute("error", "No posts found in this category.");
+            return "filter"; // Return with error message if no category found
+        }
+
+        int categoryId = categories.get(0);
+
+        sql = """
+                SELECT p.articleid, p.title, p.description, p.likes, p.dislikes, p.viewscount, 
+                       p.commentscount, p.updatedat, u.name AS name, u.username AS username, 
+                       u.bio AS bio, c.name AS category 
+                FROM Post p 
+                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                JOIN Category c ON pca.categoryid = c.categoryid 
+                WHERE c.categoryid = ?
+              """;
+
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, categoryId);
+
+        // Print SQL query and data for debugging (optional for dev use)
+        System.out.println("Executed Query: " + sql + " | Category: " + category + " | Posts: " + posts);
+
+        if (posts.isEmpty()) {
+            model.addAttribute("error", "No posts found for this category.");
+        } else {
+            model.addAttribute("posts", posts);
+        }
+
         model.addAttribute("topic", category);
-        return "filter"; // Assuming there's a Thymeleaf template named "show"
+        return "filter";// Assuming there's a Thymeleaf template named "show"
     }
 
     
@@ -134,15 +155,14 @@ public class JdbcController {
     	String sql = "SELECT * FROM Blogger";
     	List<Map<String,Object>> user = jdbcTemplate.queryForList(sql);
         
-        model.addAttribute("user", user);
-    	System.out.println(user);
+        model.addAttribute("user", user.get(0));
     	return "profilemanagement";
     }
     
     @PostMapping("/search")
     public String seacrhKeyword(Model model, String keyword ) {
     	
-    	keyword = "'" + keyword + "'";
+    	keyword = "'%" + keyword + "%'";
     	
     	String sql = """
     		    SELECT p.articleid, p.title, p.description, u.name AS name, u.username AS username, u.bio AS bio, c.name AS category
@@ -160,7 +180,7 @@ public class JdbcController {
 
     		// Add data to the model
     		model.addAttribute("post", post);
-    		model.addAttribute("topic", keyword);
+    		model.addAttribute("topic", keyword.substring(1, keyword.length() - 1));
 
     		// Return the "filter" view
     		return "filter";
@@ -605,7 +625,7 @@ public class JdbcController {
             return "signup";
             
     }
-
+    
     @GetMapping("/xyz")
     public String xyz() {
 
@@ -763,5 +783,48 @@ public class JdbcController {
         }
         return "show";
     }
+    
+    @PostMapping("/register")
+    public String register(Model model, String name, String username, String email, String password, String confirmPassword, String bio) {
+
+        // Check if the user already exists (by email or username)
+        String checkUserSql = "SELECT COUNT(*) FROM Blogger WHERE email = ? OR username = ?";
+        Integer existingUserCount = jdbcTemplate.queryForObject(checkUserSql, Integer.class, email, username);
+
+        if (existingUserCount != null && existingUserCount > 0) {
+            model.addAttribute("error", "Username or Email already exists!");
+            return "register"; // Return to registration page with error message
+        }
+
+        // Check if passwords match
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match!");
+            return "register";
+        }
+
+        // Secure password hashing using PasswordEncoder
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(password);
+
+        // Generate a new author ID
+        String authorIdSql = "SELECT COALESCE(MAX(authorId) + 1, 1) FROM Blogger";
+        Integer newAuthorId = jdbcTemplate.queryForObject(authorIdSql, Integer.class);
+
+        // Insert the new user into the database
+        String insertUserSql = """
+            INSERT INTO Blogger (authorId, name, username, email, password, bio, profilePicture, createdAt, updatedAt) 
+            VALUES (?, ?, ?, ?, ?, ?, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        """;
+
+        int rowsAffected = jdbcTemplate.update(insertUserSql, newAuthorId, name, username, email, hashedPassword, bio);
+
+        if (rowsAffected > 0) {
+            return "redirect:/login?success=true"; // Redirect to login with success flag
+        } else {
+            model.addAttribute("error", "Registration failed. Please try again.");
+            return "register";
+        }
+    }
+
     
 }

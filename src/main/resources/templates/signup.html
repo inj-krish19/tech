@@ -71,10 +71,22 @@
                 <h2 class="mb-0">Sign Up</h2>
             </div>
             <div class="card-body">
+                <!-- Success Alert -->
+                <div th:if="${param.success}" class="alert alert-success" role="alert">
+                    <span th:text="'Registration successful! You can now log in.'"></span>
+                </div>
+                
                 <div th:if="${error}" class="alert alert-danger" role="alert">
                     <span th:text="${error}"></span>
                 </div>
+                
+                <div th:if="${param.error}" class="alert alert-danger">Username or email already exists!</div>
+    
                 <form th:action="@{/register}" method="post">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>

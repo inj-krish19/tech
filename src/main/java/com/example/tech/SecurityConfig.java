@@ -1,5 +1,6 @@
 package com.example.tech;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,84 +39,54 @@ public class SecurityConfig{
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    	http
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/", "/home", "/public/**", "/resources/**", "/css/**", "/js/**", "/images/**", "/about").permitAll()
-            .anyRequest().authenticated()
-        )
-        .formLogin(form -> form
-            .loginPage("/login")
-            .permitAll()
-            .defaultSuccessUrl("/", true)
-        )
-        .logout(logout -> logout
-            .logoutUrl("/logout")
-            .logoutSuccessUrl("/login?logout")
-            .permitAll()
-        )
-        .csrf(csrf -> csrf.disable());  // Disable CSRF for development; enable in production
+        http
+            .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/", "/login", "/register", "/css/**", "/js/**").permitAll()  // Public access for only these routes
+                    .requestMatchers("/admin/**", "/data/**", "/description/**").hasRole("ADMIN")  // Admin-only routes
+                    .anyRequest().authenticated()  // Any other routes require authentication
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout=true")
+                .permitAll()
+            );
 
-    return http.build();
+        return http.build();
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        
-    	String sql = "SELECT * FROM blogger";
-        List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql);
-        
-        List<UserDetails> users = jdbcTemplate.query(sql, (rs, rowNum) -> 
-        User.builder()
-	            .username(rs.getString("username"))
-	            .password(passwordEncoder.encode("password"))
-	            .roles("USER")
-	            .build()
-	    );
-        
-        return new InMemoryUserDetailsManager(users);
-    }
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate) {
+        // Create admin user with specific credentials
+        UserDetails admin = User.builder()
+                .username("iamadmin")
+                .password(passwordEncoder.encode("boss"))
+                .roles("ADMIN")
+                .build();
 
+        // Load regular users from the database
+        List<UserDetails> usersFromDB = jdbcTemplate.query(
+            "SELECT username, password FROM Blogger",
+            (rs, rowNum) -> User.builder()
+                    .username(rs.getString("username"))
+                    .password(rs.getString("password"))
+                    .roles("USER")
+                    .build()
+        );
+
+        List<UserDetails> allUsers = new ArrayList<>(usersFromDB);
+        allUsers.add(admin);  // Add admin user to the list
+
+        return new InMemoryUserDetailsManager(allUsers);
+    }
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-    
-    @PostMapping("/register")
-    public String registerBlogger(
-            @RequestParam("username") String username,
-            @RequestParam("email") String email,
-            @RequestParam("password") String password,
-            @RequestParam("bio") String bio,
-            Model model) {
 
-        // Check if username or email already exists
-        String checkUserSql = "SELECT COUNT(*) FROM blogger WHERE username = ? OR email = ?";
-        int count = jdbcTemplate.queryForObject(checkUserSql, Integer.class, username, email);
-
-        if (count > 0) {
-            model.addAttribute("error", "Username or Email already exists!");
-            return "register"; // Return to the registration page if user already exists
-        }
-
-
-		// Encrypt the password before storing it
-        String encodedPassword = passwordEncoder().encode(password);
-
-        // Insert the new blogger into the database
-        String insertSql = """
-            INSERT INTO blogger (username, email, password, bio, created_at, updated_at)
-            VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        """;
-        int rowsAffected = jdbcTemplate.update(insertSql, username, email, encodedPassword, bio);
-
-        if (rowsAffected > 0) {
-            model.addAttribute("success", "Registration successful! Please login.");
-            return "login"; // Redirect to the login page after successful registration
-        } else {
-            model.addAttribute("error", "Registration failed. Please try again.");
-            return "register"; // Return to the registration page on failure
-        }
-    }
-    
 }
    
