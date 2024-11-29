@@ -7,106 +7,50 @@
     <title>Create Post - Tech2xplore</title>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-	
+
 
     <style>
         body {
-            background-color: #343a40; /* Dark background for the body */
-		height:auto;
+            background-color: #343a40;
+            /* Dark background for the body */
+            height: auto;
         }
+
         .card {
-            background-color: white; /* White background for the card */
-            color: #212529; /* Dark text color for better visibility */
+            background-color: white;
+            /* White background for the card */
+            color: #212529;
+            /* Dark text color for better visibility */
         }
     </style>
 </head>
 
-<body >
-
-    <!-- Navbar -->
-	<nav class="navbar navbar-expand-lg navbar-light">
-		<div class="container-fluid">
-			<a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-				aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarNav">
-				<ul class="navbar-nav ms-auto">
-					<li class="nav-item">
-						<a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> Posts</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
-					</li>
-
-					<!-- Login and Sign Up options for unauthenticated users -->
-					<li class="nav-item" th:if="${loggedInUser == null}">
-						<a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-					</li>
-					<li class="nav-item" th:if="${loggedInUser == null}">
-						<a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
-					</li>
-
-					<!-- Options for authenticated users -->
-					<li class="nav-item dropdown" th:if="${loggedInUser == null}">
-						<a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
-							data-bs-toggle="dropdown" aria-expanded="false">
-							<i class="bi bi-person-circle"></i> Profile
-						</a>
-						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
-							<li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i> Profile</a>
-							</li>
-							<li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
-							</li>
-						</ul>
-					</li>
-
-					<!-- Post option for authenticated users -->
-					<li class="nav-item" th:if="${loggedInUser != null}">
-						<a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
-					</li>
-
-					<!-- My Posts option for authenticated users -->
-					<li class="nav-item" th:if="${loggedInUser != null}">
-						<a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
-					</li>
-
-				</ul>
-			</div>
-		</div>
-	</nav>
-    <!-- Centered Post Form -->
+<body>
+    <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
                 <div class="card shadow-lg border-light">
-                    <div class="card-body p-4" style="background: grey;" >
+                    <div class="card-body p-4" style="background: grey;">
                         <h2 class="text-center">Create Post</h2>
                         <form th:action="@{/review}" method="post" enctype="multipart/form-data">
-                           
-                           	
+
+
                             <div class="mb-3">
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-select" id="category" name="category" required>
                                     <option value="">Select a category</option>
                                     <th:block th:each="category : ${categories}">
-								        <option th:value="${category}" th:text="${category}"></option>
-								    </th:block>
+                                        <option th:value="${category}" th:text="${category}"></option>
+                                    </th:block>
                                 </select>
                             </div>
-                           	
+
                             <div class="mb-3">
                                 <label for="title" class="form-label">Title</label>
                                 <input type="text" class="form-control" id="title" name="title" required>
@@ -120,8 +64,10 @@
 
                             <div class="mb-3">
                                 <label for="image" class="form-label">Image</label>
-                                <input type="file" class="form-control" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-                                <img id="image-preview" src="" alt="Image Preview" class="img-fluid mt-2" style="display: none; max-width: 100%;">
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*"
+                                    onchange="previewImage(event)">
+                                <img id="image-preview" src="" alt="Image Preview" class="img-fluid mt-2"
+                                    style="display: none; max-width: 100%;">
                             </div>
 
                             <div class="form-check mb-3">
@@ -134,6 +80,29 @@
                                 <label class="form-check-label" for="private">Private</label>
                             </div>
 
+                            <div class="d-flex mb-3">
+                                <label for="keywords" class="form-label">Keywords </label>
+                                <form id="myForm">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div id="tag-buttons">
+                                                <div th:each="tag : ${keywords}">
+                                                    <button class="btn btn-outline-primary tag-btn"
+                                                        data-tag="[[${tag}]]">
+                                                        [[${tag}]]
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3">
+                                        <button type="submit" id="submit-btn" class="btn btn-success">Submit
+                                            Form</button>
+                                    </div>
+                                </form>
+                            </div>
+
                             <button type="submit" class="btn btn-primary w-100">Save Post</button>
                         </form>
                     </div>
@@ -141,71 +110,17 @@
             </div>
         </div>
     </div>
+    <div th:replace="~{footer :: div}"></div>
 
-<div class="footer" style="margin-top:200px">
-        <div class="footer-content">
-            <div class="footer-section about">
-                <h1 class="logo-text">Tech2<span>xplore</span></h1>
-                <p>
-                    Tech2xplore is a Blog Type Web Side.
-                </p>
-
-                <div class="contact">
-                    <i class="fa fa-phone"> &nbsp; 9328480107</i>
-                </div>
-
-                <div class="social">
-                    <a href="#"><i class="fa fa-facebook"></i></a>
-                    <a href="#"><i class="fa fa-twitter"></i></a>
-                    <a href="#"><i class="fa fa-instagram"></i></a>
-                    <a href="#"><i class="fa fa-linkedin"></i></a>
-                </div>
-
-            </div>
-
-            <div class="footer-section quick-links">
-                <h2>QUICK LINKS</h2>
-                <ul>
-                    <a href="#">
-                        <li>Events</li>
-                    </a>
-                    <a href="#">
-                        <li>Contact</li>
-                    </a>
-                    <a href="#">
-                        <li>Write for us</li>
-                    </a>
-                    <a href="#">
-                        <li>Terms and conditions</li>
-                    </a>
-                </ul>
-            </div>
-
-            <div class="footer-section contact-form-div">
-                <h2>Contact Us</h2>
-                <form action="/contact" method="post">
-                    <input type="text" name="email-address" class="text-input contact-input" placeholder="Your email address">
-                    <textarea name="message" cols="30" rows="3" class="text-input contact-input" placeholder="Message..."></textarea>
-                    <button type="submit" name="send-msg-btn" class="send-msg-btn">
-                        <i class="fa fa-send"></i> Send
-                    </button>
-                </form>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- Quill JS -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 
-	
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="/js/scripts.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scripts.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         // Preview Image Function
         function previewImage(event) {
@@ -237,6 +152,50 @@
             form.onsubmit = function () {
                 document.querySelector('#body-input').value = quill.root.innerHTML;
             };
+        });
+
+        $(document).ready(function () {
+            let selectedTags = [];
+
+            // Toggle button style and manage selected tags
+            $('.tag-btn').on('click', function () {
+                const tagName = $(this).data('tag');
+
+                if ($(this).hasClass('btn-outline-primary')) {
+                    $(this).removeClass('btn-outline-primary').addClass('btn-primary');
+                    selectedTags.push(tagName);
+                } else {
+                    $(this).removeClass('btn-primary').addClass('btn-outline-primary');
+                    selectedTags = selectedTags.filter(tag => tag !== tagName);
+                }
+            });
+
+            // Handle form submission
+            $('#myForm').on('submit', function (e) {
+                e.preventDefault();
+
+                // Prepare the data to be sent
+                const tagsString = selectedTags.join(',');
+                const formData = {
+                    tags: tagsString,
+                    otherParam: 'someValue'  // Add other parameters here
+                };
+
+                console.log('Form Data: ', formData);
+
+                // Send a POST request (replace with your URL)
+                $.ajax({
+                    url: '/your-api-endpoint',  // Replace with your API endpoint
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        alert('Form successfully submitted!');
+                    },
+                    error: function (error) {
+                        alert('Error submitting form');
+                    }
+                });
+            });
         });
     </script>
 </body>

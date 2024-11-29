@@ -14,66 +14,7 @@
 </head>
 
 <body style="background:#343a40">
-
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container-fluid">
-            <a class="navbar-brand logo-text" href="/">Tech2<span>xplore</span></a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> Posts</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
-                    </li>
-
-                    <!-- Login and Sign Up options for unauthenticated users -->
-                    <li class="nav-item" th:if="${loggedInUser == null}">
-                        <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
-                    </li>
-                    <li class="nav-item" th:if="${loggedInUser == null}">
-                        <a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
-                    </li>
-
-                    <!-- Options for authenticated users -->
-                    <li class="nav-item dropdown" th:if="${loggedInUser == null}">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarProfileDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi bi-person-circle"></i> Profile
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarProfileDropdown">
-                            <li><a class="dropdown-item" href="/profile"><i class="bi bi-person-circle"></i> Profile</a>
-                            </li>
-                            <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <!-- Post option for authenticated users -->
-                    <li class="nav-item" th:if="${loggedInUser != null}">
-                        <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
-                    </li>
-
-                    <!-- My Posts option for authenticated users -->
-                    <li class="nav-item" th:if="${loggedInUser != null}">
-                        <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
-                    </li>
-
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
         <h1>Welcome to Tech2xplore</h1>
     </div>
@@ -94,11 +35,13 @@
                                 <img th:src="@{images/logo.jpg}" class="d-block w-100" alt="Image 3">
                             </div>
                         </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="prev">
                             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Previous</span>
                         </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel"
+                            data-bs-slide="next">
                             <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             <span class="visually-hidden">Next</span>
                         </button>
@@ -106,182 +49,82 @@
                 </div>
             </div>
 
-            
-        <div class="col-md-4">
-        <div class="content">
-        <div class="slider">
-	            <div class="search-div">
-	                <form th:action="@{/search}" method="post">
-	                    <input type="text" name="keyword" class="text-input" placeholder="Search...">
-	                </form>
-	            </div>
-	            <!-- // Search -->
-	            <!-- topics -->
-	            <div class="section topics">
-	                <h2>Topics</h2>
-	                <div th:if="${#lists.isEmpty(topics)}" class="not-found-message">
-    <h2>Categories Are Not Available</h2>
-</div>
-	                	<hr class="black-hr" >
-	                <ul style="list-style:none;">
-	                    <li th:each="topic : ${topics}" style="color: #5c5b5b; text-decoration: double; font-weight:bolder;">
-	                        <a th:text="${topic}" th:href="@{'/filter/' + ${topic}}" ></a>
-	                    <hr>
-	                    </li>
-	                </ul>
-	            </div>
-	            </div></div>
-	             <!-- // topics -->
-        </div>
+
+            <div class="col-md-4">
+                <div class="content">
+                    <div class="slider">
+                        <div class="search-div">
+                            <form th:action="@{/search}" method="post">
+                                <input type="text" name="keyword" class="text-input" placeholder="Search...">
+                            </form>
+                        </div>
+                        <!-- // Search -->
+                        <!-- topics -->
+                        <div class="section topics">
+                            <h2>Topics</h2>
+                            <div th:if="${#lists.isEmpty(topics)}" class="not-found-message">
+                                <h2>Categories Are Not Available</h2>
+                            </div>
+                            <hr class="black-hr">
+                            <ul style="list-style:none;">
+                                <li th:each="topic : ${topics}"
+                                    style="color: #5c5b5b; text-decoration: double; font-weight:bolder;">
+                                    <a th:text="${topic}" th:href="@{'/filter/' + ${topic}}"></a>
+                                    <hr>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- // topics -->
+            </div>
         </div>
     </div>
 
     <!-- content -->
-<div class="content clearfix">
-    <div class="page-content">
-        <h1 class="recent-posts-title">Recent Posts</h1>
-        <div class="posts-list" style="margin-bottom: 300px;">
-            <h1>Our Posts</h1>
-            <div class="post-container" id="post-container">
-                <!-- Initial posts will be rendered here by Thymeleaf -->
-                <div th:each="post : ${posts}" class="post" style="height: auto; background:#1e1f23; max-width:800px;	">
-                    <div class="post-info">
-                    
-                    <div class="container">
-                    	<div class="author-box">
-				    <div class="author-profile">
-				        <img th:src="@{images/logo.jpg}"  alt="Author Profile Picture" class="author-image">
-				    </div>
-				    <div class="author-details">
-				        <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@' + ${post.username}"> </span>
-				        <p class="author-bio" th:text="${post.bio}"></p>
-				    </div>
-				    </div>
-				    <div class="post-header d-flex align-items-center">
-				    <h2 class="post-title mb-0" th:text="${post.title}"></h2>
-				    <div class="post-category">
-				        <span class="badge bg-secondary" th:text="${post.category}"></span>
-				    </div>
-				</div>
-				  <div class="container" style="display: flex; flex-wrap:wrap;">
-				    <div class="post-content" style="width: 100%;	overflow-wrap:anywhere;">
-				       <p class="post-description" 
-				   th:text="${post.description}" 
-				   th:if="${post.description.length() <= 1000}" 
-				   style="text-align: left;">
-				</p>
-				
-				<p class="post-description" 
-				   th:if="${post.description.length() > 1000}" 
-				   style="text-align: left;">
-				    <span th:text="${post.description.substring(0, 2500)}"></span>
-				    <span class="more-text" style="display: none;" th:text="${post.description.substring(2500)}"></span>
-				    <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
-				</p>
-				
-				    </div>
-				<div class="post-metadata">
-			        <div class="author-info">
-			            <i class="icon-user"></i>
-			            <span class="author-name" th:text="'@' + ${post.username}"></span>
-			        </div>
-			        <div class="post-date">
-			            <i class="icon-calendar"></i>
-			            <span class="date-text" th:text="${post.updatedat}"></span>
-			        </div>
-			    </div>
-                    </div>
-                        </div>
-                    
-                    
-                </div>
-            </div>
-            <button id="load-more" onclick="loadMorePosts()">Load More</button>
-        </div>
-    </div>
-</div>
-</div>
-    <!-- // page wrapper -->
-    <!-- FOOTER -->
-    <div class="footer" style="margin-top:auto;">
-        <div class="footer-content">
-            <div class="footer-section about">
-                <h1 class="logo-text">Tech2<span>xplore</span></h1>
-                <p>
-                    Tech2xplore is a Blog Type Web Side.
-                </p>
-                <div class="contact">
-                    <i class="fa fa-phone"> &nbsp; 9328480107</i>
-                </div>
-                <div class="social">
-                    <a href="#"><i class="fa fa-facebook"></i></a>
-                    <a href="#"><i class="fa fa-twitter"></i></a>
-                    <a href="#"><i class="fa fa-instagram"></i></a>
-                    <a href="#"><i class="fa fa-linkedin"></i></a>
-                </div>
-            </div>
-            <div class="footer-section quick-links">
-                <h2>QUICK LINKS</h2>
-                <ul>
-                    <a href="#">
-                        <li>Events</li>
-                    </a>
-                    <a href="#">
-                        <li>Contact</li>
-                    </a>
-                    <a href="#">
-                        <li>Write for us</li>
-                    </a>
-                    <a href="#">
-                        <li>Terms and conditions</li>
-                    </a>
-                </ul>
-            </div>
-            <div class="footer-section contact-form-div">
-                <h2>Contact Us</h2>
-                <form th:action="@{/contact}" method="post">
-                    <input type="text" name="email-address" class="text-input contact-input" placeholder="Your email address">
-                    <textarea name="message" cols="30" rows="3" class="text-input contact-input" placeholder="Message..."></textarea>
-                    <button type="submit" name="send-msg-btn" class="send-msg-btn">
-                        <i class="fa fa-send"></i> Send
-                    </button>
-                </form>
+    <div class="content clearfix">
+        <div class="page-content">
+            <h1 class="recent-posts-title">Recent Posts</h1>
+            <div class="posts-list" style="margin-bottom: 300px;">
+                <h1>Our Posts</h1>
+                <div th:replace="~{post :: div}"></div>
+                <button id="load-more" onclick="loadMorePosts()">Load More</button>
             </div>
         </div>
-
     </div>
 
+    <div th:replace="~{footer :: div}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/scripts.js"></script>
 
-<script>
-let currentPage = 1;
-const pageSize = 5; // Number of posts to load per request
+    <script>
+        let currentPage = 1;
+        const pageSize = 5; // Number of posts to load per request
 
-function loadMorePosts() {
-    currentPage++;
+        function loadMorePosts() {
+            currentPage++;
 
-    fetch(`/load-more-posts?page=${currentPage}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            return response.json(); // Parse the JSON from the response
-        })
-        .then(data => {
-            const postContainer = document.getElementById('post-container');
+            fetch(`/load-more-posts?page=${currentPage}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json(); // Parse the JSON from the response
+                })
+                .then(data => {
+                    const postContainer = document.getElementById('post-container');
 
-            // Append the new posts to the container
-            data.posts.forEach(post => {
-                const postDiv = document.createElement('div');
-                postDiv.classList.add('post');
-                postDiv.style.maxWidth = '800px';
-                postDiv.style.height = 'auto';
-                postDiv.style.background = "#1e1f23";
-               
-                postDiv.innerHTML = `
+                    // Append the new posts to the container
+                    data.posts.forEach(post => {
+                        const postDiv = document.createElement('div');
+                        postDiv.classList.add('post');
+                        postDiv.style.maxWidth = '800px';
+                        postDiv.style.height = 'auto';
+                        postDiv.style.background = "#1e1f23";
+
+                        postDiv.innerHTML = `
                     <div class="post-info">
                         <div class="container">
                             <div class="author-box">
@@ -337,26 +180,26 @@ function loadMorePosts() {
                     </div>
                 `;
 
-                postContainer.appendChild(postDiv);
-            });
+                        postContainer.appendChild(postDiv);
+                    });
 
-            // Hide the "Load More" button if there are no more posts
-            if (!data.hasMore) {
-                alert('You have reached the end of the posts!');
-                document.getElementById('load-more').style.display = 'none';
-            }
-        })
-        .catch(error => {
-            // Handle error case: show alert and optional redirection
-            alert('Please log in to load more posts.');
-            console.error('Error loading more posts:', error);
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 3000);
-        });
-}
+                    // Hide the "Load More" button if there are no more posts
+                    if (!data.hasMore) {
+                        alert('You have reached the end of the posts!');
+                        document.getElementById('load-more').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    // Handle error case: show alert and optional redirection
+                    alert('Please log in to load more posts.');
+                    console.error('Error loading more posts:', error);
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 3000);
+                });
+        }
 
-</script>
+    </script>
 
 </body>
 

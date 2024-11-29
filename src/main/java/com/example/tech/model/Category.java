@@ -14,7 +14,7 @@ public class Category {
     @Column(length = 255, nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 1000, nullable = false)
     private String description;
 
     @Column(length = 255)

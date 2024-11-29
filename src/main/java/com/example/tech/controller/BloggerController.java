@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/bloggers")
 public class BloggerController {
 
     @Autowired

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 import java.util.Map;
+import java.security.Principal;
 import java.util.HashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,8 +24,14 @@ public class JdbcController {
     private static Integer start = 1;
 
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
-    public String home(Model model) {
-
+    public String home(Model model, Principal principal) {
+        
+    	if (principal != null) {
+            model.addAttribute("loggedInUser", principal.getName()); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
     	String categorySql = "SELECT name FROM Category";
         List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
         model.addAttribute("topics", categories);
@@ -142,9 +149,15 @@ public class JdbcController {
     
     @GetMapping("/create_post") // Maps to /create (http://localhost:8080/create)
     public String createPost(Model model) {
+    	
     	String sql = "SELECT name FROM Category";
     	List<String> categories = jdbcTemplate.queryForList(sql, String.class);
     	model.addAttribute("categories", categories);
+    	
+    	sql = "SELECT name FROM Keyword";
+    	categories = jdbcTemplate.queryForList(sql, String.class);
+    	model.addAttribute("keywords", categories);
+    	
         return "createPost"; // Create post page
     }
     
@@ -484,6 +497,15 @@ public class JdbcController {
         	            FOR EACH ROW
         	            EXECUTE FUNCTION update_updated_at_column();
         	        END IF;
+        	        
+        	        IF NOT EXISTS (
+        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_keyword'
+        	        ) THEN
+        	            CREATE TRIGGER set_updated_at_keyword
+        	            BEFORE UPDATE ON Keyword
+        	            FOR EACH ROW
+        	            EXECUTE FUNCTION update_updated_at_column();
+        	        END IF;
 
         	        IF NOT EXISTS (
         	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_communities'
@@ -562,6 +584,37 @@ public class JdbcController {
         	    END;
         	    $$;
         	""");
+            
+            Integer count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM Category
+            """,Integer.class);
+            
+            if( count == 0 ) {
+            	jdbcTemplate.execute("""
+            			INSERT INTO Category (categoryid, createdat, updatedat, createdby, categorydescription, categoryicon, name)
+            			VALUES 
+            			(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Coding is a category in which can explore the posts and articles regarding coding, coding memes and code of variety of programming languages and code', 'coding.jpg', 'Coding'),
+            			(2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Technology is a category in which can explore the posts and articles regarding technology and current trends of technologies', 'technology.jpg', 'Technology'),
+						(3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Robotics is a category in which can explore the posts and articles regarding robotics and the advance research related works for automation and revolutionary robotics field', 'robotics.jpg', 'Robotics'),
+						(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'News is a category in which can explore the posts and articles regarding the latest news regarding any information on category also it makes you more updated on industry', 'news.jpg', 'News');
+            	""");
+            }
+            
+            count = jdbcTemplate.queryForObject("""
+                SELECT COUNT(*) FROM Keyword
+            """,Integer.class);
+            
+            if( count == 0 ) {
+            	jdbcTemplate.execute("""
+            			INSERT INTO Keyword (keywordid, createdat, updatedat, keyworddescription, keywordicon, name)
+            			VALUES 
+            			(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Python is general purpose and multiuse programming language', 'python.jpg', 'Python'),
+            			(2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'C++ is system level and game development programming language', 'cpp.jpg', 'C++'),
+						(3, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Java is enterprise and backend programming language', 'java.jpg', 'Java'),
+				(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Rust is general purpose fast in computation programming language', 'rust.jpg', 'Rust');
+                 """);
+            }
+            
 
             /*/ Add triggers to tables with `updated_at` column
             jdbcTemplate.execute("""
@@ -622,7 +675,7 @@ public class JdbcController {
 
 
             
-            return "signup";
+            return "redirect:/";
             
     }
     

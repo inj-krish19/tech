@@ -3,6 +3,7 @@ package com.example.tech;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;	
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,8 @@ public class SecurityConfig{
     // Fetch the password from the .env file with a fallback to "defaultpassword" if not found.
     // private String password = dotenv.get("PASSWORD", "pass");
     private String password = "pass";
+    boolean login = false;
+    private String tempuser = "";
     
 
     @Autowired
@@ -41,13 +44,13 @@ public class SecurityConfig{
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/", "/login", "/register", "/css/**", "/js/**").permitAll()  // Public access for only these routes
+                    .requestMatchers("/**", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()  // Public access for only these routes
                     .requestMatchers("/admin/**", "/data/**", "/description/**").hasRole("ADMIN")  // Admin-only routes
                     .anyRequest().authenticated()  // Any other routes require authentication
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/enums", true)
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
@@ -57,6 +60,26 @@ public class SecurityConfig{
             );
 
         return http.build();
+    }
+    
+    @PostMapping("/login")
+    public String isThisLogin(@RequestParam String un, @RequestParam String pass, Model model) {
+    	this.tempuser = un;
+
+        // Query for the user's hashed password
+        String sql = "SELECT password FROM Blogger WHERE username = ?";
+        Optional<String> hashedOpt = jdbcTemplate.queryForList(sql, String.class, un).stream().findFirst();
+
+        if (hashedOpt.isPresent()) {
+            String hashed = hashedOpt.get();
+            if (passwordEncoder().matches(pass, hashed)) {
+                this.login = true;
+                return "redirect:/";  // Login success, redirect to home page
+            }
+        }
+
+        model.addAttribute("error", "Invalid username or password");
+        return "login";
     }
 
     @Bean
@@ -83,6 +106,7 @@ public class SecurityConfig{
 
         return new InMemoryUserDetailsManager(allUsers);
     }
+    
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

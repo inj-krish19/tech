@@ -14,7 +14,7 @@ public class Post {
     @Column(length = 255, nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(length = 3000, nullable = false)
     private String description;
 
     @Column(nullable = false, columnDefinition = "int default 0")

@@ -14,7 +14,7 @@ public class Community {
     @Column(length = 255, nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(length = 1000, nullable = false)
     private String communityDescription;
 
     @Column(length = 255)

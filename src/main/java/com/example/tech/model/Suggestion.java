@@ -15,7 +15,7 @@ public class Suggestion {
     @JoinColumn(name = "authorId", nullable = false)
     private Blogger author;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(length = 1000, nullable = false)
     private String message;
 
     @Column(name = "createdAt", updatable = false, nullable = false)

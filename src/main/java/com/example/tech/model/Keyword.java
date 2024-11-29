@@ -14,10 +14,16 @@ public class Keyword {
     @Column(length = 255, nullable = false)
     private String name;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 1000, nullable = false)
     private String keywordDescription;
+    
+    @Column(length = 255, nullable = false)
+    private String keywordIcon;
 
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
 
 }

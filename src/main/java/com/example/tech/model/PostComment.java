@@ -19,7 +19,7 @@ public class PostComment {
     @JoinColumn(name = "authorId", nullable = false)
     private Blogger author;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(length = 750, nullable = false)
     private String comment;
 
     @ManyToOne
