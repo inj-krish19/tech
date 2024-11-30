@@ -15,7 +15,7 @@ public class Category {
     private String name;
 
     @Column(length = 1000, nullable = false)
-    private String description;
+    private String categoryDescription;
 
     @Column(length = 255)
     private String categoryIcon;

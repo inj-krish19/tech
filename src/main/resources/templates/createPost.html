@@ -37,7 +37,7 @@
             border-radius: 25px;
             width: fit-content;
         }
-        
+        		        
     </style>
 </head>
 
@@ -52,13 +52,19 @@
         .color-[[${iterStat.index}]]:hover {
             background-color : [[${color}]];
             color: white;
-            border-color: 1px solid [[${color}]];
+            border: 1px solid [[${color}]];
         }
         
         .color-[[${iterStat.index}]]:click {
             background-color : [[${color}]];
             color: white;
-            border-color: 1px solid [[${color}]];
+            border: 1px solid [[${color}]];
+        }
+        
+        .color-[[${iterStat.index}]]-clicked {
+            background-color : [[${color}]];
+            color: white;
+            border: 1px solid [[${color}]];
         }
     </style>
 
@@ -111,19 +117,29 @@
                                 <label class="form-check-label" for="private">Private</label>
                             </div>
 
-                            <div class="d-flex mb-3">
-                                <label for="keywords" class="form-label">Keywords </label>
-                            </div>
-                            
-                           	<div class="card d-flex" style="flex-direction: row; flex-wrap: wrap;	">
-                           		<th:block th:each="keyword, iterStat : ${keywords}" >
-                           			<button th:class="'tag color-' + ${iterStat.index}" th:attr="data-keyword=${keyword}" class="tag" th:text="${keyword}" onclick="selectKeyword(this, event)"></button>
-                           		</th:block>
-                           	</div>    
+							<input type="hidden" id="selectedKeywords" name="selectedKeywords" value="">
 
-						    <!-- Hidden input field to hold selected keywords -->
-						    <input type="hidden" name="selectedKeywords" id="selectedKeywords">
-
+							<div class="d-flex mb-3">
+							    <label class="form-label">Selected Keywords</label>
+							</div>
+							<div class="card d-flex" id="selected" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+							    <!-- Selected keywords will appear here -->
+							</div>
+							
+							<div class="d-flex mb-3">
+							    <label class="form-label">Remaining Keywords</label>
+							</div>
+							<div class="card d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+							    <th:block th:each="keyword, iterStat : ${keywords}">
+							        <button th:class="'tag color-' + ${iterStat.index}" 
+							                th:attr="data-keyword=${keyword}" 
+							                class="tag" 
+							                th:text="${keyword}" 
+							                onclick="selectKeyword(this, event)">
+							        </button>
+							    </th:block>
+							</div>
+							
                             <button type="submit" class="btn btn-primary w-100">Save Post</button>
                         </form>
                     </div>
@@ -144,30 +160,75 @@
 
     <script>
     
-	    function selectKeyword(button, event) {
-	        event.preventDefault();  // Prevent the form from being submitted
-	        const selectedKeywordsField = document.getElementById('selectedKeywords');
-	        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
-	
-	        const keyword = button.getAttribute('data-keyword');
-	        
-	        // Toggle the keyword selection
-	        const index = selectedKeywords.indexOf(keyword);
-	        if (index === -1) {
-	            selectedKeywords.push(keyword);
-	            button.classList.add('selected');
-	        } else {
-	            selectedKeywords.splice(index, 1);
-	            button.classList.remove('selected');
-	        }
-	
-	        // Update the hidden field with the selected keywords
-	        selectedKeywordsField.value = selectedKeywords.join(',');
-	        
-	        button.style.display = "none";
-	        
-	    }
+    const selected = document.getElementById("selected");
+    const remaining = document.getElementById("remaining");
+    const selectedKeywordsField = document.getElementById("selectedKeywords");
 
+    function selectKeyword(button, event) {
+        event.preventDefault(); // Prevent form submission
+
+        const keyword = button.getAttribute('data-keyword');
+        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+
+        if (!selectedKeywords.includes(keyword)) {
+            selectedKeywords.push(keyword);
+            button.innerHTML = `${keyword} <span onclick="removeKeyword(this.parentNode, event); event.stopPropagation();">❌</span>`;
+            button.classList.toggle('liked');
+            button.setAttribute('onclick', 'removeKeyword(this, event)');
+            selected.appendChild(button);
+        }
+        toggleClass(button)
+
+        selectedKeywordsField.value = selectedKeywords.join(',');
+        console.log('Selected Keywords:', selectedKeywords);
+    }
+
+    function removeKeyword(button, event) {
+        event.preventDefault(); // Prevent form submission
+        event.stopPropagation(); // Prevent triggering selectKeyword
+
+        const keyword = button.getAttribute('data-keyword');
+        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+
+        selectedKeywords = selectedKeywords.filter(k => k !== keyword);
+        button.innerHTML = keyword;
+        button.setAttribute('onclick', 'selectKeyword(this, event)');
+
+        // Insert button at the correct position in "remaining" to preserve order
+        const allRemainingButtons = Array.from(remaining.children);
+        let inserted = false;
+        for (let i = 0; i < allRemainingButtons.length; i++) {
+            if (keyword.localeCompare(allRemainingButtons[i].getAttribute('data-keyword')) < 0) {
+                remaining.insertBefore(button, allRemainingButtons[i]);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) {
+            remaining.appendChild(button);
+        }
+
+        toggleClass(button)
+        selectedKeywordsField.value = selectedKeywords.join(',');
+        console.log('Remaining Keywords:', selectedKeywords);
+    }
+
+	function toggleClass(button){
+		const classList = Array.from(button.classList);
+		console.log(classList);
+	    classList.forEach(cls => {
+	    	if(cls.endsWith('-clicked')){
+	            button.classList.toggle(cls);
+	            button.classList.toggle(cls.substring(0, cls.length - 8));
+	            return;
+	        }
+	        if (cls.startsWith("color-")) {
+	            button.classList.toggle(cls);
+	            button.classList.toggle(cls + "-clicked");
+	            return;
+	        }
+	    });
+	}
     	
         // Preview Image Function
         function previewImage(event) {
