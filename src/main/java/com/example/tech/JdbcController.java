@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,12 +26,14 @@ public class JdbcController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private static Integer start = 1;
+    
+    String userExist = "";
 
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
     public String home(Model model, Principal principal) {
         
     	if (principal != null) {
-            model.addAttribute("loggedInUser", principal.getName()); // Add the logged-in username
+            model.addAttribute("loggedInUser", userExist = principal.getName()); // Add the logged-in username
         } else {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
@@ -37,7 +43,7 @@ public class JdbcController {
         model.addAttribute("topics", categories);
 
         // Fetch post details along with author details and category name
-        String postSql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category " +
+        String postSql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category, p.commentscount AS comments " +
                          "FROM Post p " +
                          "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
                          "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
@@ -45,6 +51,21 @@ public class JdbcController {
                          "LIMIT 5";
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(postSql);
         model.addAttribute("posts", posts);
+        
+
+    	List<String> colors = new ArrayList<>(
+    			List.of(
+    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
+    				)
+    		);
+    	
+    	model.addAttribute("colors", colors);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         
         return "home"; // Home page
     }
@@ -55,32 +76,52 @@ public class JdbcController {
         String sql = "SELECT * FROM Blogger";
         List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql);
         model.addAttribute("bloggers", bloggers);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
         return "bloggers";
     }
     
     // Show all post
     @GetMapping("/posts")
     public String showpost(Model model) {
-    	String sql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category " +
+    	String sql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category, p.commentscount AS comments " +
                 "FROM Post p " +
                 "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
                 "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
                 "JOIN Category c ON pca.categoryid = c.categoryid ";
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
         model.addAttribute("posts", posts);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
         return "show"; // Assuming there's a Thymeleaf template named "show"
     }
     
     @PostMapping("/review")
-    public String reviewPost(Model model, String title, String category, String description) {
+    public String reviewPost(Model model, String title, String category, String description, String selectedKeywords ) {
         Map<String, Object> postData = new HashMap<>();
         postData.put("title", title);
         postData.put("category", category);
         description = description.replaceAll("<[^>]*>", "").trim();
-        postData.put("description", description);
+        postData.put("description", description + selectedKeywords);
 
         // Add the Map to the model
         model.addAttribute("post", postData);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         
         return "reviewPost"; // Assuming there's a Thymeleaf template named "show"
     }
@@ -103,6 +144,13 @@ public class JdbcController {
         String sql = "SELECT * FROM Post WHERE articleid = ?";
         List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, id);
         model.addAttribute("post", post);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
         return "viewPost"; // Assuming there's a Thymeleaf template named "viewPost"
     }
 
@@ -141,6 +189,12 @@ public class JdbcController {
         } else {
             model.addAttribute("posts", posts);
         }
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
 
         model.addAttribute("topic", category);
         return "filter";// Assuming there's a Thymeleaf template named "show"
@@ -158,17 +212,44 @@ public class JdbcController {
     	categories = jdbcTemplate.queryForList(sql, String.class);
     	model.addAttribute("keywords", categories);
     	
+    	List<String> colors = new ArrayList<>(
+    			List.of(
+    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+    				)
+    		);
+    	
+    	model.addAttribute("colors", colors);
+    	
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+    	
         return "createPost"; // Create post page
     }
     
 
     @GetMapping("/profile")
-    public String getProfile(Model model) {
+    public String getProfile( HttpServletRequest request, Model model) {
     	
-    	String sql = "SELECT * FROM Blogger";
-    	List<Map<String,Object>> user = jdbcTemplate.queryForList(sql);
+
+        if( (Integer) request.getSession().getAttribute("userId") == null ) {
+        	return "redirect:/login";
+        }
+        
+    	
+    	String sql = "SELECT * FROM Blogger where authorId = ?";
+    	List<Map<String,Object>> user = jdbcTemplate.queryForList(sql,(Integer) request.getSession().getAttribute("userId") );
         
         model.addAttribute("user", user.get(0));
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
     	return "profilemanagement";
     }
     
@@ -195,6 +276,12 @@ public class JdbcController {
     		model.addAttribute("post", post);
     		model.addAttribute("topic", keyword.substring(1, keyword.length() - 1));
 
+    		if (this.userExist != "" && userExist != null ) {
+                model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+            } else {
+                model.addAttribute("loggedInUser", null); // No user logged in
+            }
+    		
     		// Return the "filter" view
     		return "filter";
     }
@@ -235,6 +322,12 @@ public class JdbcController {
             System.out.println("\nAfter Executing PCA Insert Query");
 
         System.out.println("\nAfter Executing Post Insert Query. Rows affected: " + rowsAffected);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         
         return "redirect:/data";
     }
@@ -838,7 +931,7 @@ public class JdbcController {
     }
     
     @PostMapping("/register")
-    public String register(Model model, String name, String username, String email, String password, String confirmPassword, String bio) {
+    public String register(Model model, String name, String username, String email, String password, String confirmPassword, String bio, HttpServletRequest request) {
 
         // Check if the user already exists (by email or username)
         String checkUserSql = "SELECT COUNT(*) FROM Blogger WHERE email = ? OR username = ?";
@@ -872,6 +965,9 @@ public class JdbcController {
         int rowsAffected = jdbcTemplate.update(insertUserSql, newAuthorId, name, username, email, hashedPassword, bio);
 
         if (rowsAffected > 0) {
+
+            request.getSession().setAttribute("userId", newAuthorId);
+        	
             return "redirect:/login?success=true"; // Redirect to login with success flag
         } else {
             model.addAttribute("error", "Registration failed. Please try again.");
@@ -879,5 +975,27 @@ public class JdbcController {
         }
     }
 
+    
+    @PostMapping("/contact")
+    public String submitSuggestion(HttpServletRequest request, String message) {
+    	
+        String suggestionId = "SELECT COALESCE(MAX(suggestionId) + 1, 1) FROM Blogger";
+        Integer newSuggestionId = jdbcTemplate.queryForObject(suggestionId, Integer.class);
+
+        if( (Integer) request.getSession().getAttribute("userId") == null ) {
+        	System.out.print(request.getSession().toString());
+        	return "redirect:/login";
+        }
+        
+        // Insert the new user into the database
+        String insertUserSql = """
+            INSERT INTO Blogger (suggestionId, authorId, message, createdAt ) 
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        """;
+
+        int rowsAffected = jdbcTemplate.update(insertUserSql, newSuggestionId, (Integer) request.getSession().getAttribute("userId") , message);
+
+    	return "redirect:/";
+    }
     
 }

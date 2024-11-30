@@ -13,7 +13,20 @@
 
 </head>
 
+
 <body style="background:#343a40">
+	
+	<style th:each="color, iterStat : ${colors}">
+        .color-[[${iterStat.index}]]:hover {
+            color : [[${color}]];
+            font-weight: 900;
+        }
+        .color-[[${iterStat.index}]] {
+        	font-weight: 600;
+        	transition : 0.3s;
+        }
+    </style>
+
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
         <h1>Welcome to Tech2xplore</h1>
@@ -67,9 +80,9 @@
                             </div>
                             <hr class="black-hr">
                             <ul style="list-style:none;">
-                                <li th:each="topic : ${topics}"
+                                <li th:each="topic, iterStat : ${topics}"
                                     style="color: #5c5b5b; text-decoration: double; font-weight:bolder;">
-                                    <a th:text="${topic}" th:href="@{'/filter/' + ${topic}}"></a>
+                                    <a th:text="${topic}" th:href="@{'/filter/' + ${topic}}" th:class="'tag color-' + ${iterStat.index}" ></a>
                                     <hr>
                                 </li>
                             </ul>
@@ -81,18 +94,15 @@
         </div>
     </div>
 
-    <!-- content -->
-    <div class="content clearfix">
-        <div class="page-content">
-            <h1 class="recent-posts-title">Recent Posts</h1>
-            <div class="posts-list" style="margin-bottom: 300px;">
-                <h1>Our Posts</h1>
-                <div th:replace="~{post :: div}"></div>
-                <button id="load-more" onclick="loadMorePosts()">Load More</button>
-            </div>
-        </div>
-    </div>
 
+	<div class="container" style="margin-left:5%;">
+	    <div class="page-content">
+	        <h1 class="recent-posts-title text-center">Recent Posts</h1>
+	        <div th:replace="~{post :: div}"></div>
+	    </div>
+   	    <button id="load-more" style="width:62%; margin-left:19%;" onclick="loadMorePosts()">Load More</button>
+    </div>
+    
     <div th:replace="~{footer :: div}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

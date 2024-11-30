@@ -27,10 +27,41 @@
             color: #212529;
             /* Dark text color for better visibility */
         }
+        
+        .tag {
+            display: inline-block;
+            font-weight : 600;
+            color: white;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 25px;
+            width: fit-content;
+        }
+        
     </style>
 </head>
 
 <body>
+
+	<style th:each="color, iterStat : ${colors}">
+        .color-[[${iterStat.index}]] {
+            background-color: white;
+            border : 1px solid [[${color}]];
+            color : [[${color}]];
+        }
+        .color-[[${iterStat.index}]]:hover {
+            background-color : [[${color}]];
+            color: white;
+            border-color: 1px solid [[${color}]];
+        }
+        
+        .color-[[${iterStat.index}]]:click {
+            background-color : [[${color}]];
+            color: white;
+            border-color: 1px solid [[${color}]];
+        }
+    </style>
+
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
         <div class="row justify-content-center">
@@ -82,26 +113,16 @@
 
                             <div class="d-flex mb-3">
                                 <label for="keywords" class="form-label">Keywords </label>
-                                <form id="myForm">
-                                    <div class="row">
-                                        <div class="col">
-                                            <div id="tag-buttons">
-                                                <div th:each="tag : ${keywords}">
-                                                    <button class="btn btn-outline-primary tag-btn"
-                                                        data-tag="[[${tag}]]">
-                                                        [[${tag}]]
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-3">
-                                        <button type="submit" id="submit-btn" class="btn btn-success">Submit
-                                            Form</button>
-                                    </div>
-                                </form>
                             </div>
+                            
+                           	<div class="card d-flex" style="flex-direction: row; flex-wrap: wrap;	">
+                           		<th:block th:each="keyword, iterStat : ${keywords}" >
+                           			<button th:class="'tag color-' + ${iterStat.index}" th:attr="data-keyword=${keyword}" class="tag" th:text="${keyword}" onclick="selectKeyword(this, event)"></button>
+                           		</th:block>
+                           	</div>    
+
+						    <!-- Hidden input field to hold selected keywords -->
+						    <input type="hidden" name="selectedKeywords" id="selectedKeywords">
 
                             <button type="submit" class="btn btn-primary w-100">Save Post</button>
                         </form>
@@ -122,6 +143,32 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+    
+	    function selectKeyword(button, event) {
+	        event.preventDefault();  // Prevent the form from being submitted
+	        const selectedKeywordsField = document.getElementById('selectedKeywords');
+	        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+	
+	        const keyword = button.getAttribute('data-keyword');
+	        
+	        // Toggle the keyword selection
+	        const index = selectedKeywords.indexOf(keyword);
+	        if (index === -1) {
+	            selectedKeywords.push(keyword);
+	            button.classList.add('selected');
+	        } else {
+	            selectedKeywords.splice(index, 1);
+	            button.classList.remove('selected');
+	        }
+	
+	        // Update the hidden field with the selected keywords
+	        selectedKeywordsField.value = selectedKeywords.join(',');
+	        
+	        button.style.display = "none";
+	        
+	    }
+
+    	
         // Preview Image Function
         function previewImage(event) {
             const imagePreview = document.getElementById('image-preview');
