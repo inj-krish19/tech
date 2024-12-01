@@ -54,6 +54,26 @@ public class HomeController {
     public String getAbout() {
     	return "about";
     }
+
+    @GetMapping("/terms")
+    public String terms() {
+    	return "terms";
+    }
+
+    @GetMapping("/write-for-us")
+    public String writeForUs() {
+    	return "write-for-us";
+    }
+
+    @GetMapping("/contact")
+    public String staticContact() {
+    	return "contact";
+    }
+
+    @GetMapping("/events")
+    public String events() {
+    	return "events";
+    }
     
     @GetMapping("/signup")
     public String getSignup() {

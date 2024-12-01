@@ -37,6 +37,52 @@ public class JdbcController {
     
     String userExist = "";
 
+    @GetMapping("/secret")
+    public String secret( HttpServletRequest request) {
+    	
+		Enumeration<String> attributeNames = request.getSession().getAttributeNames();
+		System.out.println("Printing all session variables:");
+	
+		while (attributeNames.hasMoreElements()) {
+		    String attributeName = attributeNames.nextElement();
+		    Object attributeValue = request.getSession().getAttribute(attributeName);
+		    System.out.println(attributeName + " = " + attributeValue);
+	
+		    // Check if the attribute is the SPRING_SECURITY_CONTEXT
+		    if ("SPRING_SECURITY_CONTEXT".equals(attributeName)) {
+		        org.springframework.security.core.context.SecurityContext securityContext =
+		            (org.springframework.security.core.context.SecurityContext) attributeValue;
+		        
+		        // Extract Authentication object
+		        org.springframework.security.core.Authentication authentication = securityContext.getAuthentication();
+		        
+		        // Check if the user is authenticated and extract the principal (username)
+		        if (authentication != null && authentication.isAuthenticated()) {
+		            Object principal = authentication.getPrincipal();
+		            
+		            String username = null;
+		            if (principal instanceof org.springframework.security.core.userdetails.UserDetails) {
+		                username = ((org.springframework.security.core.userdetails.UserDetails) principal).getUsername();
+		            } else {
+		                username = principal.toString();  // Fallback if principal is a string
+		            }
+		            
+		            // Print and store the username
+		            System.out.println("Username from SPRING_SECURITY_CONTEXT: " + username);
+		            
+		            String sql = "SELECT authorId FROM Blogger WHERE username = ?";
+		            Integer authorId = jdbcTemplate.queryForObject(sql, Integer.class, username );
+
+		            request.getSession().setAttribute("authorId", authorId);
+				   		            
+		            return "redirect:/login?success=true";  
+		        }		    
+		    }
+		}
+
+		return "redirect:/login?error=false";
+    }
+    
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
     public String home(Model model, Principal principal) {
         
@@ -419,32 +465,42 @@ public class JdbcController {
     
 
     @GetMapping("/profile")
-    public String getProfile( HttpServletRequest request, Model model) {
-    	
-		Enumeration<String> attributeNames = session.getAttributeNames();
-
+    public String getProfile(HttpServletRequest request, Model model) {
+        // Retrieve session and enumerate attributes
+        Enumeration<String> attributeNames = request.getSession().getAttributeNames();
         System.out.println("Printing all session variables:");
         
-        // Iterate through the session attributes and print them
         while (attributeNames.hasMoreElements()) {
             String attributeName = attributeNames.nextElement();
-            Object attributeValue = session.getAttribute(attributeName);
+            Object attributeValue = request.getSession().getAttribute(attributeName);
             System.out.println(attributeName + " = " + attributeValue);
         }
-    	
-    	
-    	String sql = "SELECT * FROM Blogger where authorId = ?";
-    	List<Map<String,Object>> user = jdbcTemplate.queryForList(sql,(Integer) request.getSession().getAttribute("userId") );
-        
-        model.addAttribute("user", user.get(0));
-        
-        if (this.userExist != "" && userExist != null ) {
-            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
-        } else {
-            model.addAttribute("loggedInUser", null); // No user logged in
+
+        // Fetch userId from session
+        Integer userId = (Integer) request.getSession().getAttribute("authorId");
+        if (userId == null) {
+            System.out.println("User not logged in. Redirecting to login.");
+            model.addAttribute("error", "You need to log in to view your profile.");
+            return "redirect:/login";
         }
         
-    	return "profilemanagement";
+        // Query user data from the database
+        String sql = "SELECT * FROM Blogger WHERE authorId = ?";
+        List<Map<String, Object>> user = jdbcTemplate.queryForList(sql, userId);
+
+        if (user.isEmpty()) {
+            model.addAttribute("error", "User not found.");
+            return "error"; // Redirect to an error page or show a meaningful message
+        }
+
+        // Add user data to the model
+        model.addAttribute("user", user.get(0));
+
+        // Add logged-in username if available
+        String loggedInUser = (String) request.getSession().getAttribute("loggedInUser");
+        model.addAttribute("loggedInUser", loggedInUser != null ? loggedInUser : "Guest");
+
+        return "profilemanagement"; // Return the profile management view
     }
     
     @PostMapping("/search")
@@ -481,13 +537,13 @@ public class JdbcController {
     }
     
     @PostMapping("/doPost")
-    public String makePost(Model model, String title, String category, String description, String keyword) {
+    public String makePost(Model model, String title, String category, String description, String keyword, HttpServletRequest request) {
         try {
         	
         	System.out.print( title + " " + category+ " " + description + " " + keyword);
             // Step 1: Clean the description
             description = description.replaceAll("<[^>]*>", "").trim();
-            Integer primaryAuthorId = 1;  // Assuming logged-in user ID
+            Integer primaryAuthorId = (Integer) request.getSession().getAttribute("authorId");;  // Assuming logged-in user ID
 
             // Step 2: Insert Post
             String insertPostSql = """
@@ -499,7 +555,7 @@ public class JdbcController {
             System.out.println("Post Inserted. Rows affected: " + postRowsAffected);
 
             // Step 3: Insert into PostCategoryAssignment
-            /* String getCategoryIdSql = "SELECT categoryid FROM Category WHERE LOWER(name) = LOWER(?)";
+            String getCategoryIdSql = "SELECT categoryid FROM Category WHERE LOWER(name) = LOWER(?)";
             Integer categoryId = null;
             try {
                 categoryId = jdbcTemplate.queryForObject(getCategoryIdSql, Integer.class, category);
@@ -514,15 +570,15 @@ public class JdbcController {
             			""", Integer.class);
             	
                 String insertCategoryAssignmentSql = """
-                    INSERT INTO PostCategoryAssignment (postCategoryAssignmentId, articleid, categoryid, assignedby, createdat) 
-                    VALUES ( ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                    INSERT INTO PostCategoryAssignment ( articleid, categoryid, assignedby, createdat) 
+                    VALUES ( ?, ?, ?, CURRENT_TIMESTAMP)
                 """;
                 
                 jdbcTemplate.update(insertCategoryAssignmentSql, postCategoryAssignmnetId, newArticleId, categoryId, primaryAuthorId);
                 System.out.println("Category Assignment Inserted.");
             } else {
                 throw new IllegalArgumentException("Category not found.");
-            } */
+            }
 
             // Step 4: Insert Keywords
             String[] keywordArray = keyword.split(",");
@@ -540,14 +596,14 @@ public class JdbcController {
                     if (keywordId != null) {
                     	
                     	Integer keywordAssignmentId = jdbcTemplate.queryForObject( """
-                    			(SELECT COALESCE(MAX(keywordAssignmentId), 0) + 1 FROM KeywordAssignment
+                    			SELECT COALESCE(MAX(keywordAssignmentId), 0) + 1 FROM KeywordAssignment
                     		""", Integer.class);
                     	
                         String insertKeywordAssignmentSql = """
-                            INSERT INTO KeywordAssignment (keywordAssignmentId, articleid, keywordid, createdat) 
-                            VALUES (? , ?, ?, CURRENT_TIMESTAMP)
+                            INSERT INTO KeywordAssignment ( articleid, keywordid, createdat) 
+                            VALUES (?, ?, CURRENT_TIMESTAMP)
                         """;
-                        jdbcTemplate.update(insertKeywordAssignmentSql, keywordAssignmentId, newArticleId, keywordId);
+                        jdbcTemplate.update(insertKeywordAssignmentSql, newArticleId, keywordId);
                     }
                 }
                 System.out.println("Keyword Assignments Inserted.");
@@ -1281,9 +1337,9 @@ public class JdbcController {
 
         if (rowsAffected > 0) {
 
-            request.getSession().setAttribute("userId", newAuthorId);
+            request.getSession().setAttribute("authorId", newAuthorId);
         	
-            return "redirect:/login?success=true"; // Redirect to login with success flag
+            return "redirect:/register?success=true"; // Redirect to login with success flag
         } else {
             model.addAttribute("error", "Registration failed. Please try again.");
             return "register";
@@ -1297,7 +1353,7 @@ public class JdbcController {
         String suggestionId = "SELECT COALESCE(MAX(suggestionId) + 1, 1) FROM Blogger";
         Integer newSuggestionId = jdbcTemplate.queryForObject(suggestionId, Integer.class);
 
-        if( (Integer) request.getSession().getAttribute("userId") == null ) {
+        if( (Integer) request.getSession().getAttribute("authorId") == null ) {
         	System.out.print(request.getSession().toString());
         	return "redirect:/login";
         }
@@ -1308,7 +1364,7 @@ public class JdbcController {
             VALUES (?, ?, ?, CURRENT_TIMESTAMP)
         """;
 
-        int rowsAffected = jdbcTemplate.update(insertUserSql, newSuggestionId, (Integer) request.getSession().getAttribute("userId") , message);
+        int rowsAffected = jdbcTemplate.update(insertUserSql, newSuggestionId, (Integer) request.getSession().getAttribute("authorId") , message);
 
     	return "redirect:/";
     }

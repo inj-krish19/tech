@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${topic} + ' Posts'"> </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body style="background:#343a40">
+
+    <div th:replace="~{header :: nav}"></div>
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Terms & Conditions</h1>
+        <div class="container py-5">
+            <h1 class="text-center mb-4">Terms and Conditions</h1>
+            <p>By using Tech2Xplore, you agree to adhere to the following terms:</p>
+            <h5>1. Content Ownership</h5>
+            <p>All content published remains the property of Tech2Xplore. Reproduction without permission is prohibited.
+            </p>
+            <h5>2. User Conduct</h5>
+            <p>Users must refrain from posting offensive or plagiarized content.</p>
+            <h5>3. Disclaimer</h5>
+            <p>Tech2Xplore is not responsible for the accuracy of third-party contributions.</p>
+        </div>
+    </div>
+    <div th:replace="~{footer :: div}"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scripts.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>

@@ -1,9 +1,5 @@
 package com.example.tech;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,10 +13,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class SecurityConfig {
@@ -39,7 +38,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/", true)
+                .defaultSuccessUrl("/secret", true)
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
@@ -47,63 +46,46 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/login?logout=true")
                 .permitAll()
             );
-
         return http.build();
     }
 
     @PostMapping("/login")
-    public String isThisLogin(@RequestParam String username, @RequestParam String password, Model model, HttpServletRequest request) {
-        System.out.println("Login attempt for user: " + username);
-
+    public String login(@RequestParam String username, @RequestParam String password, Model model, HttpServletRequest request) {
         String sql = "SELECT authorId, password FROM Blogger WHERE username = ?";
         List<Map<String, Object>> results = jdbcTemplate.queryForList(sql, username);
 
         if (!results.isEmpty()) {
             Map<String, Object> row = results.get(0);
             String storedHashedPassword = (String) row.get("password");
-            Integer userId = (Integer) row.get("authorId");
+            Integer authorId = (Integer) row.get("authorId");
 
             if (passwordEncoder().matches(password, storedHashedPassword)) {
-                request.getSession().setAttribute("userId", userId);
-                System.out.println("Login successful for userId: " + userId);
-                model.addAttribute("success", "Login Successful!");
-                return "redirect:/";
+                request.getSession().setAttribute("userId", authorId);
+                request.getSession().setAttribute("authorId", authorId);
+                return "redirect:/login?success=true";
             }
         }
-
-        System.out.println("Login failed for user: " + username);
         model.addAttribute("error", "Invalid username or password");
-        return "login";
+        return "redirect:/login?error=true";
     }
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
         List<UserDetails> users = new ArrayList<>();
-
-        // Admin user
-        users.add(new MyUserDetails("iamadmin", passwordEncoder.encode("boss"), 
-                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), null));
-
-        // Database users
-        jdbcTemplate.query(
-            "SELECT authorId, username, password FROM Blogger", 
-            (rs, rowNum) -> {
-                String username = rs.getString("username");
-                String password = rs.getString("password");
-                Integer authorId = rs.getInt("authorId");
-                System.out.println("Loaded user: " + username);
-                
-                users.add(new MyUserDetails(username, password, 
-                        List.of(new SimpleGrantedAuthority("ROLE_USER")), authorId));
-                return null;
-            }
+        users.add(new MyUserDetails("iamadmin", passwordEncoder.encode("boss"), List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), null));
+        jdbcTemplate.query("SELECT authorId, username, password FROM Blogger", 
+            (rs, rowNum) -> users.add(new MyUserDetails(
+                rs.getString("username"), 
+                rs.getString("password"), 
+                List.of(new SimpleGrantedAuthority("ROLE_USER")), 
+                rs.getInt("authorId"))
+            )
         );
-
         return new InMemoryUserDetailsManager(users);
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);  // Salt strength 10
+        return new BCryptPasswordEncoder(10);
     }
 }

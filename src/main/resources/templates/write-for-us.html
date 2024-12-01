@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${topic} + ' Posts'"> </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body style="background:#343a40">
+
+    <div th:replace="~{header :: nav}"></div>
+    <div class="container mt-4">
+        <div class="container mt-4">
+            <h1 class="text-center mb-4">Describe Your Some Experience </h1>
+            <div class="container py-5">
+                <h1 class="text-center mb-4">Write for Us</h1>
+                <p>We’re always on the lookout for talented writers passionate about blogging, technology, and digital
+                    trends.
+                    Here’s how you can become a contributor:</p>
+                <ul>
+                    <li>Submit original, well-researched content.</li>
+                    <li>Keep articles between 800-1500 words.</li>
+                    <li>Include a short author bio and social media links.</li>
+                </ul>
+                <p>Email your submissions to: <a href="mailto:editor@tech2xplore.com">editor@tech2xplore.com</a></p>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{footer :: div}"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/scripts.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
