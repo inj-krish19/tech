@@ -82,7 +82,7 @@
                             <ul style="list-style:none;">
                                 <li th:each="topic, iterStat : ${topics}"
                                     style="color: #5c5b5b; text-decoration: double; font-weight:bolder;">
-                                    <a th:text="${topic}" th:href="@{'/filter/' + ${topic}}" th:class="'tag color-' + ${iterStat.index}" ></a>
+                                    <a th:text="${topic}" th:href="@{'/filter/category/' + ${topic}}" th:class="'tag color-' + ${iterStat.index}" ></a>
                                     <hr>
                                 </li>
                             </ul>

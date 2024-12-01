@@ -171,7 +171,17 @@
         let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
 
         if (!selectedKeywords.includes(keyword)) {
-            selectedKeywords.push(keyword);
+        	
+        	const classList = Array.from(button.classList);
+
+        	for (let i = 0; i < classList.length; i++) {
+        	    const splitClass = classList[i].split("-");
+        	    if (splitClass.length > 1) {
+        	        selectedKeywords.push(keyword + "-" + splitClass[1]);
+        	        break;
+        	    }
+        	}
+        	
             button.innerHTML = `${keyword} <span onclick="removeKeyword(this.parentNode, event); event.stopPropagation();">❌</span>`;
             button.classList.toggle('liked');
             button.setAttribute('onclick', 'removeKeyword(this, event)');
@@ -190,7 +200,9 @@
         const keyword = button.getAttribute('data-keyword');
         let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
 
-        selectedKeywords = selectedKeywords.filter(k => k !== keyword);
+        console.log( "Keyword : " + keyword );
+        
+        selectedKeywords = selectedKeywords.filter(k => !k.startsWith(keyword));
         button.innerHTML = keyword;
         button.setAttribute('onclick', 'selectKeyword(this, event)');
 

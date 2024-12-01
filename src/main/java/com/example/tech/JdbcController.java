@@ -1,6 +1,7 @@
 package com.example.tech;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,12 +11,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +31,9 @@ public class JdbcController {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     private static Integer start = 1;
+
+    @Autowired
+    private HttpSession session;
     
     String userExist = "";
 
@@ -43,12 +51,32 @@ public class JdbcController {
         model.addAttribute("topics", categories);
 
         // Fetch post details along with author details and category name
-        String postSql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category, p.commentscount AS comments " +
-                         "FROM Post p " +
-                         "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
-                         "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
-                         "JOIN Category c ON pca.categoryid = c.categoryid " +
-                         "LIMIT 5";
+        String postSql = """
+	        	    SELECT p.articleid, 
+	                p.title, 
+	                p.description, 
+	                p.likes, 
+	                p.dislikes, 
+	                p.viewscount, 
+	                p.commentscount, 
+	                p.updatedat, 
+	                u.name AS name, 
+	                u.username AS username, 
+	                u.bio AS bio, 
+	                c.name AS category, 
+	                STRING_AGG(k.name, ', ') AS keywords
+	         FROM Post p 
+	         JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	         JOIN Category c ON pca.categoryid = c.categoryid 
+	         LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+	         LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+	         GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+	                  p.viewscount, p.commentscount, p.updatedat, u.name, 
+	                  u.username, u.bio, c.name
+	          LIMIT 5
+	     """;
+        
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(postSql);
         model.addAttribute("posts", posts);
         
@@ -89,11 +117,32 @@ public class JdbcController {
     // Show all post
     @GetMapping("/posts")
     public String showpost(Model model) {
-    	String sql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category, p.commentscount AS comments " +
-                "FROM Post p " +
-                "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
-                "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
-                "JOIN Category c ON pca.categoryid = c.categoryid ";
+    	String sql = """
+	        	    SELECT p.articleid, 
+	                p.title, 
+	                p.description, 
+	                p.likes, 
+	                p.dislikes, 
+	                p.viewscount, 
+	                p.commentscount, 
+	                p.updatedat, 
+	                u.name AS name, 
+	                u.username AS username, 
+	                u.bio AS bio, 
+	                c.name AS category, 
+	                STRING_AGG(k.name, ', ') AS keywords
+	         FROM Post p 
+	         JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	         JOIN Category c ON pca.categoryid = c.categoryid 
+	         LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+	         LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+	         GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+	                  p.viewscount, p.commentscount, p.updatedat, u.name, 
+	                  u.username, u.bio, c.name
+	          LIMIT 5
+	     """;
+    			
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql);
         model.addAttribute("posts", posts);
         
@@ -112,8 +161,50 @@ public class JdbcController {
         postData.put("title", title);
         postData.put("category", category);
         description = description.replaceAll("<[^>]*>", "").trim();
-        postData.put("description", description + selectedKeywords);
+        postData.put("description", description);
+        
+        String keyword = selectedKeywords;
+        System.out.print("Keyword " + keyword);
+        List<String> keywords = new ArrayList<>();
+        List<Integer> buttonIndex = new ArrayList<>();
+        StringTokenizer tokens = new StringTokenizer(keyword, ",");
 
+        keyword = "";
+        
+        while (tokens.hasMoreTokens()) {
+            String token = tokens.nextToken();
+            String[] splitToken = token.split("-");
+            if (splitToken.length > 1) {
+            	keywords.add(splitToken[0]);
+            	keyword += splitToken[0] +  ",";// Add the token (keyword) to the keywords list
+                buttonIndex.add(Integer.valueOf(splitToken[1]));
+            }
+        }
+
+        
+        /* while( tokens.hasMoreTokens() ) {
+        	keywords.add( tokens.nextToken() );
+        	buttonIndex.add( Integer.valueOf( tokens.nextToken().split("-")[1] ) );      	
+        }	*/
+        
+        System.out.print(buttonIndex);
+        
+        // Add the list to the post map
+        postData.put("keyword", keyword);
+        postData.put("keywords", keywords);
+        postData.put("buttonIndex", buttonIndex);
+        postData.put("image", null);
+
+        List<String> colors = new ArrayList<>(
+			List.of(
+				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+				)
+		);
+    	
+    	System.out.println("Keywords : " + keywords);
+    	System.out.println("Indices : " + buttonIndex);
+    	
+    	model.addAttribute("colors", colors);
         // Add the Map to the model
         model.addAttribute("post", postData);
         
@@ -155,37 +246,134 @@ public class JdbcController {
     }
 
     
-    @GetMapping("/filter/{category}")
-    public String filterpost(Model model, @PathVariable String category) {
-    	
-    	String sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
+    
+    @GetMapping("/filter/category/{category}")
+    public String filterCategoryPost(Model model, @PathVariable String category) {
+        // Fetch category ID based on name (case-insensitive)
+        String sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
         List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class, "%" + category + "%");
 
         if (categories.isEmpty()) {
             model.addAttribute("error", "No posts found in this category.");
-            return "filter"; // Return with error message if no category found
+            model.addAttribute("posts", null);
+            return "filter"; 
         }
 
         int categoryId = categories.get(0);
 
+        // Query to retrieve posts along with keywords
         sql = """
-                SELECT p.articleid, p.title, p.description, p.likes, p.dislikes, p.viewscount, 
-                       p.commentscount, p.updatedat, u.name AS name, u.username AS username, 
-                       u.bio AS bio, c.name AS category 
-                FROM Post p 
-                JOIN Blogger u ON p.primaryAuthor = u.authorid 
-                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
-                JOIN Category c ON pca.categoryid = c.categoryid 
-                WHERE c.categoryid = ?
-              """;
+            SELECT p.articleid, 
+                   p.title, 
+                   p.description, 
+                   p.likes, 
+                   p.dislikes, 
+                   p.viewscount, 
+                   p.commentscount, 
+                   p.updatedat, 
+                   u.name AS name, 
+                   u.username AS username, 
+                   u.bio AS bio, 
+                   c.name AS category
+            FROM Post p 
+            JOIN Blogger u ON p.primaryAuthor = u.authorid 
+            JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+            JOIN Category c ON pca.categoryid = c.categoryid 
+            WHERE c.categoryid = ?
+        """;
 
         List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, categoryId);
 
-        // Print SQL query and data for debugging (optional for dev use)
-        System.out.println("Executed Query: " + sql + " | Category: " + category + " | Posts: " + posts);
+        // Query to get keywords for all posts in this category
+        String keywordSql = """
+            SELECT pka.articleid, k.name AS keyword
+            FROM KeywordAssignment pka
+            JOIN Keyword k ON pka.keywordid = k.keywordid
+            WHERE pka.articleid IN (
+                SELECT p.articleid 
+                FROM Post p 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                WHERE pca.categoryid = ?
+            )
+        """;
+
+        List<Map<String, Object>> keywordResults = jdbcTemplate.queryForList(keywordSql, categoryId);
+
+        // Map to store keywords for each post
+        Map<Integer, List<String>> postKeywordsMap = new HashMap<>();
+        for (Map<String, Object> keywordRow : keywordResults) {
+            Integer articleId = (Integer) keywordRow.get("articleid");
+            String keyword = (String) keywordRow.get("keyword");
+            postKeywordsMap.computeIfAbsent(articleId, k -> new ArrayList<>()).add(keyword);
+        }
+
+        // Add keywords to each post
+        for (Map<String, Object> post : posts) {
+            Integer articleId = (Integer) post.get("articleid");
+            List<String> keywords = postKeywordsMap.getOrDefault(articleId, new ArrayList<>());
+            post.put("keywords", keywords);
+        }
 
         if (posts.isEmpty()) {
             model.addAttribute("error", "No posts found for this category.");
+        } else {
+            model.addAttribute("posts", posts);
+        }
+
+        model.addAttribute("topic", category);
+        model.addAttribute("loggedInUser", (userExist != null && !userExist.isEmpty()) ? userExist : null);
+
+        return "filter"; 
+    }
+    
+    
+    @GetMapping("/filter/keyword/{keyword}")
+    public String filterKeywordpost(Model model, @PathVariable String keyword) {
+    	
+    	String sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
+        List<Integer> keywords = jdbcTemplate.queryForList(sql, Integer.class, "%" + keyword + "%");
+
+        if (keywords.isEmpty()) {
+            model.addAttribute("error", "No posts found in this category.");
+            return "filter"; // Return with error message if no category found
+        }
+
+        int keywordId = keywords.get(0);
+
+        sql = """
+        	    SELECT p.articleid, 
+        	           p.title, 
+        	           p.description, 
+        	           p.likes, 
+        	           p.dislikes, 
+        	           p.viewscount, 
+        	           p.commentscount, 
+        	           p.updatedat, 
+        	           u.name AS name, 
+        	           u.username AS username, 
+        	           u.bio AS bio, 
+        	           c.name AS category, 
+        	           STRING_AGG(k.name, ',') AS keywords
+        	    FROM Post p 
+        	    JOIN Blogger u ON p.primaryAuthor = u.authorid 
+        	    JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+        	    JOIN Category c ON pca.categoryid = c.categoryid 
+        	    LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+        	    LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+        	    WHERE c.keywordid = ?
+        	    GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+        	             p.viewscount, p.commentscount, p.updatedat, u.name, 
+        	             u.username, u.bio, c.name
+        	""";
+
+        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, keywordId);
+
+        // Print SQL query and data for debugging (optional for dev use)
+        System.out.println("Executed Query: " + sql + " | Category: " + keyword + " | Posts: " + posts);
+
+        if (posts.isEmpty()) {
+            model.addAttribute("error", "No posts found for this category.");
+            model.addAttribute("posts", null);
         } else {
             model.addAttribute("posts", posts);
         }
@@ -196,7 +384,7 @@ public class JdbcController {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
 
-        model.addAttribute("topic", category);
+        model.addAttribute("topic", keyword);
         return "filter";// Assuming there's a Thymeleaf template named "show"
     }
 
@@ -233,11 +421,17 @@ public class JdbcController {
     @GetMapping("/profile")
     public String getProfile( HttpServletRequest request, Model model) {
     	
+		Enumeration<String> attributeNames = session.getAttributeNames();
 
-        if( (Integer) request.getSession().getAttribute("userId") == null ) {
-        	return "redirect:/login";
-        }
+        System.out.println("Printing all session variables:");
         
+        // Iterate through the session attributes and print them
+        while (attributeNames.hasMoreElements()) {
+            String attributeName = attributeNames.nextElement();
+            Object attributeValue = session.getAttribute(attributeName);
+            System.out.println(attributeName + " = " + attributeValue);
+        }
+    	
     	
     	String sql = "SELECT * FROM Blogger where authorId = ?";
     	List<Map<String,Object>> user = jdbcTemplate.queryForList(sql,(Integer) request.getSession().getAttribute("userId") );
@@ -286,51 +480,172 @@ public class JdbcController {
     		return "filter";
     }
     
-    // Create a new post
     @PostMapping("/doPost")
-    public String makePost(Model model, String title, String categoryName, String description) {
-        // Clean up the description by removing HTML tags and trimming
-        description = description.replaceAll("<[^>]*>", "").trim();
-        int primaryAuthorId = 1;
-        
-        String getMaxIdSql = "SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post ";
-        Integer newArticleId = jdbcTemplate.queryForObject(getMaxIdSql, Integer.class);
+    public String makePost(Model model, String title, String category, String description, String keyword) {
+        try {
+        	
+        	System.out.print( title + " " + category+ " " + description + " " + keyword);
+            // Step 1: Clean the description
+            description = description.replaceAll("<[^>]*>", "").trim();
+            Integer primaryAuthorId = 1;  // Assuming logged-in user ID
 
-        String insertPostSql = """
-            INSERT INTO Post (articleid, title, description, likes, dislikes, commentscount, primaryauthor, viewscount, postmedia, publishedat, createdat, updatedat) 
-            VALUES (?, ?, ?, 0, 0, 0, ?, 0, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        """;
-
-        System.out.println("\nBefore Executing Post Insert Query");
-
-        int rowsAffected = jdbcTemplate.update(
-            insertPostSql,
-            newArticleId,  // Manually generated article ID
-            title,
-            description,
-            primaryAuthorId
-        );
-        
-        getMaxIdSql = "SELECT COALESCE(MAX(postcategoryassignmentid), 0) + 1 FROM postcategoryassignment ";
-        Integer newPAId = jdbcTemplate.queryForObject(getMaxIdSql, Integer.class);
-
-        String insertAssignmentSql = """
-                INSERT INTO PostCategoryAssignment (postcategoryassignmentid, articleid, categoryid, assignedby , createdat) 
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+            // Step 2: Insert Post
+            String insertPostSql = """
+                INSERT INTO Post (articleid, title, description, likes, dislikes, commentscount, primaryauthor, viewscount, postmedia, publishedat, createdat, updatedat) 
+                VALUES (?, ?, ?, 0, 0, 0, ?, 0, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             """;
-            jdbcTemplate.update(insertAssignmentSql, newPAId, newArticleId, 1, primaryAuthorId); // Use newArticleId and categoryId here
-            System.out.println("\nAfter Executing PCA Insert Query");
+            Integer newArticleId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post", Integer.class);
+            int postRowsAffected = jdbcTemplate.update(insertPostSql, newArticleId, title, description, primaryAuthorId);
+            System.out.println("Post Inserted. Rows affected: " + postRowsAffected);
 
-        System.out.println("\nAfter Executing Post Insert Query. Rows affected: " + rowsAffected);
-        
-        if (this.userExist != "" && userExist != null ) {
-            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
-        } else {
-            model.addAttribute("loggedInUser", null); // No user logged in
+            // Step 3: Insert into PostCategoryAssignment
+            /* String getCategoryIdSql = "SELECT categoryid FROM Category WHERE LOWER(name) = LOWER(?)";
+            Integer categoryId = null;
+            try {
+                categoryId = jdbcTemplate.queryForObject(getCategoryIdSql, Integer.class, category);
+            } catch (EmptyResultDataAccessException e) {
+                System.out.println("Category not found: " + category);
+            }
+            
+            if (categoryId != null) {
+            	
+            	Integer postCategoryAssignmnetId = jdbcTemplate.queryForObject( """
+            			SELECT COALESCE(MAX(postCategoryAssignmentId), 0) + 1 FROM PostCategoryAssignment
+            			""", Integer.class);
+            	
+                String insertCategoryAssignmentSql = """
+                    INSERT INTO PostCategoryAssignment (postCategoryAssignmentId, articleid, categoryid, assignedby, createdat) 
+                    VALUES ( ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                """;
+                
+                jdbcTemplate.update(insertCategoryAssignmentSql, postCategoryAssignmnetId, newArticleId, categoryId, primaryAuthorId);
+                System.out.println("Category Assignment Inserted.");
+            } else {
+                throw new IllegalArgumentException("Category not found.");
+            } */
+
+            // Step 4: Insert Keywords
+            String[] keywordArray = keyword.split(",");
+            if (keywordArray.length > 0) {
+                for (String currentKeyword : keywordArray) {
+                    // Get keywordId (we assume keywords are case-insensitive)
+                    String getKeywordIdSql = "SELECT COALESCE(MAX(keywordid), 0) + 1 FROM Keyword WHERE LOWER(name) = LOWER(?)";
+                    Integer keywordId = null;
+                    try {
+                        keywordId = jdbcTemplate.queryForObject(getKeywordIdSql, Integer.class, currentKeyword.trim());
+                    } catch (EmptyResultDataAccessException e) {
+                        System.out.println("Keyword not found: " + currentKeyword);
+                    }
+                    
+                    if (keywordId != null) {
+                    	
+                    	Integer keywordAssignmentId = jdbcTemplate.queryForObject( """
+                    			(SELECT COALESCE(MAX(keywordAssignmentId), 0) + 1 FROM KeywordAssignment
+                    		""", Integer.class);
+                    	
+                        String insertKeywordAssignmentSql = """
+                            INSERT INTO KeywordAssignment (keywordAssignmentId, articleid, keywordid, createdat) 
+                            VALUES (? , ?, ?, CURRENT_TIMESTAMP)
+                        """;
+                        jdbcTemplate.update(insertKeywordAssignmentSql, keywordAssignmentId, newArticleId, keywordId);
+                    }
+                }
+                System.out.println("Keyword Assignments Inserted.");
+            }
+
+            // Set logged-in user attribute
+            if (this.userExist != null && !this.userExist.isEmpty()) {
+                model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+            } else {
+                model.addAttribute("loggedInUser", null); // No user logged in
+            }
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Error while creating post: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/create_post"; // Return to the post creation page in case of an error
+        }
+
+        return "redirect:/"; // Redirect to post listing page
+    }
+
+    
+    /* Create a new post
+    @PostMapping("/doPost")
+    public String makePost(Model model, String title, String categoryName, String description, String keyword) {
+        try {
+            // Clean up the description by removing HTML tags and trimming
+            description = description.replaceAll("<[^>]*>", "").trim();
+            int primaryAuthorId = 1; // Change as per your logic
+
+            // Generate a new article ID
+            String getMaxIdSql = "SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post";
+            Integer newArticleId = jdbcTemplate.queryForObject(getMaxIdSql, Integer.class);
+
+            // Insert the new post
+            String insertPostSql = """
+                INSERT INTO Post (articleid, title, description, likes, dislikes, commentscount, primaryauthor, viewscount, postmedia, publishedat, createdat, updatedat) 
+                VALUES (?, ?, ?, 0, 0, 0, ?, 0, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            """;
+            int postRowsAffected = jdbcTemplate.update(insertPostSql, newArticleId, title, description, primaryAuthorId);
+            System.out.println("Post Inserted. Rows affected: " + postRowsAffected);
+
+            // Insert into PostCategoryAssignment
+            String getCategoryIdSql = "SELECT categoryid FROM Category WHERE  LOWER(name) LIKE LOWER(?)";
+            Integer categoryId = jdbcTemplate.queryForObject(getCategoryIdSql, Integer.class, categoryName);
+
+            String insertCategoryAssignmentSql = """
+                INSERT INTO PostCategoryAssignment (postcategoryassignmentid, articleid, categoryid, assignedby, createdat) 
+                VALUES ((SELECT COALESCE(MAX(postcategoryassignmentid), 0) + 1 FROM PostCategoryAssignment), ?, ?, ?, CURRENT_TIMESTAMP)
+            """;
+            jdbcTemplate.update(insertCategoryAssignmentSql, newArticleId, categoryId, primaryAuthorId);
+            System.out.println("Category Assignment Inserted.");
+
+            StringTokenizer tokens = new StringTokenizer(keyword, ",");
+            List<String> keywords = new ArrayList<>();
+            
+            keyword = "";
+            
+            while (tokens.hasMoreTokens()) {
+                String token = tokens.nextToken();
+                keywords.add(token);
+            }
+            
+            // Insert into keywordAssignment
+            if (keywords != null && keywords.size() > 0) {
+                for (String currentKeyword : keywords) {
+                    String getKeywordIdSql = "SELECT COALESCE(MAX(keywordid), 0) + 1 FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
+                    Integer keywordId = jdbcTemplate.queryForObject(getKeywordIdSql, Integer.class, currentKeyword);
+
+                    if( keywordId == null ) {
+                    	continue;
+                    }
+                    
+                    String insertKeywordAssignmentSql = """
+                        INSERT INTO keywordAssignment (keywordAssignmentid, articleid, keywordid, createdat) 
+                        VALUES ((SELECT COALESCE(MAX(keywordassignmentid), 0) + 1 FROM keywordAssignment), ?, ?, CURRENT_TIMESTAMP)
+                    """;
+                    jdbcTemplate.update(insertKeywordAssignmentSql, newArticleId, keywordId);
+                }
+                System.out.println("Keyword Assignments Inserted.");
+            }
+
+            // Set logged-in user attribute
+            if (this.userExist != null && !this.userExist.isEmpty()) {
+                model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+            } else {
+                model.addAttribute("loggedInUser", null); // No user logged in
+            }
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Error while creating post: " + e.getMessage());
+            e.printStackTrace();
+            return "createPost";
         }
         
         return "redirect:/data";
-    }
+    }	*/
+
     
     @GetMapping("/load-more-post")
     @ResponseBody

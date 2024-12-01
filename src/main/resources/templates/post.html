@@ -1,3 +1,28 @@
+<style th:each="color, iterStat : ${colors}">
+.color-[[${iterStat.index}]] {
+    background-color: white;
+    border : 1px solid [[${color}]];
+    color : [[${color}]];
+}
+.color-[[${iterStat.index}]]:hover {
+    background-color : [[${color}]];
+    color: white;
+    border: 1px solid [[${color}]];
+}
+
+.color-[[${iterStat.index}]]:click {
+    background-color : [[${color}]];
+    color: white;
+    border: 1px solid [[${color}]];
+}
+
+.color-[[${iterStat.index}]]-clicked {
+    background-color : [[${color}]];
+    color: white;
+    border: 1px solid [[${color}]];
+}
+</style>
+
 <div class="posts-list">
 	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-warning text-center">
 		<h2>Posts Are Currently Not Available</h2>
@@ -66,7 +91,21 @@
 							<i class="bi bi-share"></i>
 						</button>
 					</div>
+					<div class="card d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+						<h5 style="disply:inline;">
+							Keywords : 						
+						</h5>
+						<th:block th:each="keyword, iterStat : ${keywords}">
+					        <button th:class="'tag color-' + ${iterStat.index}" 
+					                th:attr="data-keyword=${keyword}" 
+					                class="tag" 
+					                th:text="${keyword}" 
+					                onclick="selectKeyword(this, event)">
+					        </button>
+					    </th:block>
+				    </div>
 				</div>
+				
 				<div class="post-metadata">
 					<div class="author-info">
 						<i class="icon-user"></i>
