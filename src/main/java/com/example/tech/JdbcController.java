@@ -600,10 +600,10 @@ public class JdbcController {
                     		""", Integer.class);
                     	
                         String insertKeywordAssignmentSql = """
-                            INSERT INTO KeywordAssignment ( articleid, keywordid, createdat) 
-                            VALUES (?, ?, CURRENT_TIMESTAMP)
+                            INSERT INTO KeywordAssignment ( articleid, keywordid, assignedBy, createdat) 
+                            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
                         """;
-                        jdbcTemplate.update(insertKeywordAssignmentSql, newArticleId, keywordId);
+                        jdbcTemplate.update(insertKeywordAssignmentSql, newArticleId, keywordId, primaryAuthorId);
                     }
                 }
                 System.out.println("Keyword Assignments Inserted.");
