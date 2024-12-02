@@ -574,7 +574,7 @@ public class JdbcController {
                     VALUES ( ?, ?, ?, CURRENT_TIMESTAMP)
                 """;
                 
-                jdbcTemplate.update(insertCategoryAssignmentSql, postCategoryAssignmnetId, newArticleId, categoryId, primaryAuthorId);
+                jdbcTemplate.update(insertCategoryAssignmentSql, newArticleId, categoryId, primaryAuthorId);
                 System.out.println("Category Assignment Inserted.");
             } else {
                 throw new IllegalArgumentException("Category not found.");
