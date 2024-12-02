@@ -1,28 +1,3 @@
-<style th:each="color, iterStat : ${colors}">
-.color-[[${iterStat.index}]] {
-    background-color: white;
-    border : 1px solid [[${color}]];
-    color : [[${color}]];
-}
-.color-[[${iterStat.index}]]:hover {
-    background-color : [[${color}]];
-    color: white;
-    border: 1px solid [[${color}]];
-}
-
-.color-[[${iterStat.index}]]:click {
-    background-color : [[${color}]];
-    color: white;
-    border: 1px solid [[${color}]];
-}
-
-.color-[[${iterStat.index}]]-clicked {
-    background-color : [[${color}]];
-    color: white;
-    border: 1px solid [[${color}]];
-}
-</style>
-
 <div class="posts-list">
 	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-warning text-center">
 		<h2>Posts Are Currently Not Available</h2>
@@ -52,7 +27,7 @@
 
 					<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
 						class="post-image">
-						<img th:if="${post.articleId > 5 }" th:src="@{images/logo.jpg}" alt="Post Image"
+						<img th:if="${post.image != null && post.image != ''}" th:src="@{images/logo.jpg}" alt="Post Image"
 							th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
 
 						<div class="post-content" style="overflow-wrap:anywhere;">
@@ -92,18 +67,20 @@
 						</button>
 					</div>
 					<div class="card d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-						<h5 style="disply:inline;">
-							Keywords : 						
-						</h5>
-						<th:block th:each="keyword, iterStat : ${keywords}">
-					        <button th:class="'tag color-' + ${iterStat.index}" 
-					                th:attr="data-keyword=${keyword}" 
-					                class="tag" 
-					                th:text="${keyword}" 
-					                onclick="selectKeyword(this, event)">
-					        </button>
-					    </th:block>
-				    </div>
+				    <div th:if="${#lists.isEmpty(post.keywords)}">
+					    <h2 style="display: inline; color: #5c5b5b;" >Keywords Not Selected</h2>
+					</div>
+					<div th:if="${!#lists.isEmpty(post.keywords)}">
+					    <h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
+					</div>
+				    <th:block th:each="keyword, iterStat : ${post.keywords}">
+				        <button th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
+				                th:attr="data-keyword=${keyword}"
+				                class="tag" 
+				                th:text="${keyword}" >
+				        </button>
+				    </th:block>
+				</div>
 				</div>
 				
 				<div class="post-metadata">

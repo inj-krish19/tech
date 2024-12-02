@@ -16,16 +16,23 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> Posts</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/create_post"><i class="bi bi-arrow-in-down"></i> New Post</a>
-                </li>
-
                 <!-- Login and Sign Up options for unauthenticated users -->
                 <li class="nav-item" th:if="${loggedInUser == null}">
                     <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> Login</a>
                 </li>
                 <li class="nav-item" th:if="${loggedInUser == null}">
                     <a class="nav-link" href="/register"><i class="bi bi-person-plus"></i> Sign Up</a>
+                </li>
+                
+                
+                <!-- Post option for authenticated users -->
+                <li class="nav-item" th:if="${loggedInUser != null}">
+                    <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
+                </li>
+
+                <!-- My Posts option for authenticated users -->
+                <li class="nav-item" th:if="${loggedInUser != null}">
+                    <a class="nav-link" href="/myposts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
                 </li>
 
                 <!-- Options for authenticated users -->
@@ -40,16 +47,6 @@
                         <li><a class="dropdown-item" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
                         </li>
                     </ul>
-                </li>
-
-                <!-- Post option for authenticated users -->
-                <li class="nav-item" th:if="${loggedInUser != null}">
-                    <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> Create Post</a>
-                </li>
-
-                <!-- My Posts option for authenticated users -->
-                <li class="nav-item" th:if="${loggedInUser != null}">
-                    <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> My Posts</a>
                 </li>
 
             </ul>
