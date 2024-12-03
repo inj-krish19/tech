@@ -12,8 +12,32 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-
 <body style="background:#343a40">
+
+	<style th:each="color, iterStat : ${colors}">
+        .color-[[${iterStat.index}]] {
+            background-color: white;
+            border : 1px solid [[${color}]];
+            color : [[${color}]];
+        }
+        .color-[[${iterStat.index}]]:hover {
+            background-color : [[${color}]];
+            color: white;
+            border: 1px solid [[${color}]];
+        }
+        
+        .color-[[${iterStat.index}]]:click {
+            background-color : [[${color}]];
+            color: white;
+            border: 1px solid [[${color}]];
+        }
+        
+        .color-[[${iterStat.index}]]-clicked {
+            background-color : [[${color}]];
+            color: white;
+            border: 1px solid [[${color}]];
+        }
+    </style>
 
 	<div th:replace="~{header :: nav}"></div>
 	<div class="container mt-4">

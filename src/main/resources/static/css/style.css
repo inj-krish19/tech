@@ -1280,3 +1280,20 @@ button {
   width: 100%;
   margin: 5px 0;
 }
+
+.mycard {
+    background-color: white;
+    /* White background for the card */
+    color: #212529;
+    /* Dark text color for better visibility */
+}
+
+.tag {
+    display: inline-block;
+    font-weight : 600;
+    color: white;
+    padding: 5px 10px;
+    margin: 5px;
+    border-radius: 25px;
+    width: fit-content;
+}

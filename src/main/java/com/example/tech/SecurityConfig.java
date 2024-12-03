@@ -1,6 +1,7 @@
 package com.example.tech;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -16,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,11 +29,19 @@ public class SecurityConfig {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    Dotenv dotenv = Dotenv.load();
+    
+    @Value("${ADMIN_USERNAME}")
+    String admin_username;
+    
+    @Value("${ADMIN_PASSWORD}")
+    String admin_password;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/login", "/register", "/css/**", "/js/**", "/images/**", "/").permitAll()
+                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/").permitAll()
                 .requestMatchers("/profile").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -71,8 +81,9 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+    	
         List<UserDetails> users = new ArrayList<>();
-        users.add(new MyUserDetails("iamadmin", passwordEncoder.encode("boss"), List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), null));
+        users.add(new MyUserDetails(admin_username, passwordEncoder.encode(admin_password), List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), null));
         jdbcTemplate.query("SELECT authorId, username, password FROM Blogger", 
             (rs, rowNum) -> users.add(new MyUserDetails(
                 rs.getString("username"), 

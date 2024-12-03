@@ -1,5 +1,6 @@
 package com.example.tech;
 
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -9,21 +10,48 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class HomeController {
 
+
+    @Autowired
+    private HttpSession session;
+    
+    String userExist = "";
+	
     @GetMapping("/login") // Maps to /login (http://localhost:8080/login)
-    public String login() {
+    public String login(Model model, Principal principal) {
+        
+    	if (principal != null) {
+            model.addAttribute("loggedInUser", userExist = principal.getName()); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+    	
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
         return "mylogin"; // Login page
     }
 
     @GetMapping("/register") // Maps to /register (http://localhost:8080/register)
     public String register(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         return "signup"; // Register page
     }
 
@@ -46,37 +74,72 @@ public class HomeController {
 //    }
     
     @GetMapping("/error")
-    public String getError() {
+    public String getError(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "error";
     }
     
     @GetMapping("/about")
-    public String getAbout() {
+    public String getAbout(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "about";
     }
 
     @GetMapping("/terms")
-    public String terms() {
+    public String terms(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "terms";
     }
 
     @GetMapping("/write-for-us")
-    public String writeForUs() {
+    public String writeForUs(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "write-for-us";
     }
 
     @GetMapping("/contact")
-    public String staticContact() {
+    public String staticContact(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "contact";
     }
 
     @GetMapping("/events")
-    public String events() {
+    public String events(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "events";
     }
     
     @GetMapping("/signup")
-    public String getSignup() {
+    public String getSignup(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	return "signup";
     }
     
@@ -84,7 +147,11 @@ public class HomeController {
     public String savePost(Model model, String title, String body, String topic, boolean publish) {
         // Here you would handle saving the post to your database
         // For example, you could call a service to save the post
-        
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         return "redirect:/admin/posts"; 
     }
 }

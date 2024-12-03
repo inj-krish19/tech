@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import jakarta.servlet.ServletRequest;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringTokenizer;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -35,10 +36,17 @@ public class JdbcController {
     @Autowired
     private HttpSession session;
     
+    Dotenv dotenv = Dotenv.load();
+    
     String userExist = "";
 
     @GetMapping("/secret")
     public String secret( HttpServletRequest request) {
+    	
+    	List<String> admin_username = new ArrayList<>( List.of(
+        		dotenv.get("ADMIN_USERNAME")
+        	) );
+        
     	
 		Enumeration<String> attributeNames = request.getSession().getAttributeNames();
 		System.out.println("Printing all session variables:");
@@ -69,6 +77,11 @@ public class JdbcController {
 		            
 		            // Print and store the username
 		            System.out.println("Username from SPRING_SECURITY_CONTEXT: " + username);
+		            
+		            if( admin_username.contains(username) ) {
+		            	request.getSession().setAttribute("authorId", -1);
+			            return "redirect:/admin";  
+		            }
 		            
 		            String sql = "SELECT authorId FROM Blogger WHERE username = ?";
 		            Integer authorId = jdbcTemplate.queryForObject(sql, Integer.class, username );
@@ -298,7 +311,6 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                LIMIT 5
             """;
 
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
@@ -354,12 +366,21 @@ public class JdbcController {
     }
     
     @PostMapping("/review")
-    public String reviewPost(Model model, String title, String category, String description, String selectedKeywords ) {
-        Map<String, Object> postData = new HashMap<>();
+    public String reviewPost(Model model, String title, String category, String description, String selectedKeywords, HttpServletRequest request ) {
+        
+    	String sql = "SELECT username,name,bio FROM Blogger where authorId=?";
+    	
+    	Map<String,Object> user = jdbcTemplate.queryForMap(sql, (Integer) request.getSession().getAttribute("authorId") );
+    	
+    	Map<String, Object> postData = new HashMap<>();
         postData.put("title", title);
         postData.put("category", category);
         description = description.replaceAll("<[^>]*>", "").trim();
         postData.put("description", description);
+        
+        postData.put("username", user.get("username") );
+        postData.put("name", user.get("name") );
+        postData.put("bio", user.get("bio") );
         
         String keyword = selectedKeywords;
         System.out.print("Keyword " + keyword);
@@ -430,7 +451,27 @@ public class JdbcController {
 
     @GetMapping("/post/{id}")
     public String viewPost(Model model, @PathVariable String id) {
-        String sql = "SELECT * FROM Post WHERE articleid = ?";
+        String sql = """
+                SELECT p.articleid, 
+                p.title, 
+                p.description, 
+                p.likes, 
+                p.dislikes, 
+                p.viewscount, 
+                p.commentscount AS comments, 
+                p.updatedat, 
+                p.postmedia AS image,
+                u.name AS name, 
+                u.username AS username, 
+                u.bio AS bio, 
+                c.name AS category
+         FROM Post p 
+         JOIN Blogger u ON p.primaryAuthor = u.authorid 
+         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+         JOIN Category c ON pca.categoryid = c.categoryid
+         WHERE articleid = ?
+        """;
+        
         List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, id);
         model.addAttribute("post", post);
         
@@ -475,13 +516,19 @@ public class JdbcController {
                 u.bio AS bio, 
                 c.name AS category
          FROM Post p 
-         WHERE categoryid = ?
          JOIN Blogger u ON p.primaryAuthor = u.authorid 
          JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
          JOIN Category c ON pca.categoryid = c.categoryid
-         LIMIT 5
+         WHERE c.categoryid = ? LIMIT 5
      """;
 
+        List<String> colors = new ArrayList<>(
+    			List.of(
+    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+    				)
+    		);
+    	model.addAttribute("colors", colors);
+        
      List<Map<String, Object>> posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
          Map<String, Object> post = new HashMap<>();
          int articleId = rs.getInt("articleid");
@@ -526,7 +573,7 @@ public class JdbcController {
     @GetMapping("/filter/keyword/{keyword}")
     public String filterKeywordpost(Model model, @PathVariable String keyword) {
     	
-    	String sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
+        String sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
         List<Integer> keywords = jdbcTemplate.queryForList(sql, Integer.class, "%" + keyword + "%");
 
         if (keywords.isEmpty()) {
@@ -536,48 +583,90 @@ public class JdbcController {
 
         int keywordId = keywords.get(0);
 
+        // Fetch posts based on keyword ID
         sql = """
-        	    SELECT p.articleid, 
-        	           p.title, 
-        	           p.description, 
-        	           p.likes, 
-        	           p.dislikes, 
-        	           p.viewscount, 
-        	           p.commentscount, 
-        	           p.updatedat, 
-        	           u.name AS name, 
-        	           u.username AS username, 
-        	           u.bio AS bio, 
-        	           c.name AS category, 
-        	           STRING_AGG(k.name, ',') AS keywords
-        	    FROM Post p 
-        	    JOIN Blogger u ON p.primaryAuthor = u.authorid 
-        	    JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
-        	    JOIN Category c ON pca.categoryid = c.categoryid 
-        	    LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
-        	    LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
-        	    WHERE c.keywordid = ?
-        	    GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
-        	             p.viewscount, p.commentscount, p.updatedat, u.name, 
-        	             u.username, u.bio, c.name
-        	""";
+            SELECT 
+                p.articleid, 
+                p.title, 
+                p.description, 
+                p.likes, 
+                p.dislikes, 
+                p.viewscount, 
+                p.commentscount AS comments, 
+                p.updatedat, 
+                p.postmedia AS image,
+                u.name AS name, 
+                u.username AS username, 
+                u.bio AS bio, 
+                c.name AS category,
+                STRING_AGG(k.name, ',') AS keywords
+            FROM Post p 
+            JOIN Blogger u ON p.primaryAuthor = u.authorid 
+            JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+            JOIN Category c ON pca.categoryid = c.categoryid 
+            LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+            LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+            WHERE k.keywordid = ?
+            GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+                     p.viewscount, p.commentscount, p.updatedat, p.postmedia,
+                     u.name, u.username, u.bio, c.name
+            """;
+        
+        List<String> colors = new ArrayList<>(
+    			List.of(
+    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+    				)
+    		);
+    	model.addAttribute("colors", colors);
 
-        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, keywordId);
+        List<Map<String, Object>> posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+        	Map<String, Object> post = new HashMap<>();
+            int articleId = rs.getInt("articleid");
+            
+            post.put("articleid", articleId);
+            post.put("title", rs.getString("title"));
+            post.put("description", rs.getString("description"));
+            post.put("likes", rs.getInt("likes"));
+            post.put("dislikes", rs.getInt("dislikes"));
+            post.put("viewscount", rs.getInt("viewscount"));
+            post.put("comments", rs.getInt("comments"));
+            post.put("updatedat", rs.getTimestamp("updatedat"));
+            post.put("name", rs.getString("name"));
+            post.put("username", rs.getString("username"));
+            post.put("bio", rs.getString("bio"));
+            post.put("category", rs.getString("category"));
+            post.put("image", rs.getString("image"));
 
-        // Print SQL query and data for debugging (optional for dev use)
-        System.out.println("Executed Query: " + sql + " | Category: " + keyword + " | Posts: " + posts);
+            // Separate query to get keywords for the current article
+            String keywordQuery = """
+            		SELECT name FROM Keyword k 
+            		JOIN KeywordAssignment ka 
+            		ON k.keywordid = ka.keywordid 
+            		WHERE ka.articleid = ?
+            	""";
+        	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+        	post.put("keywords", keywordsOfPost);
+        	
+        	return post;
+        } ,keywordId);
 
+        // Debugging (optional)
+        System.out.println("Executed Query: \n" + sql);
+        System.out.println("Keyword: " + keyword + " | Posts: " + posts);
+
+        // Add posts to the model
         if (posts.isEmpty()) {
             model.addAttribute("error", "No posts found for this category.");
             model.addAttribute("posts", null);
         } else {
             model.addAttribute("posts", posts);
         }
-        
-        if (this.userExist != "" && userExist != null ) {
-            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+
+        // Add logged-in user info
+        if (userExist != null && !userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist);
         } else {
-            model.addAttribute("loggedInUser", null); // No user logged in
+            model.addAttribute("loggedInUser", null);
         }
 
         model.addAttribute("topic", keyword);
@@ -776,13 +865,14 @@ public class JdbcController {
 
             // Step 4: Insert Keywords
             String[] keywordArray = keyword.split(",");
+            
             if (keywordArray.length > 0) {
                 for (String currentKeyword : keywordArray) {
                     // Get keywordId (we assume keywords are case-insensitive)
-                    String getKeywordIdSql = "SELECT COALESCE(MAX(keywordid), 0) + 1 FROM Keyword WHERE LOWER(name) = LOWER(?)";
+                    String getKeywordIdSql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
                     Integer keywordId = null;
                     try {
-                        keywordId = jdbcTemplate.queryForObject(getKeywordIdSql, Integer.class, currentKeyword.trim());
+                        keywordId = jdbcTemplate.queryForObject(getKeywordIdSql, Integer.class, "%" + currentKeyword.trim() + "%");
                     } catch (EmptyResultDataAccessException e) {
                         System.out.println("Keyword not found: " + currentKeyword);
                     }
@@ -899,25 +989,70 @@ public class JdbcController {
     
     @GetMapping("/load-more-post")
     @ResponseBody
-    public Map<String, Object> loadMorepost(@RequestParam("page") int page) {
-        int pageSize = 5; // Number of post per page
+    public Map<String, Object> loadMorePost(@RequestParam("page") int page) {
+        int pageSize = 5; // Number of posts per page
         int offset = (page - 1) * pageSize;
 
-        // SQL query to fetch post based on the page and pageSize
-        String sql = "SELECT p.articleid, p.title, p.description,p.likes, p.dislikes, p.viewscount, p.commentscount, p.updatedat ,u.name AS name, u.username AS username, u.bio AS bio, c.name AS category " +
-                "FROM Post p " +
-                "JOIN Blogger u ON p.primaryAuthor = u.authorid " +
-                "JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid " +
-                "JOIN Category c ON pca.categoryid = c.categoryid " +
-                "ORDER BY articleid LIMIT ? OFFSET ?";
-        List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, pageSize, offset);
+        // SQL query to fetch posts with pagination
+        String postSql = """
+                SELECT p.articleid, 
+                       p.title, 
+                       p.description, 
+                       p.likes, 
+                       p.dislikes, 
+                       p.viewscount, 
+                       p.commentscount AS comments, 
+                       p.updatedat, 
+                       p.postmedia AS image,
+                       u.name AS name, 
+                       u.username AS username, 
+                       u.bio AS bio, 
+                       c.name AS category
+                FROM Post p 
+                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                JOIN Category c ON pca.categoryid = c.categoryid
+                ORDER BY p.updatedat DESC
+                LIMIT ? OFFSET ?
+            """;
 
-        // Check if there are more post to load
-        boolean hasMore = post.size() == pageSize;
+        List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
+            Map<String, Object> post = new HashMap<>();
+            int articleId = rs.getInt("articleid");
 
-        // Prepare the response map
+            post.put("articleid", articleId);
+            post.put("title", rs.getString("title"));
+            post.put("description", rs.getString("description"));
+            post.put("likes", rs.getInt("likes"));
+            post.put("dislikes", rs.getInt("dislikes"));
+            post.put("viewscount", rs.getInt("viewscount"));
+            post.put("comments", rs.getInt("comments"));
+            post.put("updatedat", rs.getTimestamp("updatedat"));
+            post.put("name", rs.getString("name"));
+            post.put("username", rs.getString("username"));
+            post.put("bio", rs.getString("bio"));
+            post.put("category", rs.getString("category"));
+            post.put("image", rs.getString("image"));
+
+            // Fetch keywords for the current article
+            String keywordQuery = """
+                SELECT name 
+                FROM Keyword k 
+                JOIN KeywordAssignment ka ON k.keywordid = ka.keywordid 
+                WHERE ka.articleid = ?
+            """;
+            List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
+            post.put("keywords", keywords);
+
+            return post;
+        }, pageSize, offset);
+
+        // Check if there are more posts to load
+        boolean hasMore = posts.size() == pageSize;
+
+        // Prepare response
         Map<String, Object> response = new HashMap<>();
-        response.put("post", post);
+        response.put("posts", posts);
         response.put("hasMore", hasMore);
 
         return response;
@@ -1564,18 +1699,205 @@ public class JdbcController {
     }
     
     @GetMapping("/mass-filter")
-    public String showMassFilterPage(Model model) {
-        // Fetch categories
+    public String hideMassFilterPage(Model model, @PathVariable Optional<String> _entity, @PathVariable Optional<String> _target ) {
+    
         String categorySql = "SELECT name FROM Category";
-        List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
-        model.addAttribute("categories", categories);
+        List<String> categoriesForTags = jdbcTemplate.queryForList(categorySql, String.class);
+        model.addAttribute("categories", categoriesForTags);
 
         // Fetch keywords
         String keywordSql = "SELECT name FROM Keyword";
-        List<String> keywords = jdbcTemplate.queryForList(keywordSql, String.class);
-        model.addAttribute("keywords", keywords);
+        List<String> keywordsForTags = jdbcTemplate.queryForList(keywordSql, String.class);
+        model.addAttribute("keywords", keywordsForTags);
+        
+    	List<String> colors = new ArrayList<>(
+    			List.of(
+    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+    				)
+    		);
+        	
+        	model.addAttribute("topic", null ); 
+        	model.addAttribute("colors", colors); 
+            
+            return "massfilter";
+    }
+    
+    @GetMapping("/mass-filter/{entity}/{target}")
+    public String showMassFilterPage(Model model, @PathVariable String entity, @PathVariable String target ) {
+        // Fetch categories
+        String categorySql = "SELECT name FROM Category";
+        List<String> categoriesForTags = jdbcTemplate.queryForList(categorySql, String.class);
+        model.addAttribute("categories", categoriesForTags);
 
-        return "mass-filter";
+        // Fetch keywords
+        String keywordSql = "SELECT name FROM Keyword";
+        List<String> keywordsForTags = jdbcTemplate.queryForList(keywordSql, String.class);
+        model.addAttribute("keywords", keywordsForTags);
+        
+        if( entity == null || target == null ) {
+        	return "redirect:/mass-filter";
+        }
+        
+        entity = "%" + entity + "%";
+        target = "%" + target+ "%";
+
+        String sql;
+        List<Map<String,Object>> posts = null;
+        
+        if( entity == "category" ) {
+        	
+        	sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
+            List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class, "%" + target + "%");
+
+            if (categories.isEmpty()) {
+                model.addAttribute("error", "No posts found in this category.");
+                model.addAttribute("posts", null);
+                return "filter"; 
+            }
+
+            int categoryId = categories.get(0);
+
+            // Query to retrieve posts along with keywords
+            sql = """
+                    SELECT p.articleid, 
+                    p.title, 
+                    p.description, 
+                    p.likes, 
+                    p.dislikes, 
+                    p.viewscount, 
+                    p.commentscount AS comments, 
+                    p.updatedat, 
+                    p.postmedia AS image,
+                    u.name AS name, 
+                    u.username AS username, 
+                    u.bio AS bio, 
+                    c.name AS category
+	             FROM Post p 
+	             JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	             JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	             JOIN Category c ON pca.categoryid = c.categoryid
+	             WHERE c.categoryid = ? LIMIT 5
+	         """;
+
+            posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+	             Map<String, Object> post = new HashMap<>();
+	             int articleId = rs.getInt("articleid");
+	             
+	             post.put("articleid", articleId);
+	             post.put("title", rs.getString("title"));
+	             post.put("description", rs.getString("description"));
+	             post.put("likes", rs.getInt("likes"));
+	             post.put("dislikes", rs.getInt("dislikes"));
+	             post.put("viewscount", rs.getInt("viewscount"));
+	             post.put("comments", rs.getInt("comments"));
+	             post.put("updatedat", rs.getTimestamp("updatedat"));
+	             post.put("name", rs.getString("name"));
+	             post.put("username", rs.getString("username"));
+	             post.put("bio", rs.getString("bio"));
+	             post.put("category", rs.getString("category"));
+	             post.put("image", rs.getString("image"));
+	
+	             // Separate query to get keywords for the current article
+	             String keywordQuery = """
+	             		SELECT name FROM Keyword k 
+	             		JOIN KeywordAssignment ka 
+	             		ON k.keywordid = ka.keywordid 
+	             		WHERE ka.articleid = ?
+	             	""";
+	         	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+	         	post.put("keywords", keywords);
+	
+	             return post;
+	         }, categoryId);
+       	
+        }
+        
+        if( entity == "keyword" ) {
+        	
+        	sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
+            List<Integer> keywords = jdbcTemplate.queryForList(sql, Integer.class, "%" + target + "%");
+
+            if (keywords.isEmpty()) {
+                model.addAttribute("error", "No posts found in this category.");
+                return "filter"; // Return with error message if no category found
+            }
+
+            int keywordId = keywords.get(0);
+
+            // Fetch posts based on keyword ID
+            sql = """
+                SELECT 
+                    p.articleid, 
+                    p.title, 
+                    p.description, 
+                    p.likes, 
+                    p.dislikes, 
+                    p.viewscount, 
+                    p.commentscount AS comments, 
+                    p.updatedat, 
+                    p.postmedia AS image,
+                    u.name AS name, 
+                    u.username AS username, 
+                    u.bio AS bio, 
+                    c.name AS category,
+                    STRING_AGG(k.name, ',') AS keywords
+	                FROM Post p 
+	                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	                JOIN Category c ON pca.categoryid = c.categoryid 
+	                LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+	                LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+	                WHERE k.keywordid = ?
+	                GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+	                         p.viewscount, p.commentscount, p.updatedat, p.postmedia,
+	                         u.name, u.username, u.bio, c.name
+	          """;
+
+            posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            	Map<String, Object> post = new HashMap<>();
+                int articleId = rs.getInt("articleid");
+                
+                post.put("articleid", articleId);
+                post.put("title", rs.getString("title"));
+                post.put("description", rs.getString("description"));
+                post.put("likes", rs.getInt("likes"));
+                post.put("dislikes", rs.getInt("dislikes"));
+                post.put("viewscount", rs.getInt("viewscount"));
+                post.put("comments", rs.getInt("comments"));
+                post.put("updatedat", rs.getTimestamp("updatedat"));
+                post.put("name", rs.getString("name"));
+                post.put("username", rs.getString("username"));
+                post.put("bio", rs.getString("bio"));
+                post.put("category", rs.getString("category"));
+                post.put("image", rs.getString("image"));
+
+                // Separate query to get keywords for the current article
+                String keywordQuery = """
+                		SELECT name FROM Keyword k 
+                		JOIN KeywordAssignment ka 
+                		ON k.keywordid = ka.keywordid 
+                		WHERE ka.articleid = ?
+                	""";
+            	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+            	post.put("keywords", keywordsOfPost);
+            	
+            	return post;
+            } ,keywordId);
+        	
+        }
+
+        model.addAttribute("posts", posts);
+        
+    	List<String> colors = new ArrayList<>(
+			List.of(
+				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+				)
+		);
+    	
+    	model.addAttribute("topic", target.substring(1,target.length() - 1) ); 
+    	model.addAttribute("colors", colors); 
+        
+        return "massfilter";
     }
 
     

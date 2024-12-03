@@ -11,54 +11,32 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-
-<style>
-
-.card {
-    background-color: white;
-    /* White background for the card */
-    color: #212529;
-    /* Dark text color for better visibility */
-}
-
-.tag {
-    display: inline-block;
-    font-weight : 600;
-    color: white;
-    padding: 5px 10px;
-    margin: 5px;
-    border-radius: 25px;
-    width: fit-content;
-}
-
-</style>
-
-	<style th:each="color, iterStat : ${colors}">
-		.color-[[${iterStat.index}]] {
-		    background-color: white;
-		    border : 1px solid [[${color}]];
-		    color : [[${color}]];
-		}
-		.color-[[${iterStat.index}]]:hover {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-		
-		.color-[[${iterStat.index}]]:click {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-		
-		.color-[[${iterStat.index}]]-clicked {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-	</style>
-
 <body>
+
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color: white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+</style>
 
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-4">

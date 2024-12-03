@@ -9,22 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <style>
-.card {
-    background-color: white;
-    /* White background for the card */
-    color: #212529;
-    /* Dark text color for better visibility */
-}
 
-.tag {
-    display: inline-block;
-    font-weight : 600;
-    color: white;
-    padding: 5px 10px;
-    margin: 5px;
-    border-radius: 25px;
-    width: fit-content;
-}
 </style>
 <body>
 
@@ -56,7 +41,7 @@
     <div th:replace="~{header :: nav}"></div>
     <div class="post-card" style="max-width: 800px;">
         
-        <div class="post-content">
+        <div class="post-content" id="post-content">
             <div class="container">
 
                 <div class="author-box">
@@ -64,11 +49,8 @@
                         <img th:src="@{images/logo.jpg}" alt="Author Profile Picture" class="author-image">
                     </div>
                     <div class="author-details">
-                        <h3 class="author-name">John Doe <span> @inj_krish19 </span> </h3>
-                        <p class="author-bio">
-                            John is a passionate blogger who writes about technology, programming, and the latest trends
-                            in software development.
-                        </p>
+                        <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@' + ${post.username}"></span> 
+                        <p class="author-bio" th:text="${post.bio}"></p>
                     </div>
                 </div>
                 
@@ -103,7 +85,7 @@
 					</div>
 				</div>
 				
-				<div class="card d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+				<div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
 				    <div th:if="${#lists.isEmpty(post.keywords)}">
 					    <h2 style="display: inline; color: #5c5b5b;" >Keywords Not Selected</h2>
 					</div>
@@ -137,14 +119,38 @@
                         <input type="hidden" name="category" th:value="${post.category}" />
                         <input type="hidden" name="description" th:value="${post.description}" />
                         <input type="hidden" name="keyword" th:value="${post.keyword}" />
-                        <button type="submit" class="btn-confirm">Confirm</button>
+                        <button type="submit" class="btn-confirm" onclick="hidePost()">Confirm</button>
                     </form>
                     <a href="/create_post" class="btn-cancel" style="margin-top: 5px; height:100%;">Cancel</a>
                 </div>
             </div>
         </div>
+        <div class="justify-content-center mt-5 mb-5 "  style="font-size:1.75rem;	display :none; " id="loader" >
+	           <div class="alert alert-success text-center" role="alert">
+	                <span>Uploading ...</span>
+	          		<div class="spinner-border text-success"role="status">
+					  <span class="sr-only">Loading...</span>
+					</div>
+	           </div>
+		</div>
     </div>
+    
     <div th:replace="~{footer :: div}"></div>
+
+	<script>
+	
+		function hidePost(){
+			
+			const postContent = document.getElementById("post-content");
+			const loader = document.getElementById("loader");
+			
+			postContent.style.display = "none";
+			loader.style.display = "show";
+			loader.classList.add("d-flex");
+			
+		}
+	
+	</script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

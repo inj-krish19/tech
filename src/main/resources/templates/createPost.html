@@ -21,22 +21,6 @@
             height: auto;
         }
 
-        .card {
-            background-color: white;
-            /* White background for the card */
-            color: #212529;
-            /* Dark text color for better visibility */
-        }
-        
-        .tag {
-            display: inline-block;
-            font-weight : 600;
-            color: white;
-            padding: 5px 10px;
-            margin: 5px;
-            border-radius: 25px;
-            width: fit-content;
-        }
         		        
     </style>
 </head>
@@ -73,11 +57,12 @@
         <div class="row justify-content-center">
             <div class="col-lg-8 col-md-10">
                 <div class="card shadow-lg border-light">
-                    <div class="card-body p-4" style="background: grey;">
+                    <div class="card-body p-4" style="background: grey;" id="cardContent">
+                        <div th:if="${param.error}" class="alert alert-danger" role="alert">
+	                        <span>Content Can't Be Empty</span>
+	                    </div>
                         <h2 class="text-center">Create Post</h2>
                         <form th:action="@{/review}" method="post" enctype="multipart/form-data">
-
-
                             <div class="mb-3">
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-select" id="category" name="category" required>
@@ -100,11 +85,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="image" class="form-label">Image</label>
-                                <input type="file" class="form-control" id="image" name="image" accept="image/*"
-                                    onchange="previewImage(event)">
-                                <img id="image-preview" src="" alt="Image Preview" class="img-fluid mt-2"
-                                    style="display: none; max-width: 100%;">
+                                <label for="image" class="form-label">Choose a Media ( Images and PDF Supported) </label>
+                                <input type="file" class="form-control" id="image" name="image" accept="image/*">
                             </div>
 
                             <div class="form-check mb-3">
@@ -129,7 +111,7 @@
 							<div class="d-flex mb-3">
 							    <label class="form-label">Remaining Keywords</label>
 							</div>
-							<div class="card d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+							<div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
 							    <th:block th:each="keyword, iterStat : ${keywords}">
 							        <button th:class="'tag color-' + ${iterStat.index}" 
 							                th:attr="data-keyword=${keyword}" 
@@ -140,9 +122,17 @@
 							    </th:block>
 							</div>
 							
-                            <button type="submit" class="btn btn-primary w-100">Save Post</button>
+                            <button type="submit" class="btn btn-primary w-100" onclick="hideForm()">Generate Preview</button>
                         </form>
                     </div>
+                    <div class="justify-content-center mt-5 mb-5 "  style="display :none; font-size : 1.75rem;" id="loader" >
+		               <div class="alert alert-success text-center" role="alert">
+		                    <span>Generating Preview ...</span>
+				           <div class="spinner-border text-success"role="status">
+							  <span class="sr-only">Loading...</span>
+							</div>
+						</div>
+					</div>
                 </div>
             </div>
         </div>
@@ -159,6 +149,18 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+    
+    function hideForm(){
+		
+		const cardContent = document.getElementById("cardContent");
+		const loader = document.getElementById("loader");
+		
+		cardContent.style.display = "none";
+		loader.style.display = "show";
+		loader.style.background ="grey;"
+		loader.classList.add("d-flex");
+		
+	}
     
     const selected = document.getElementById("selected");
     const remaining = document.getElementById("remaining");
@@ -242,12 +244,6 @@
 	    });
 	}
     	
-        // Preview Image Function
-        function previewImage(event) {
-            const imagePreview = document.getElementById('image-preview');
-            imagePreview.src = URL.createObjectURL(event.target.files[0]);
-            imagePreview.style.display = 'block';
-        }
 
         // Quill Editor Initialization
         document.addEventListener('DOMContentLoaded', function () {
@@ -271,6 +267,9 @@
             const form = document.querySelector('form');
             form.onsubmit = function () {
                 document.querySelector('#body-input').value = quill.root.innerHTML;
+                if( quill.root.innerHTML === "" ){
+                	window.location.href = "/create_post?error=true";
+                }
             };
         });
 
