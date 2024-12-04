@@ -3,11 +3,14 @@ package com.example.tech;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -1714,7 +1717,7 @@ public class JdbcController {
     }
     
     @GetMapping("/mass-filter")
-    public String hideMassFilterPage(Model model, @PathVariable Optional<String> _entity, @PathVariable Optional<String> _target ) {
+    public String hideMassFilterPage(Model model) {
     
         String categorySql = "SELECT name FROM Category";
         List<String> categoriesForTags = jdbcTemplate.queryForList(categorySql, String.class);
@@ -1739,6 +1742,7 @@ public class JdbcController {
         	
         	model.addAttribute("topic", null ); 
         	model.addAttribute("colors", colors); 
+        	model.addAttribute("news","Select The Category or Keyword Please");
             
             return "massfilter";
     }
@@ -1791,7 +1795,7 @@ public class JdbcController {
         String sql;
         List<Map<String,Object>> posts = null;
         
-        if( entity == "category" ) {
+        if( entity.equals("%category%") ) {
         	
         	sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
             List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class, "%" + target + "%");
@@ -1859,7 +1863,7 @@ public class JdbcController {
        	
         }
         
-        if( entity == "keyword" ) {
+        if( entity.equals("%keyword%") ) {
         	
         	sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
             List<Integer> keywords = jdbcTemplate.queryForList(sql, Integer.class, "%" + target + "%");
@@ -1945,6 +1949,27 @@ public class JdbcController {
     	model.addAttribute("colors", colors); 
         
         return "massfilter";
+    }
+    
+    @PostMapping("/profile")
+    public ResponseEntity<Map<String, String>> update(@RequestBody String profileData) {
+    	
+    	String[] data = profileData.split("\":\"");
+  
+    	boolean success = true;
+    	
+    	
+    	
+
+        System.out.println("Received profile data: " + data[0] + " " +  data[1]);
+    	
+        Map<String, String> responseMap = new HashMap<>();
+    	if (success) {
+    	    responseMap.put(data[0], data[1]);  // Assuming data[0] and data[1] are valid keys and values
+    	    return ResponseEntity.ok(responseMap);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
     }
 
     

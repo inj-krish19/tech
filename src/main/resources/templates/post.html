@@ -1,7 +1,8 @@
-<div class="posts-list">
-	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-warning text-center">
-		<h2>Posts Are Currently Not Available</h2>
+<div class="posts-list" >
+	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
+    	<h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
 	</div>
+
 	<div th:each="post : ${posts}" class="post mb-4" style="max-width:800px;">
 		<div class="post-card p-4">
 			<div class="post-content">

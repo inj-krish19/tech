@@ -1283,10 +1283,9 @@ button {
 }
 
 .mycard {
-    background-color: white;
-    /* White background for the card */
-    color: #212529;
-    /* Dark text color for better visibility */
+    color: #495057;
+    background-color: #ced4da;
+    border-radius: 10px;
 }
 
 .tag {
