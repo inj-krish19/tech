@@ -32,6 +32,8 @@
     .page-wrapper.rotate-out {
       transform: rotateY(180deg);
     }
+    
+    
   </style>
 </head>
 
@@ -39,16 +41,39 @@
 
   <div th:replace="~{header :: nav}"></div>
 
-  <div class="page-wrapper container mt-5">
-    <div class="content-section card shadow-lg p-4 bg-secondary border-light text-center">
-      <h1>About Page</h1>
-      <p>This page is currently under construction.</p>
-      <p>Please check back later!</p>
-      <div class="text-center">
-        <button class="btn btn-primary" id="go-home-btn">Go Home</button>
-      </div>
+  <div class="container mt-5">
+        <h1 class="text-center mb-5">About Us</h1>
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="img-holder text-center">
+                        <img src="http://rentac.infinityfreeapp.com/Rentac/Images/developers/krish.jpg" alt="Krish Shah" class="img-fluid " width="200">
+
+                </div>
+                <div class="text-center mt-3">
+                    <h4>Krish Shah</h4>
+                    <p>Fullstack Developer</p>
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="text-left">
+                    <h4><a href="https://www.linkedin.com/in/inj-krish19/">LinkedIn</a></h4>
+                    <p>Hello, I am Krish. I am currently pursuing Computer Science. For collaboration, connect with me on LinkedIn.</p>
+
+                    <h4><a href="https://github.com/inj-krish19">GitHub</a></h4>
+                    <p>Check my projects like <a href="https://github.com/inj-krish19/Soundbot">Soundbot</a> and <a href="https://inj-krish19.github.io/Project-Racing-Car/">Racing Car</a> on GitHub.</p>
+
+                    <h4><a href="https://www.instagram.com/inj_krish19/">Instagram</a></h4>
+                    <p>Connect on Instagram for a more personal interaction.</p>
+
+                    <h4><a href="https://www.facebook.com/inj.krish19/">Facebook</a></h4>
+                    <p>Explore my personality and education on Facebook.</p>
+
+                    <h4>Email:</h4>
+                    <p>kglivee19@gmail.com / krishshah19.in@gmail.com</p>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
 
 
   <div th:replace="~{footer :: div}"></div>

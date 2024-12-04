@@ -44,6 +44,7 @@
 	<div class="container mt-4 mb-4">
 	    <!-- Categories Section -->
 	    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+	        <h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
 	        <th:block th:each="category, iterStat : ${categories}">
 	            <button 
 	                th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
@@ -57,6 +58,7 @@
 	<div class="container mt-4 mb-4">
 	    <!-- Keywords Section -->
 	    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+	        <h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
 	        <th:block th:each="keyword, iterStat : ${keywords}">
 	            <button 
 	                th:class="'tag color-' + ${iterStat.index}" 

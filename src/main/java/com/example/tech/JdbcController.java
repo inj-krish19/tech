@@ -1018,7 +1018,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                ORDER BY p.updatedat DESC
+                ORDER BY p.articleid ASC
                 LIMIT ? OFFSET ?
             """;
 
@@ -1952,25 +1952,63 @@ public class JdbcController {
     }
     
     @PostMapping("/profile")
-    public ResponseEntity<Map<String, String>> update(@RequestBody String profileData) {
+    public ResponseEntity<Map<String, String>> update(@RequestBody String profileData, HttpServletRequest request ) {
     	
-    	String[] data = profileData.split("\":\"");
-  
-    	boolean success = true;
+    	Integer authorId = (Integer) request.getSession().getAttribute("authorId");
+        String jsonPart = profileData;
+        
+        String field = jsonPart.substring(jsonPart.indexOf("\"field\":\"") + 9, jsonPart.indexOf("\",\"value\""));
+        String value = jsonPart.substring(jsonPart.indexOf("\"value\":\"") + 9, jsonPart.lastIndexOf("\""));
+        
+        // Print extracted field and value
+        System.out.println("Field: " + field);
+        System.out.println("Value: " + value);
+        
+    	boolean success = false;
     	
+    	if( authorId == null || authorId < 1 ) {
+    		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    	}
     	
+    	if( field.equals("password") ) {
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            value = passwordEncoder.encode(value);
+    	}
     	
+    	String sql = """
+    		    UPDATE Blogger
+    		    SET %s = ?
+    		    WHERE authorId = ?
+    		""";
 
-        System.out.println("Received profile data: " + data[0] + " " +  data[1]);
+    		// Dynamically format the SQL to include the field (sanitize it if user-provided)
+    		String formattedSql = String.format(sql, field);
+
+    		// Execute the update with value and authorId
+    		int rowsAffected = jdbcTemplate.update(formattedSql, value, authorId);
+
+    		// Check if the update was successful
+    		success = rowsAffected > 0; // Simplified boolean expression
+
+    		System.out.println("Update success: " + success);
     	
         Map<String, String> responseMap = new HashMap<>();
     	if (success) {
-    	    responseMap.put(data[0], data[1]);  // Assuming data[0] and data[1] are valid keys and values
+    	    responseMap.put(field, value);  // Assuming data[0] and data[1] are valid keys and values
     	    return ResponseEntity.ok(responseMap);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
 
+    
+    @PostMapping("/action/")
+    public Boolean performLikeOrDislike() {
+    	
+    	Boolean status = null;
+    	
+    	
+    	return status;
+    }
     
 }

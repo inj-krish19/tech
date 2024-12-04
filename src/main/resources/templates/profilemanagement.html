@@ -204,7 +204,7 @@
                     	// warning
                     	
                     	manual.style.display = "show";
-                    	manual.classList.add("alert-warning");
+                    	// manual.classList.add("alert-warning");
                     	message.innerHTML = `Some Challanges Occured To Update ${field.charAt(0).toUpperCase() + field.slice(1)}`;
                 
                     }
@@ -229,9 +229,14 @@
                     
                     // success
                     
+                    
                     manual.style.display = "show";
                     manual.classList.add("alert-success");
-                    message.innerHTML = `Successfully Updated ${field.charAt(0).toUpperCase() + field.slice(1)}`;	
+                    message.innerHTML = `Successfully Updated ${field.charAt(0).toUpperCase() + field.slice(1)}`;
+                    
+                    if( data.password != null ){
+                    	message.innerHTML = `Successfully Updated ${field.charAt(0).toUpperCase() + field.slice(1)}. New password Can Be Used After Restart of Server`;
+                    }
                     
                 })
                 .catch(error => {
