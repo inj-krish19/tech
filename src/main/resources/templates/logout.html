@@ -19,37 +19,26 @@
         <div class="col-md-6">
             <div class="card bg-secondary border-light">
                 <div class="card-header text-center">
-                    <h2 class="mb-0">Login</h2>
+                    <h2 class="mb-0">Are You Sure Do You Want to Logout ?</h2>
                 </div>
-				<div th:if="${param.success}" class="alert alert-success text-center" role="alert">
-                    <span th:text="'Login successful! You are redirected at Home Page In 3 Seconds ...'"></span>
+				<div th:if="${param.success}" class="alert alert-warning text-center" role="alert">
+                    <span th:text="'Logout successful! You are redirected at Login In 3 Seconds ...'"></span>
                 </div>
-                <div class="card-body" id="login">
+                <div class="card-body" id="logout">
                     <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                        <span th:text="'Login failed. Please check your username and password.'"></span>
+                        <span th:text="'Logout failed. Try Later'"></span>
                     </div>
 
-                    <div th:if="${param.logout}" class="alert alert-primary" role="alert">
-                        <span th:text="'Logout Successfully.'"></span>
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <span th:text="${error}"></span>
                     </div>
 
-                    <form th:action="@{/login}" method="post"> <!-- Fixed form action -->
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <form th:action="@{/custom-logout}" method="post"> <!-- Fixed form action -->
+                        <button type="submit" class="btn btn-primary w-100">Logout</button>
                     </form>
-                    <div class="mt-3 text-center">
-                        <a href="/register" class="text-light">Don't have an account? Sign Up</a>
-                    </div>
                 </div>
                 <div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
-	                <div class="spinner-border text-success"role="status">
+	                <div class="spinner-border text-warning"role="status">
 					  <span class="sr-only">Loading...</span>
 					</div>
 				</div>
@@ -69,13 +58,13 @@
 			const [key, value] = query.split("=");
 			if( key === "success" && value === "true" ){
 				const loader = document.getElementById("loader");
-	    		const login = document.getElementById("login");
-	    		login.style.display = "none";
+	    		const logout = document.getElementById("logout");
+	    		logout.style.display = "none";
 				loader.style.display = "show";
 				loader.classList.add("d-flex");
 				setTimeout( 
 					() => {
-						window.location.href = "/";
+						window.location.href = "/login?logout=true";
 					} , 3000
 				);
 				break;

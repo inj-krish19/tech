@@ -1,5 +1,6 @@
 package com.example.tech;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.util.List;
@@ -25,6 +27,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 @Controller
 public class JdbcController {
@@ -99,7 +102,7 @@ public class JdbcController {
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
     public String home(Model model, Principal principal) {
         
-    	if (principal != null) {
+    	if (principal != null && userExist != null) {
             model.addAttribute("loggedInUser", userExist = principal.getName()); // Add the logged-in username
         } else {
             model.addAttribute("loggedInUser", null); // No user logged in
@@ -1641,6 +1644,12 @@ public class JdbcController {
             model.addAttribute("error", "Username or Email already exists!");
             return "register"; // Return to registration page with error message
         }
+        
+        if (this.userExist != null && !this.userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
 
         // Check if passwords match
         if (!password.equals(confirmPassword)) {
@@ -1677,7 +1686,7 @@ public class JdbcController {
 
     
     @PostMapping("/contact")
-    public String submitSuggestion(HttpServletRequest request, String message) {
+    public String submitSuggestion(HttpServletRequest request, Model model, String message) {
     	
         String suggestionId = "SELECT COALESCE(MAX(suggestionId) + 1, 1) FROM Blogger";
         Integer newSuggestionId = jdbcTemplate.queryForObject(suggestionId, Integer.class);
@@ -1692,6 +1701,12 @@ public class JdbcController {
             INSERT INTO Blogger (suggestionId, authorId, message, createdAt ) 
             VALUES (?, ?, ?, CURRENT_TIMESTAMP)
         """;
+        
+        if (this.userExist != null && !this.userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
 
         int rowsAffected = jdbcTemplate.update(insertUserSql, newSuggestionId, (Integer) request.getSession().getAttribute("authorId") , message);
 
@@ -1715,11 +1730,37 @@ public class JdbcController {
     				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
     				)
     		);
+    	
+        if (this.userExist != null && !this.userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
         	
         	model.addAttribute("topic", null ); 
         	model.addAttribute("colors", colors); 
             
             return "massfilter";
+    }
+    
+    @GetMapping("/logout")
+    public String logout() {
+    	return "logout";
+    }	
+    
+    @PostMapping("/custom-logout")
+    public String destroySession(HttpServletRequest request, HttpServletResponse response, Authentication authentication, Model model, Principal principal) {
+    	
+    	this.userExist = "";
+    	model.addAttribute("loggedInUser", null); // No user logged in
+    	request.getSession().setAttribute("authorId", null);
+    	
+    	if (authentication != null) {
+            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        }
+    	
+    	
+    	return "redirect:/logout?success=true";
     }
     
     @GetMapping("/mass-filter/{entity}/{target}")
@@ -1736,6 +1777,12 @@ public class JdbcController {
         
         if( entity == null || target == null ) {
         	return "redirect:/mass-filter";
+        }
+        
+        if (this.userExist != null && !this.userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
         }
         
         entity = "%" + entity + "%";
