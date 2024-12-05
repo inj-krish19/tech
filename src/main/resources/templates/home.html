@@ -14,7 +14,7 @@
 </head>
 
 <body style="background:#343a40">
-	
+
 	<style th:each="color, iterStat : ${colors}">
         .color--[[${iterStat.index}]]:hover {
             color : [[${color}]];
@@ -108,7 +108,8 @@
                             <ul style="list-style:none;">
                                 <li th:each="topic, iterStat : ${topics}"
                                     style="color: #5c5b5b; text-decoration: double; font-weight:bolder;">
-                                    <a th:text="${topic}" th:href="@{'/filter/category/' + ${topic}}" th:class="'tag color--' + ${iterStat.index}" ></a>
+                                    <a th:text="${topic}" th:href="@{'/filter/category/' + ${topic}}"
+                                        th:class="'tag color--' + ${iterStat.index}"></a>
                                     <hr>
                                 </li>
                             </ul>
@@ -121,14 +122,14 @@
     </div>
 
 
-	<div class="container" style="margin-left:5%;">
-	    <div class="page-content">
-	        <h1 class="recent-posts-title text-center">Recent Posts</h1>
-	        <div th:replace="~{post :: div}"></div>
-	    </div>
-   	    <button id="load-more" style="width:62%; margin-left:19%;" onclick="loadMorePosts()">Load More</button>
+    <div class="container" style="margin-left:5%;">
+        <div class="page-content">
+            <h1 class="recent-posts-title text-center">Recent Posts</h1>
+            <div th:replace="~{post :: div}"></div>
+        </div>
+        <button id="load-more" style="width:62%; margin-left:19%;" onclick="loadMorePosts()">Load More</button>
     </div>
-    
+
     <div th:replace="~{footer :: div}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -136,34 +137,33 @@
     <script src="/js/scripts.js"></script>
 
     <script>
-    let currentPage = 1;
-    const pageSize = 5; // Number of posts to load per request
+        let currentPage = 1;
+        const pageSize = 5; // Number of posts to load per request
 
-    function loadMorePosts() {
-        currentPage++;
-        fetch(`/load-more-posts?page=${currentPage}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
-                }
-                return response.json(); // Parse JSON
-            })
-            .then(data => {
-                const postContainer = document.getElementById('post-container');
-                
-                // Iterate through each post
-                data.posts.forEach(post => {
-                    const postDiv = document.createElement('div');
-                    postDiv.classList.add('post', 'mb-4');
-                    postDiv.style.maxWidth = '800px';
+        function loadMorePosts() {
+            currentPage++;
+            fetch(`/load-more-posts?page=${currentPage}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json(); // Parse JSON
+                })
+                .then(data => {
+                    const postContainer = document.getElementById('post-container');
 
-                    postDiv.innerHTML = `
+                    data.posts.forEach(post => {
+                        const postDiv = document.createElement('div');
+                        postDiv.classList.add('post', 'mb-4');
+                        postDiv.style.maxWidth = '800px';
+
+                        postDiv.innerHTML = `
                         <div class="post-card p-4">
                             <div class="post-content">
                                 <div class="container">
                                     <div class="author-box">
                                         <div class="author-profile">
-                                            <img src="${post.authorImage || 'images/logo.jpg'}" alt="Author Profile Picture" class="author-image">
+                                            <img src="${post.image || 'images/logo.jpg'}" alt="Author Profile Picture" class="author-image">
                                         </div>
                                         <div class="author-details">
                                             <h3 class="author-name">${post.name}</h3>
@@ -178,23 +178,25 @@
                                         </div>
                                     </div>
                                     <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}">
-                                        <img src="${post.image || 'images/logo.jpg'}" 
-                                             alt="Post Image" 
-                                             style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}">
-                                    </div>
-                                    <div class="post-content" style="overflow-wrap: anywhere;">
-                                        ${post.description.length <= 1000 ? `
-                                            <p class="post-description" style="text-align: left;">
-                                                ${post.description}
-                                            </p>
-                                        ` : `
-                                            <p class="post-description" style="text-align: left;">
-                                                <span>${post.description.substring(0, 2500)}</span>
-                                                <span class="more-text" style="display: none;">${post.description.substring(2500)}</span>
-                                                <button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
-                                            </p>
-                                        `}
-                                    </div>
+	                                    <img src="${post.image && post.image !== '' ? post.image : '' }" alt="Post Image"
+	                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  {$post.image == null || post.image === '' ? ' display: none;' : ''}">
+	                                    <div class="post-content" style="overflow-wrap: anywhere;">
+	                                        ${post.description.length <= 1000 ? `
+	                                            <p class="post-description" style="text-align: left;">
+	                                                ${post.description}
+	                                            </p>
+	                                        ` : `
+	                                            <p class="post-description" style="text-align: left;">
+	                                                <span>${post.description.substring(0, 1000)}</span>
+	                                                <span class="more-text" style="display: none;">
+	                                                    ${post.description.length > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}
+	                                                </span>
+	                                                <button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read more...</button>
+	                                            </p>
+	                                        `}
+	                                    </div>
+	                                </div>
+                                    
                                     <div class="post-actions d-flex border-top pt-3" style="gap: 5px; justify-content: center;">
                                         <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
                                             <i class="bi bi-hand-thumbs-up"></i> <span>${post.likes}</span>
@@ -202,48 +204,50 @@
                                         <button class="oper btn btn-dark d-flex align-items-center" style="gap: 5px;">
                                             <i class="bi bi-hand-thumbs-down"></i> <span>${post.dislikes}</span>
                                         </button>
-                                        <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal"
-                                            data-bs-target="#commentModal" style="gap: 5px;">
+                                        <button class="btn btn-dark d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#commentModal" style="gap: 5px;">
                                             <i class="bi bi-chat"></i><span>${post.comments}</span>
                                         </button>
+                                        <button class="btn btn-dark d-flex align-items-center" style="gap: 5px; justify-content: center;">
+                                            <i class="bi bi-reply"></i>
+                                        </button>
+                                        <button class="btn btn-dark d-flex align-items-center" style="gap: 5px; justify-content: center;">
+                                            <i class="bi bi-share"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+                                        ${post.keywords.length ? `
+                                            <h2 style="display: inline; color: #5c5b5b;">Keywords:</h2>
+                                            ${post.keywords.map((keyword, index) => `
+                                                <button class="tag color-${index}-clicked" data-keyword="${keyword}" onclick="selectKeyword(this, event)">
+                                                    ${keyword}
+                                                </button>`).join('')}
+                                        ` : `<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>`}
                                     </div>
                                     <div class="post-metadata">
                                         <div class="author-info">
-                                            <i class="icon-user"></i>
-                                            <span>@${post.username}</span>
+                                            <i class="icon-user"></i> <span>@${post.username}</span>
                                         </div>
                                         <div class="post-date">
-                                            <i class="icon-calendar"></i>
-                                            <span>${post.updatedat}</span>
+                                            <i class="icon-calendar"></i> <span>${post.updatedat}</span>
                                         </div>
-                                    </div>
-                                    <div class="mycard d-flex" id="remaining" style="flex-wrap: wrap;">
-                                        <h5>Keywords:</h5>
-                                        ${post.keywords.map((keyword, index) => `
-                                            <button class="tag color-${index}" data-keyword="${keyword}" 
-                                                    onclick="selectKeyword(this, event)">
-                                                ${keyword}
-                                            </button>
-                                        `).join('')}
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
-                    postContainer.appendChild(postDiv);
-                });
+                        </div>`;
+                        postContainer.appendChild(postDiv);
+                    });
 
-                if (!data.hasMore) {
-                    alert('No more posts!');
-                    document.getElementById('load-more').style.display = 'none';
-                }
-            })
-            .catch(error => {
-                alert('Please log in to load more posts.');
-                console.error('Error loading more posts:', error);
-                setTimeout(() => window.location.href = '/login', 3000);
-            });
-    }
+                    if (!data.hasMore) {
+                        alert('No more posts!');
+                        document.getElementById('load-more').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    alert('Please log in to load more posts.');
+                    console.error('Error loading more posts:', error);
+                    // setTimeout(() => window.location.href = '/login', 3000);
+                });
+        }
 
 
     </script>

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.Principal;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -46,6 +54,15 @@ public class JdbcController {
     
     String userExist = "";
 
+    public String capitalize(String target) {
+    	return target.substring(0).toUpperCase() + target.substring(1).toLowerCase() ;
+    }
+    
+    @GetMapping("/blogger")
+    public String blogger() {
+    	return "blogger";
+    }
+    
     @GetMapping("/secret")
     public String secret( HttpServletRequest request) {
     	
@@ -85,7 +102,7 @@ public class JdbcController {
 		            System.out.println("Username from SPRING_SECURITY_CONTEXT: " + username);
 		            
 		            if( admin_username.contains(username) ) {
-		            	request.getSession().setAttribute("authorId", -1);
+		            	request.getSession().setAttribute("admin", "admin");
 			            return "redirect:/admin";  
 		            }
 		            
@@ -93,6 +110,8 @@ public class JdbcController {
 		            Integer authorId = jdbcTemplate.queryForObject(sql, Integer.class, username );
 
 		            request.getSession().setAttribute("authorId", authorId);
+		            
+		            System.out.print("ID : " + (Integer) request.getSession().getAttribute("authorId") );
 				   		            
 		            return "redirect:/login?success=true";  
 		        }		    
@@ -147,7 +166,14 @@ public class JdbcController {
                 post.put("dislikes", rs.getInt("dislikes"));
                 post.put("viewscount", rs.getInt("viewscount"));
                 post.put("comments", rs.getInt("comments"));
-                post.put("updatedat", rs.getTimestamp("updatedat"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
                 post.put("name", rs.getString("name"));
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
@@ -219,7 +245,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                WHERE u.authorid = ? LIMIT 5
+                WHERE u.authorid = ? 
             """;
 
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
@@ -233,7 +259,14 @@ public class JdbcController {
                 post.put("dislikes", rs.getInt("dislikes"));
                 post.put("viewscount", rs.getInt("viewscount"));
                 post.put("comments", rs.getInt("comments"));
-                post.put("updatedat", rs.getTimestamp("updatedat"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
                 post.put("name", rs.getString("name"));
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
@@ -280,6 +313,14 @@ public class JdbcController {
     public String getAllBloggers(Model model) {
         String sql = "SELECT * FROM Blogger";
         List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+
+        for (Map<String, Object> blogger : bloggers) {
+            Timestamp updatedAt = (Timestamp) blogger.get("updatedat");
+            if (updatedAt != null) {
+                blogger.put("updatedat", sdf.format(updatedAt));
+            }
+        }
         model.addAttribute("bloggers", bloggers);
         
         if (this.userExist != "" && userExist != null ) {
@@ -330,7 +371,14 @@ public class JdbcController {
                 post.put("dislikes", rs.getInt("dislikes"));
                 post.put("viewscount", rs.getInt("viewscount"));
                 post.put("comments", rs.getInt("comments"));
-                post.put("updatedat", rs.getTimestamp("updatedat"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
                 post.put("name", rs.getString("name"));
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
@@ -372,7 +420,7 @@ public class JdbcController {
     }
     
     @PostMapping("/review")
-    public String reviewPost(Model model, String title, String category, String description, String selectedKeywords, HttpServletRequest request ) {
+    public String reviewPost(Model model, String title, String category, String description, String selectedKeywords, MultipartFile image, HttpServletRequest request ) {
         
     	String sql = "SELECT username,name,bio FROM Blogger where authorId=?";
     	
@@ -387,6 +435,41 @@ public class JdbcController {
         postData.put("username", user.get("username") );
         postData.put("name", user.get("name") );
         postData.put("bio", user.get("bio") );
+        postData.put("image", "" );
+        
+        String uploadedImagePath = null;
+
+        if (image!= null && !image.isEmpty()) {
+            try {
+                // Define the path to save the image
+                String uploadDir = "src/main/resources/static/images/posts/";
+                String fileName = image.getOriginalFilename();
+                
+                // Ensure the directory exists
+                File directory = new File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                
+                Integer authorId = (Integer) request.getSession().getAttribute("authorId");
+                // Save the file
+                uploadedImagePath = "/images/posts/" + String.valueOf( authorId ) + "-" + fileName;
+
+
+                System.out.print("ID : " + String.valueOf(authorId));
+                
+                Path filePath = Paths.get(uploadDir, uploadedImagePath.substring(14));
+                Files.write(filePath, image.getBytes());
+
+                System.out.print("File : " + uploadedImagePath);
+                
+                postData.put("image", uploadedImagePath);
+
+            } catch (IOException e) {
+                return "redirect:/create_post?error=true";
+            }
+        }
+
         
         String keyword = selectedKeywords;
         System.out.print("Keyword " + keyword);
@@ -418,7 +501,6 @@ public class JdbcController {
         postData.put("keyword", keyword);
         postData.put("keywords", keywords);
         postData.put("buttonIndex", buttonIndex);
-        postData.put("image", null);
 
         List<String> colors = new ArrayList<>(
 			List.of(
@@ -458,28 +540,75 @@ public class JdbcController {
     @GetMapping("/post/{id}")
     public String viewPost(Model model, @PathVariable String id) {
         String sql = """
-                SELECT p.articleid, 
-                p.title, 
-                p.description, 
-                p.likes, 
-                p.dislikes, 
-                p.viewscount, 
-                p.commentscount AS comments, 
-                p.updatedat, 
-                p.postmedia AS image,
-                u.name AS name, 
-                u.username AS username, 
-                u.bio AS bio, 
-                c.name AS category
-         FROM Post p 
-         JOIN Blogger u ON p.primaryAuthor = u.authorid 
-         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
-         JOIN Category c ON pca.categoryid = c.categoryid
-         WHERE articleid = ?
+	        SELECT p.articleid, 
+	               p.title, 
+	               p.description, 
+	               p.likes, 
+	               p.dislikes, 
+	               p.viewscount, 
+	               p.commentscount AS comments, 
+	               p.updatedat, 
+	               p.postmedia AS image,
+	               u.name AS name, 
+	               u.username AS username, 
+	               u.bio AS bio, 
+	               c.name AS category
+	        FROM Post p 
+	        JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	        JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	        JOIN Category c ON pca.categoryid = c.categoryid
+            WHERE p.articleid = ?
         """;
         
-        List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, id);
-        model.addAttribute("post", post);
+        List<Map<String, Object>> posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+	            Map<String, Object> post = new HashMap<>();
+	            int articleId = rs.getInt("articleid");
+	            
+	            post.put("articleid", articleId);
+	            post.put("title", rs.getString("title"));
+	            post.put("description", rs.getString("description"));
+	            post.put("likes", rs.getInt("likes"));
+	            post.put("dislikes", rs.getInt("dislikes"));
+	            post.put("viewscount", rs.getInt("viewscount"));
+	            post.put("comments", rs.getInt("comments"));
+	            Timestamp timestamp = rs.getTimestamp("updatedat");
+	            if (timestamp != null) {
+	                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+	                String formattedDate = sdf.format(timestamp);
+	                post.put("updatedat", formattedDate);
+	            } else {
+	                post.put("updatedat", null);
+	            }
+	            post.put("name", rs.getString("name"));
+	            post.put("username", rs.getString("username"));
+	            post.put("bio", rs.getString("bio"));
+	            post.put("category", rs.getString("category"));
+	            post.put("image", rs.getString("image"));
+	
+	            // Separate query to get keywords for the current article
+	            String keywordQuery = """
+	            		SELECT name FROM Keyword k 
+	            		JOIN KeywordAssignment ka 
+	            		ON k.keywordid = ka.keywordid 
+	            		WHERE ka.articleid = ?
+	            	""";
+	        	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+	        	post.put("keywords", keywords);
+	
+	            return post;
+	        });
+	
+	    model.addAttribute("posts", posts);
+	
+	    System.out.print(posts);
+	
+		List<String> colors = new ArrayList<>(
+				List.of(
+					"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
+					)
+			);
+		
+		model.addAttribute("colors", colors);
         
         if (this.userExist != "" && userExist != null ) {
             model.addAttribute("loggedInUser", userExist); // Add the logged-in username
@@ -525,7 +654,7 @@ public class JdbcController {
          JOIN Blogger u ON p.primaryAuthor = u.authorid 
          JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
          JOIN Category c ON pca.categoryid = c.categoryid
-         WHERE c.categoryid = ? LIMIT 5
+         WHERE c.categoryid = ? 
      """;
 
         List<String> colors = new ArrayList<>(
@@ -546,7 +675,14 @@ public class JdbcController {
          post.put("dislikes", rs.getInt("dislikes"));
          post.put("viewscount", rs.getInt("viewscount"));
          post.put("comments", rs.getInt("comments"));
-         post.put("updatedat", rs.getTimestamp("updatedat"));
+         Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
          post.put("name", rs.getString("name"));
          post.put("username", rs.getString("username"));
          post.put("bio", rs.getString("bio"));
@@ -569,7 +705,7 @@ public class JdbcController {
      	model.addAttribute("posts", posts);
 
 
-        model.addAttribute("topic", category);
+        model.addAttribute("topic",  this.capitalize(category) );
         model.addAttribute("loggedInUser", (userExist != null && !userExist.isEmpty()) ? userExist : null);
 
         return "filter"; 
@@ -636,7 +772,14 @@ public class JdbcController {
             post.put("dislikes", rs.getInt("dislikes"));
             post.put("viewscount", rs.getInt("viewscount"));
             post.put("comments", rs.getInt("comments"));
-            post.put("updatedat", rs.getTimestamp("updatedat"));
+            Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
             post.put("name", rs.getString("name"));
             post.put("username", rs.getString("username"));
             post.put("bio", rs.getString("bio"));
@@ -675,7 +818,7 @@ public class JdbcController {
             model.addAttribute("loggedInUser", null);
         }
 
-        model.addAttribute("topic", keyword);
+        model.addAttribute("topic", this.capitalize(keyword) );
         return "filter";// Assuming there's a Thymeleaf template named "show"
     }
 
@@ -731,15 +874,22 @@ public class JdbcController {
         
         // Query user data from the database
         String sql = "SELECT * FROM Blogger WHERE authorId = ?";
-        List<Map<String, Object>> user = jdbcTemplate.queryForList(sql, userId);
+        Map<String, Object> blogger = jdbcTemplate.queryForMap(sql, userId);
 
-        if (user.isEmpty()) {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+        Timestamp updatedAt = (Timestamp) blogger.get("updatedat");
+        if (updatedAt != null) {
+            blogger.put("updatedat", sdf.format(updatedAt));
+        }
+
+        
+        if (blogger != null ) {
             model.addAttribute("error", "User not found.");
             return "error"; // Redirect to an error page or show a meaningful message
         }
 
         // Add user data to the model
-        model.addAttribute("user", user.get(0));
+        model.addAttribute("user", blogger);
 
         // Add logged-in username if available
         String loggedInUser = (String) request.getSession().getAttribute("loggedInUser");
@@ -755,28 +905,254 @@ public class JdbcController {
             model.addAttribute("posts", null);
             return "filter";
         }
+        
+        String likePattern = "%" + keyword + "%";        
 
         String sql = """
-            SELECT p.articleid, 
-                   p.title, 
-                   p.description, 
-                   u.name AS name, 
-                   u.username AS username, 
-                   u.bio AS bio, 
-                   c.name AS category
-            FROM Post p
-            JOIN Blogger u ON p.primaryauthor = u.authorid
-            JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid
-            JOIN Category c ON pca.categoryid = c.categoryid
-            WHERE p.title ILIKE ? 
-               OR p.description ILIKE ? 
-               OR c.name ILIKE ?
-        """;
+                SELECT p.articleid, 
+                p.title, 
+                p.description, 
+                p.likes, 
+                p.dislikes, 
+                p.viewscount, 
+                p.commentscount AS comments, 
+                p.updatedat, 
+                p.postmedia AS image,
+                u.name AS name, 
+                u.username AS username, 
+                u.bio AS bio, 
+                c.name AS category
+	         FROM Post p 
+	         JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	         JOIN Category c ON pca.categoryid = c.categoryid 
+	         WHERE p.title ILIKE ? 
+                OR p.description ILIKE ? 
+                OR c.name ILIKE ?
+	     """;
+	
+	     List<Map<String, Object>> searchPosts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+	         Map<String, Object> post = new HashMap<>();
+	         int articleId = rs.getInt("articleid");
+	         
+	         post.put("articleid", articleId);
+	         post.put("title", rs.getString("title"));
+	         post.put("description", rs.getString("description"));
+	         post.put("likes", rs.getInt("likes"));
+	         post.put("dislikes", rs.getInt("dislikes"));
+	         post.put("viewscount", rs.getInt("viewscount"));
+	         post.put("comments", rs.getInt("comments"));
+	         Timestamp timestamp = rs.getTimestamp("updatedat");
+	         if (timestamp != null) {
+	             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+	             String formattedDate = sdf.format(timestamp);
+	             post.put("updatedat", formattedDate);
+	         } else {
+	             post.put("updatedat", null);
+	         }
+	         post.put("name", rs.getString("name"));
+	         post.put("username", rs.getString("username"));
+	         post.put("bio", rs.getString("bio"));
+	         post.put("category", rs.getString("category"));
+	         post.put("image", rs.getString("image"));
+	
+	         // Separate query to get keywords for the current article
+	         String keywordQuery = """
+	         		SELECT name FROM Keyword k 
+	         		JOIN KeywordAssignment ka 
+	         		ON k.keywordid = ka.keywordid 
+	         		WHERE ka.articleid = ?
+	         	""";
+	     	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+	     	post.put("keywords", keywords);
+	
+	         return post;
+	     
+	 }, likePattern, likePattern, likePattern);
+	     
+	 List<Map<String, Object>> categoriesPosts = new ArrayList<>();
+	 List<Map<String, Object>> keywordsPosts = new ArrayList<>();
+	 
+	 sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
+     List<Integer> categories = jdbcTemplate.queryForList(sql, Integer.class, "%" + keyword + "%");
 
-        String likePattern = "%" + keyword + "%";
+     if (categories.isEmpty()) {
+         model.addAttribute("error", "No posts found in this category.");
 
-        // Execute query and retrieve posts
-        List<Map<String, Object>> posts = jdbcTemplate.queryForList(sql, likePattern, likePattern, likePattern);
+     }else {
+	     
+	     sql = """
+	                SELECT p.articleid, 
+	                p.title, 
+	                p.description, 
+	                p.likes, 
+	                p.dislikes, 
+	                p.viewscount, 
+	                p.commentscount AS comments, 
+	                p.updatedat, 
+	                p.postmedia AS image,
+	                u.name AS name, 
+	                u.username AS username, 
+	                u.bio AS bio, 
+	                c.name AS category
+	         FROM Post p 
+	         JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	         JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	         JOIN Category c ON pca.categoryid = c.categoryid
+	         WHERE c.categoryid = ? 
+	     """;
+
+	     categoriesPosts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+	         Map<String, Object> post = new HashMap<>();
+	         int articleId = rs.getInt("articleid");
+	         
+	         post.put("articleid", articleId);
+	         post.put("title", rs.getString("title"));
+	         post.put("description", rs.getString("description"));
+	         post.put("likes", rs.getInt("likes"));
+	         post.put("dislikes", rs.getInt("dislikes"));
+	         post.put("viewscount", rs.getInt("viewscount"));
+	         post.put("comments", rs.getInt("comments"));
+	         Timestamp timestamp = rs.getTimestamp("updatedat");
+	                if (timestamp != null) {
+	                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+	                    String formattedDate = sdf.format(timestamp);
+	                    post.put("updatedat", formattedDate);
+	                } else {
+	                    post.put("updatedat", null);
+	                }
+	         post.put("name", rs.getString("name"));
+	         post.put("username", rs.getString("username"));
+	         post.put("bio", rs.getString("bio"));
+	         post.put("category", rs.getString("category"));
+	         post.put("image", rs.getString("image"));
+
+	         // Separate query to get keywords for the current article
+	         String keywordQuery = """
+	         		SELECT name FROM Keyword k 
+	         		JOIN KeywordAssignment ka 
+	         		ON k.keywordid = ka.keywordid 
+	         		WHERE ka.articleid = ?
+	         	""";
+	     	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+	     	post.put("keywords", keywords);
+	     	return post;
+	     	
+	     }, categories.get(0));
+	     
+     }
+	     
+	     sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
+	        List<Integer> keywords = jdbcTemplate.queryForList(sql, Integer.class, "%" + keyword + "%");
+
+	        if (keywords.isEmpty()) {
+	            model.addAttribute("error", "No posts found in this category."); // Return with error message if no category found
+	        }else {
+
+	        int keywordId = keywords.get(0);
+
+	        // Fetch posts based on keyword ID
+	        sql = """
+	            SELECT 
+	                p.articleid, 
+	                p.title, 
+	                p.description, 
+	                p.likes, 
+	                p.dislikes, 
+	                p.viewscount, 
+	                p.commentscount AS comments, 
+	                p.updatedat, 
+	                p.postmedia AS image,
+	                u.name AS name, 
+	                u.username AS username, 
+	                u.bio AS bio, 
+	                c.name AS category,
+	                STRING_AGG(k.name, ',') AS keywords
+	            FROM Post p 
+	            JOIN Blogger u ON p.primaryAuthor = u.authorid 
+	            JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+	            JOIN Category c ON pca.categoryid = c.categoryid 
+	            LEFT JOIN keywordAssignment pka ON p.articleid = pka.articleid 
+	            LEFT JOIN Keyword k ON pka.keywordid = k.keywordid
+	            WHERE k.keywordid = ?
+	            GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
+	                     p.viewscount, p.commentscount, p.updatedat, p.postmedia,
+	                     u.name, u.username, u.bio, c.name
+	            """;
+
+	        keywordsPosts = jdbcTemplate.query(sql, (rs, rowNum) -> {
+	        	Map<String, Object> post = new HashMap<>();
+	            int articleId = rs.getInt("articleid");
+	            
+	            post.put("articleid", articleId);
+	            post.put("title", rs.getString("title"));
+	            post.put("description", rs.getString("description"));
+	            post.put("likes", rs.getInt("likes"));
+	            post.put("dislikes", rs.getInt("dislikes"));
+	            post.put("viewscount", rs.getInt("viewscount"));
+	            post.put("comments", rs.getInt("comments"));
+	            Timestamp timestamp = rs.getTimestamp("updatedat");
+	                if (timestamp != null) {
+	                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+	                    String formattedDate = sdf.format(timestamp);
+	                    post.put("updatedat", formattedDate);
+	                } else {
+	                    post.put("updatedat", null);
+	                }
+	            post.put("name", rs.getString("name"));
+	            post.put("username", rs.getString("username"));
+	            post.put("bio", rs.getString("bio"));
+	            post.put("category", rs.getString("category"));
+	            post.put("image", rs.getString("image"));
+
+	            // Separate query to get keywords for the current article
+	            String keywordQuery = """
+	            		SELECT name FROM Keyword k 
+	            		JOIN KeywordAssignment ka 
+	            		ON k.keywordid = ka.keywordid 
+	            		WHERE ka.articleid = ?
+	            	""";
+	        	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Integer) articleId);
+	        	post.put("keywords", keywordsOfPost);
+	        	
+	        	return post;
+	        } ,keywordId);
+	        
+	    }
+	     
+	
+	    List<String> colors = new ArrayList<>(
+	    		List.of(
+	    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
+	    				)
+	    		);
+	    
+	    model.addAttribute("colors", colors);
+
+	    List<Map<String, Object> > posts = new ArrayList<>();
+	    
+	    for( Map<String,Object> post : searchPosts ) {
+	    	if( ! posts.contains(post) ) {
+	    		posts.add(post);
+	    	}
+	    }
+	    
+	    for( Map<String,Object> post : categoriesPosts ) {
+	    	if( ! posts.contains(post) ) {
+	    		posts.add(post);
+	    	}
+	    }
+	    
+	    for( Map<String,Object> post : keywordsPosts ) {
+	    	if( ! posts.contains(post) ) {
+	    		posts.add(post);
+	    	}
+	    }
+	    
+	    model.addAttribute("posts", posts);
+		
+		System.out.print(posts);
+		 
 
         if (posts.isEmpty()) {
             model.addAttribute("error", "No posts found for the search term.");
@@ -785,62 +1161,56 @@ public class JdbcController {
         }
 
         // Pass keyword and logged-in user info to the view
-        model.addAttribute("topic", keyword);
+        model.addAttribute("topic", this.capitalize(keyword) );
         model.addAttribute("loggedInUser", (userExist != null && !userExist.isEmpty()) ? userExist : null);
 
         return "filter";
     }
 
-    
-    @PostMapping("/search2")
-    public String seacrhKeyword(Model model, String keyword ) {
-    	
-    	keyword = "'%" + keyword + "%'";
-    	
-    	String sql = """
-    		    SELECT p.articleid, p.title, p.description, u.name AS name, u.username AS username, u.bio AS bio, c.name AS category
-    		    FROM Post p
-    		    JOIN Blogger u ON p.primaryauthor = u.authorid
-    		    JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid
-    		    JOIN Category c ON pca.categoryid = c.categoryid
-    		    WHERE p.title ILIKE '%' || ? || '%' 
-    		       OR p.description ILIKE '%' || ? || '%' 
-    		       OR c.name ILIKE '%' || ? || '%';
-    		""";
-
-    		// Execute query with the keyword as a parameter
-    		List<Map<String, Object>> post = jdbcTemplate.queryForList(sql, keyword, keyword, keyword);
-
-    		// Add data to the model
-    		model.addAttribute("post", post);
-    		model.addAttribute("topic", keyword.substring(1, keyword.length() - 1));
-
-    		if (this.userExist != "" && userExist != null ) {
-                model.addAttribute("loggedInUser", userExist); // Add the logged-in username
-            } else {
-                model.addAttribute("loggedInUser", null); // No user logged in
-            }
-    		
-    		// Return the "filter" view
-    		return "filter";
-    }
-    
     @PostMapping("/doPost")
-    public String makePost(Model model, String title, String category, String description, String keyword, HttpServletRequest request) {
+    public String makePost(Model model, String title, String category, String description, String keyword, String image, HttpServletRequest request) {
         try {
         	
-        	System.out.print( title + " " + category+ " " + description + " " + keyword);
+        	System.out.print( title + " " + category+ " " + description + " " + keyword + " " + image);
             // Step 1: Clean the description
             description = description.replaceAll("<[^>]*>", "").trim();
             Integer primaryAuthorId = (Integer) request.getSession().getAttribute("authorId");;  // Assuming logged-in user ID
 
+            Integer newArticleId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post", Integer.class);
+            
+            String media = "";
+            
+            if( image == null ) {
+            	media = "";
+            }else {
+            	String[] parts = image.split("\\.");
+            	String extension = parts[parts.length - 1];
+
+            	// Construct the media file name
+            	media = "post-" + newArticleId + "." + extension;
+            	System.out.println("Media: " + media);
+            	
+            	File oldFile = new File("src/main/resources/static/images/posts/" + image);
+                
+                // Specify the new file name
+                File newFile = new File("src/main/resources/static/images/posts/" + media);
+                
+                // Rename the file
+                if (oldFile.renameTo(newFile)) {
+                    System.out.println("File renamed successfully!");
+                } else {
+                    System.out.println("Failed to rename the file.");
+                }
+            	
+            }
+            
             // Step 2: Insert Post
             String insertPostSql = """
                 INSERT INTO Post (articleid, title, description, likes, dislikes, commentscount, primaryauthor, viewscount, postmedia, publishedat, createdat, updatedat) 
-                VALUES (?, ?, ?, 0, 0, 0, ?, 0, '', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                VALUES (?, ?, ?, 0, 0, 0, ?, 0, ? , CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             """;
-            Integer newArticleId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post", Integer.class);
-            int postRowsAffected = jdbcTemplate.update(insertPostSql, newArticleId, title, description, primaryAuthorId);
+            
+            int postRowsAffected = jdbcTemplate.update(insertPostSql, newArticleId, title, description, primaryAuthorId, media);
             System.out.println("Post Inserted. Rows affected: " + postRowsAffected);
 
             // Step 3: Insert into PostCategoryAssignment
@@ -909,7 +1279,7 @@ public class JdbcController {
         } catch (Exception e) {
             model.addAttribute("error", "Error while creating post: " + e.getMessage());
             e.printStackTrace();
-            return "redirect:/create_post"; // Return to the post creation page in case of an error
+            return "redirect:/create_post?error=true"; // Return to the post creation page in case of an error
         }
 
         return "redirect:/"; // Redirect to post listing page
@@ -993,7 +1363,7 @@ public class JdbcController {
     }	*/
 
     
-    @GetMapping("/load-more-post")
+    @GetMapping("/load-more-posts")
     @ResponseBody
     public Map<String, Object> loadMorePost(@RequestParam("page") int page) {
         int pageSize = 5; // Number of posts per page
@@ -1033,7 +1403,14 @@ public class JdbcController {
             post.put("dislikes", rs.getInt("dislikes"));
             post.put("viewscount", rs.getInt("viewscount"));
             post.put("comments", rs.getInt("comments"));
-            post.put("updatedat", rs.getTimestamp("updatedat"));
+            Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
             post.put("name", rs.getString("name"));
             post.put("username", rs.getString("username"));
             post.put("bio", rs.getString("bio"));
@@ -1637,7 +2014,7 @@ public class JdbcController {
     }
     
     @PostMapping("/register")
-    public String register(Model model, String name, String username, String email, String password, String confirmPassword, String bio, HttpServletRequest request) {
+    public String register(Model model, String name, String username, String email, String password, String confirmPassword, String bio, MultipartFile image, HttpServletRequest request) {
 
         // Check if the user already exists (by email or username)
         String checkUserSql = "SELECT COUNT(*) FROM Blogger WHERE email = ? OR username = ?";
@@ -1647,12 +2024,6 @@ public class JdbcController {
             model.addAttribute("error", "Username or Email already exists!");
             return "register"; // Return to registration page with error message
         }
-        
-        if (this.userExist != null && !this.userExist.isEmpty()) {
-            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
-        } else {
-            model.addAttribute("loggedInUser", null); // No user logged in
-        }
 
         // Check if passwords match
         if (!password.equals(confirmPassword)) {
@@ -1660,13 +2031,50 @@ public class JdbcController {
             return "register";
         }
 
-        // Secure password hashing using PasswordEncoder
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String hashedPassword = passwordEncoder.encode(password);
-
         // Generate a new author ID
         String authorIdSql = "SELECT COALESCE(MAX(authorId) + 1, 1) FROM Blogger";
         Integer newAuthorId = jdbcTemplate.queryForObject(authorIdSql, Integer.class);
+
+
+        String uploadedImagePath = null;
+
+        if (image!= null && !image.isEmpty()) {
+            try {
+                // Define the path to save the image
+                String uploadDir = "src/main/resources/static/images/bloggers/";
+                String fileName = image.getOriginalFilename();
+                
+                // Ensure the directory exists
+                File directory = new File(uploadDir);
+                if (!directory.exists()) {
+                    directory.mkdirs();
+                }
+                
+                Integer authorId = (Integer) request.getSession().getAttribute("authorId");
+                // Save the file
+//                String[] parts = image.split("\\.");
+//                String extension = parts[parts.length - 1];
+//
+//                
+//                uploadedImagePath = "/images/bloggers/blogger-" + String.valueOf( newAuthorId ) + extension;
+//                // Construct the media file name
+//                System.out.println("Media: " + uploadedImagePath);
+
+                System.out.print("ID : " + String.valueOf(authorId));
+                
+                Path filePath = Paths.get(uploadDir, uploadedImagePath.substring(14));
+                Files.write(filePath, image.getBytes());
+
+                System.out.print("File : " + uploadedImagePath);
+                
+            } catch (IOException e) {
+                return "redirect:/create_post?error=true";
+            }
+        }
+        
+        // Secure password hashing using PasswordEncoder
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String hashedPassword = passwordEncoder.encode(password);
 
         // Insert the new user into the database
         String insertUserSql = """
@@ -1676,24 +2084,28 @@ public class JdbcController {
 
         int rowsAffected = jdbcTemplate.update(insertUserSql, newAuthorId, name, username, email, hashedPassword, bio);
 
+        request.getSession().setAttribute("authorId", newAuthorId);
+        
+        if (this.userExist == "") {
+        	model.addAttribute("loggedInUser", (Integer) request.getSession().getAttribute("authorId") ); // Add the logged-in username
+        } else {
+        	model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
         if (rowsAffected > 0) {
 
-            request.getSession().setAttribute("authorId", newAuthorId);
-        	
             return "redirect:/register?success=true"; // Redirect to login with success flag
         } else {
             model.addAttribute("error", "Registration failed. Please try again.");
             return "register";
         }
+
     }
 
     
     @PostMapping("/contact")
-    public String submitSuggestion(HttpServletRequest request, Model model, String message) {
+    public String submitSuggestion(HttpServletRequest request, Model model, @RequestParam("type") String type, @RequestParam("message") String message) {
     	
-        String suggestionId = "SELECT COALESCE(MAX(suggestionId) + 1, 1) FROM Blogger";
-        Integer newSuggestionId = jdbcTemplate.queryForObject(suggestionId, Integer.class);
-
         if( (Integer) request.getSession().getAttribute("authorId") == null ) {
         	System.out.print(request.getSession().toString());
         	return "redirect:/login";
@@ -1701,8 +2113,8 @@ public class JdbcController {
         
         // Insert the new user into the database
         String insertUserSql = """
-            INSERT INTO Blogger (suggestionId, authorId, message, createdAt ) 
-            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+            INSERT INTO Suggestion (authorId, feedbackType, message, createdAt ) 
+            VALUES ( ?,  CAST(? AS feedback_type_enum) , ?, CURRENT_TIMESTAMP)
         """;
         
         if (this.userExist != null && !this.userExist.isEmpty()) {
@@ -1711,7 +2123,7 @@ public class JdbcController {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
 
-        int rowsAffected = jdbcTemplate.update(insertUserSql, newSuggestionId, (Integer) request.getSession().getAttribute("authorId") , message);
+        int rowsAffected = jdbcTemplate.update(insertUserSql, (Integer) request.getSession().getAttribute("authorId") , type, message);
 
     	return "redirect:/";
     }
@@ -1827,7 +2239,7 @@ public class JdbcController {
 	             JOIN Blogger u ON p.primaryAuthor = u.authorid 
 	             JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
 	             JOIN Category c ON pca.categoryid = c.categoryid
-	             WHERE c.categoryid = ? LIMIT 5
+	             WHERE c.categoryid = ? 
 	         """;
 
             posts = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -1841,7 +2253,14 @@ public class JdbcController {
 	             post.put("dislikes", rs.getInt("dislikes"));
 	             post.put("viewscount", rs.getInt("viewscount"));
 	             post.put("comments", rs.getInt("comments"));
-	             post.put("updatedat", rs.getTimestamp("updatedat"));
+	             Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
 	             post.put("name", rs.getString("name"));
 	             post.put("username", rs.getString("username"));
 	             post.put("bio", rs.getString("bio"));
@@ -1915,7 +2334,14 @@ public class JdbcController {
                 post.put("dislikes", rs.getInt("dislikes"));
                 post.put("viewscount", rs.getInt("viewscount"));
                 post.put("comments", rs.getInt("comments"));
-                post.put("updatedat", rs.getTimestamp("updatedat"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
                 post.put("name", rs.getString("name"));
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
@@ -1945,7 +2371,7 @@ public class JdbcController {
 				)
 		);
     	
-    	model.addAttribute("topic", target.substring(1,target.length() - 1) ); 
+    	model.addAttribute("topic", this.capitalize(target.substring(1,target.length() - 1)) ); 
     	model.addAttribute("colors", colors); 
         
         return "massfilter";

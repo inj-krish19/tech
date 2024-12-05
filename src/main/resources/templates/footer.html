@@ -35,10 +35,18 @@
         <div class="footer-section contact-form-div">
             <h2>Contact Us</h2>
             <form th:action="@{/contact}" method="post">
-                <input type="text" name="email-address" class="text-input contact-input"
-                    placeholder="Your email address">
-                <textarea name="message" cols="30" rows="3" class="text-input contact-input"
-                    placeholder="Message..."></textarea>
+                 <div class="mb-3">
+			        <select name="type" id="type" class="form-select" required style="background: #272727; color: #6c757d; border: 1px solid #272727; font-family: 'Lora', sarif; ">
+			            <option value="bug_report">Feedback Type ...</option>
+			            <option value="bug_report">Bug Report</option>
+			            <option value="general">General</option>
+			            <option value="feature_request">Feature Request</option>
+			        </select>
+			    </div>
+			    <div class="mb-3">
+                	<textarea name="message" cols="30" rows="3" class="text-input contact-input"
+                    	placeholder="Message..." style="min-width: 250px; min-height: 150px; max-height: 200px; "></textarea>
+                </div>
                 <button type="submit" name="send-msg-btn" class="send-msg-btn">
                     <i class="fa fa-send"></i> Send
                 </button>

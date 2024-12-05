@@ -92,7 +92,7 @@
                                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
                             </div>
 
-                            <div class="form-check mb-3">
+                            <!-- div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="public" name="public">
                                 <label class="form-check-label" for="public">Public</label>
                             </div>
@@ -100,7 +100,7 @@
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="private" name="private">
                                 <label class="form-check-label" for="private">Private</label>
-                            </div>
+                            </div !-->
 
 							<input type="hidden" id="selectedKeywords" name="selectedKeywords" value="">
 
@@ -273,7 +273,7 @@
                 const bodyInput = document.querySelector('#body-input');
 
                 // Set cleaned content
-                bodyInput.value = quill.root.innerHTML;
+                bodyInput.value = rawContent;
                 
                 if( !rawContent || rawContent === "" ){
                 	event.preventDefault();

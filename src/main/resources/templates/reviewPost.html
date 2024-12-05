@@ -44,6 +44,10 @@
         <div class="post-content" id="post-content">
             <div class="container">
 
+				<div class="alert alert-warning" role="alert">
+                    <span>Image May Take Several Seconds To Load. Don't tap on cancel until 30 second</span>
+                </div>
+
                 <div class="author-box">
                     <div class="author-profile">
                         <img th:src="@{images/logo.jpg}" alt="Author Profile Picture" class="author-image">
@@ -66,22 +70,21 @@
 
 				<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
 					class="post-image">
-					<img th:if="${post.image != null}" th:src="@{images/logo.jpg}" alt="Post Image"
+					<img th:if="${post.image != null and post.image != '' }" th:src="@{${post.image}}"  alt="Post Image"
 						th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
 
 					<div class="post-content" style="overflow-wrap:anywhere;">
-						<p class="post-description" th:text="${post.description}"
-							th:if="${post.description.length() <= 1000}" style="text-align: left;">
-						</p>
-
-						<p class="post-description" th:if="${post.description.length() > 1000}"
-							style="text-align: left;">
-							<span th:text="${post.description.substring(0, 2500)}"></span>
-							<span class="more-text" style="display: none;"
-								th:text="${post.description.substring(2500)}"></span>
-							<button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
-						</p>
-
+					    <!-- Show full description if less than or equal to 1000 characters -->
+					    <p class="post-description" th:if="${post.description.length() <= 1000}" 
+					       th:text="${post.description}" style="text-align: left;"></p>
+					
+					    <!-- Show truncated description if more than 1000 characters -->
+					    <p class="post-description" th:if="${post.description.length() > 1000}" style="text-align: left;">
+					        <span th:text="${post.description.substring(0, 1000)}"></span>
+					        <span class="more-text" style="display: none;" 
+					              th:text="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
+					        <button class="toggle-button" style="width:auto;"  onclick="toggleReadMore(this)">Read more...</button>
+					    </p>
 					</div>
 				</div>
 				
@@ -119,6 +122,7 @@
                         <input type="hidden" name="category" th:value="${post.category}" />
                         <input type="hidden" name="description" th:value="${post.description}" />
                         <input type="hidden" name="keyword" th:value="${post.keyword}" />
+                        <input type="hidden" name="image" th:value="${post.image}" />
                         <button type="submit" class="btn-confirm" onclick="hidePost()">Confirm</button>
                     </form>
                     <a href="/create_post" class="btn-cancel" style="margin-top: 5px; height:100%;">Cancel</a>

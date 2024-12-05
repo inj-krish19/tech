@@ -1,4 +1,4 @@
-<div class="posts-list" >
+<div class="posts-list" id="post-container">
 	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
     	<h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
 	</div>
@@ -27,23 +27,22 @@
 
 
 					<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
-						class="post-image">
-						<img th:if="${post.image != null && post.image != ''}" th:src="@{images/logo.jpg}" alt="Post Image"
+					class="post-image">
+						<img th:if="${post.image != null and post.image != '' }" th:src="@{${post.image}}" alt="Post Image"
 							th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
-
+	
 						<div class="post-content" style="overflow-wrap:anywhere;">
-							<p class="post-description" th:text="${post.description}"
-								th:if="${post.description.length() <= 1000}" style="text-align: left;">
-							</p>
-
-							<p class="post-description" th:if="${post.description.length() > 1000}"
-								style="text-align: left;">
-								<span th:text="${post.description.substring(0, 2500)}"></span>
-								<span class="more-text" style="display: none;"
-									th:text="${post.description.substring(2500)}"></span>
-								<button class="toggle-button" onclick="toggleReadMore(this)">Read more...</button>
-							</p>
-
+						    <!-- Show full description if less than or equal to 1000 characters -->
+						    <p class="post-description" th:if="${post.description.length() <= 1000}" 
+						       th:text="${post.description}" style="text-align: left;"></p>
+						
+						    <!-- Show truncated description if more than 1000 characters -->
+						    <p class="post-description" th:if="${post.description.length() > 1000}" style="text-align: left;">
+						        <span th:text="${post.description.substring(0, 1000)}"></span>
+						        <span class="more-text" style="display: none;" 
+						              th:text="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
+						        <button class="toggle-button" style="width:auto;"  onclick="toggleReadMore(this)">Read more...</button>
+						    </p>
 						</div>
 					</div>
 					<div class="post-actions d-flex border-top pt-3"

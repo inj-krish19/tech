@@ -36,6 +36,31 @@
     }
 </style>
 
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color : white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+</style>
+
 <body style="background:#343a40">
 
 
@@ -53,27 +78,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-
-            <div class="col-md-4">
-                <!-- content -->
-                <div class="content clearfix">
-                    <div class="page-content">
-                        <div class="post-container" id="post-container">
-                            <div class="post-info" th:each="p : ${post}">
-                                <h2 style="font-size:48px;" class="post-bio" th:text="${p.title}"></h2>
-                                <h3 style="font-size:24px;" class="post-bio" th:text="${p.category}"></h3>
-                                <h5 style="font-size:20px; color:whitesmoke;" class="post-bio"
-                                    th:text="${p.description}"></h5>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div>  
         </div>
     </div>
+    
+    <div th:replcae="~{post :: div} "></div>
+    
     <div th:replace="~{footer :: div}"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
