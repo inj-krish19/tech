@@ -3,6 +3,9 @@ package com.example.tech.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+
 @Entity
 @Table(name = "Blogger")
 public class Blogger {

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-    <title>Review Post - Tech2xplore</title>
+    <title>Review </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -44,13 +44,14 @@
         <div class="post-content" id="post-content">
             <div class="container">
 
-				<div class="alert alert-warning" role="alert">
+				<!-- div class="alert alert-warning" role="alert">
                     <span>Image May Take Several Seconds To Load. Don't tap on cancel until 30 second</span>
-                </div>
+                </div !-->
 
                 <div class="author-box">
                     <div class="author-profile">
-                        <img th:src="@{images/logo.jpg}" alt="Author Profile Picture" class="author-image">
+                    	<img th:src="${post.image != null && post.image != '' ? '/uploads/bloggers/' + post.image : '/images/logo.jpg'}"
+							 alt="Author Profile Picture" class="author-image">
                     </div>
                     <div class="author-details">
                         <h3 class="author-name" th:text="${post.name}"></h3><span th:text="'@' + ${post.username}"></span> 
@@ -70,7 +71,7 @@
 
 				<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
 					class="post-image">
-					<img th:if="${post.image != null and post.image != '' }" th:src="@{${post.image}}"  alt="Post Image"
+					<img th:if="${post.image != null and post.image != '' }" th:src="@{'uploads/posts/' + ${post.image}}"  alt="Post Image"
 						th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
 
 					<div class="post-content" style="overflow-wrap:anywhere;">

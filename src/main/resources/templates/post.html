@@ -10,7 +10,8 @@
 
 					<div class="author-box">
 						<div class="author-profile">
-							<img th:src="@{/images/logo.jpg}" alt="Author Profile Picture" class="author-image">
+							<img th:src="${post.image != null && post.image != '' ? '/uploads/bloggers/' + post.image : '/images/logo.jpg'}"
+							 alt="Author Profile Picture" class="author-image">
 						</div>
 						<div class="author-details">
 							<h3 class="author-name" th:text="${post.name}"></h3>
@@ -28,7 +29,9 @@
 
 					<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
 					class="post-image">
-						<img th:if="${post.image != null and post.image != '' }" th:src="@{${post.image}}" alt="Post Image"
+						<img
+							th:if="${post.media != null && post.media != ''}"
+							th:src="${post.media != null && post.media != '' ? '/uploads/posts/' + post.media : ''}" alt="Post Image"
 							th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
 	
 						<div class="post-content" style="overflow-wrap:anywhere;">
@@ -62,8 +65,8 @@
 						<button class="btn btn-dark d-flex align-items-center" style="gap: 5px; justify-content: center;">
 							<i class="bi bi-reply"></i>
 						</button>
-						<button class="btn btn-dark d-flex align-items-center" style="gap: 5px; justify-content: center;">
-							<i class="bi bi-share"></i>
+						<button class="btn btn-dark d-flex align-items-center" style="gap: 5px; justify-content: center;" 
+							th:attr="onclick=${post.articleid != null} ? 'watchPost(' + ${post.articleid} + ')' : null">							<i class="bi bi-share"></i>
 						</button>
 					</div>
 					<div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">

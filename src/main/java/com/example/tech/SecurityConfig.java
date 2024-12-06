@@ -44,8 +44,9 @@ public class SecurityConfig {
         			csrf -> csrf.disable()
         	)
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/images/posts/**", "/images/bloggers/**", "/images/categories/**", "/images/keyword/**", "/images/communities/**",  "/", "/about", "/bloggers").permitAll()
-                .requestMatchers("/profile", "/load-more-posts").hasRole("USER")
+//                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/about", "/entity/**", "/error").permitAll()
+                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/error").permitAll()
+                .requestMatchers("/profile","/load-more-posts").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
@@ -56,7 +57,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-            	.logoutUrl("/logout")
+            	.logoutUrl("/mylogout")
                 .logoutSuccessUrl("/login?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")

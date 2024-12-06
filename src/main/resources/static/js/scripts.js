@@ -13,6 +13,11 @@ function toggleReadMore(button) {
     }
 }
 
+
+function watchPost( id ){
+	window.location.href = `/post/${id}`;
+}
+
 document.querySelectorAll('.oper').forEach(button => {
     button.addEventListener('click', function () {
         const isActive = this.classList.contains('operations');

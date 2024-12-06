@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, shrink-to-fit=no">
-    <title>Home - Tech2xplore</title>
+    <title>Home </title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
@@ -13,45 +13,46 @@
 
 </head>
 
-<body style="background:#343a40">
+<style th:each="color, iterStat : ${colors}">
+	.color--[[${iterStat.index}]]:hover {
+	    color : [[${color}]];
+	    font-weight: 900;
+	}
+	.color--[[${iterStat.index}]] {
+		font-weight: 600;
+		transition : 0.3s;
+		color : #5c5b5b;
+	}
+</style>
+   
+   	
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color: white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+</style>
 
-	<style th:each="color, iterStat : ${colors}">
-        .color--[[${iterStat.index}]]:hover {
-            color : [[${color}]];
-            font-weight: 900;
-        }
-        .color--[[${iterStat.index}]] {
-        	font-weight: 600;
-        	transition : 0.3s;
-        	color : #5c5b5b;
-        }
-    </style>
-    
-    	
-	<style th:each="color, iterStat : ${colors}">
-		.color-[[${iterStat.index}]] {
-		    background-color: white;
-		    border : 1px solid [[${color}]];
-		    color : [[${color}]];
-		}
-		.color-[[${iterStat.index}]]:hover {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-		
-		.color-[[${iterStat.index}]]:click {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-		
-		.color-[[${iterStat.index}]]-clicked {
-		    background-color : [[${color}]];
-		    color: white;
-		    border: 1px solid [[${color}]];
-		}
-	</style>
+
+<body style="background:#343a40">
 
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
@@ -163,7 +164,7 @@
                                 <div class="container">
                                     <div class="author-box">
                                         <div class="author-profile">
-                                            <img src="${post.image || 'images/logo.jpg'}" alt="Author Profile Picture" class="author-image">
+                                            <img src="${post.image ? 'uploads/bloggers/' + post.image : 'images/logo.jpg'}" alt="Author Profile Picture" class="author-image">
                                         </div>
                                         <div class="author-details">
                                             <h3 class="author-name">${post.name}</h3>
@@ -178,8 +179,8 @@
                                         </div>
                                     </div>
                                     <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}">
-	                                    <img src="${post.image && post.image !== '' ? post.image : '' }" alt="Post Image"
-	                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  {$post.image == null || post.image === '' ? ' display: none;' : ''}">
+	                                    <img src="${post.media && post.media !== '' ? 'uploads/posts/' + post.media : ''}" alt="Post Image"
+	                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  ${post.media == null || post.media === '' ? ' display: none;' : ''}">
 	                                    <div class="post-content" style="overflow-wrap: anywhere;">
 	                                        ${post.description.length <= 1000 ? `
 	                                            <p class="post-description" style="text-align: left;">

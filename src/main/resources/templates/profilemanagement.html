@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Profile Management - Tech2xplore</title>
+    <title>Profile </title>
     <link rel="stylesheet" th:href="@{/css/signup.css}"> <!-- Include your signup.css for theme -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -70,7 +70,17 @@
 	                </button>
 	            </div>
 	        </div>
-	      </div>
+	        <div class="mb-3">
+			    <label for="profilePicture" class="form-label">Profile Picture</label>
+			    <div class="input-group">
+			        <img th:src="${user.image != null && user.image != '' ? '/uploads/bloggers/' + user.image : '/images/logo.jpg'}" style=" height: 215px; width:215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
+                    <input type="file" class="form-control custom-input-box" id="profilePicture" name="profilePicture" accept="image/*" style="width: auto; ">
+			        <button class="btn btn-outline-primary custom-icon-box" type="button" onclick="updateProfilePicture('profilePicture')">
+			            <i class="bi bi-upload"></i>
+			        </button>
+			    </div>
+			</div>
+		</div>
     </div>
 
     <!-- Modals for Editing -->
@@ -164,6 +174,58 @@
     	const manual = document.getElementById("messageBoxManual");
     	const message = document.getElementById("message");
     
+    	async function updateProfilePicture(field) {
+    	    let formData = new FormData();
+
+	        console.log("File received");
+
+    	    if (field === 'profilePicture') {
+    	        const fileInput = document.getElementById('profilePicture');
+    	        const file = fileInput.files[0];
+
+    	        if (!file) {
+    	            alert('Please select a file to upload.');
+    	            return;
+    	        }
+    	        console.log("File uploaded");
+
+    	        formData.append('profilePicture', file);
+    	    } else {
+    	        console.error('Unsupported field for updateProfile');
+    	        return;
+    	    }
+
+    	    try {
+    	        const response = await fetch('/update-picture', {
+    	            method: 'POST',
+    	            body: formData,
+    	        });
+
+    	        const result = await response.json();
+
+    	        console.log("Response Got");
+    	        
+    	        if (response.ok) {
+    	        	 
+                    manual.style.display = "show";
+                    manual.classList.add("alert-success");
+                    message.innerHTML = `Profile Picture Updated Successfully`;
+                    
+    	        } else {
+    	        	 
+                    manual.style.display = "show";
+                    manual.classList.add("alert-danger");
+                    message.innerHTML = `Failed to update Profile Picture`;
+                    
+    	        }
+    	    } catch (error) {
+                manual.style.display = "show";
+                manual.classList.add("alert-warning");
+                message.innerHTML = `Failed to upload File`;
+    	    }
+    	}
+
+    	
         function updateProfile(field) {
             let value;
             switch (field) {
@@ -227,9 +289,7 @@
                             break;
                     }
                     
-                    // success
-                    
-                    
+                    // success                    
                     manual.style.display = "show";
                     manual.classList.add("alert-success");
                     message.innerHTML = `Successfully Updated ${field.charAt(0).toUpperCase() + field.slice(1)}`;
@@ -242,7 +302,6 @@
                 .catch(error => {
                 	
                 	// danger 
-                    
                     manual.style.display = "show";
                     manual.classList.add("alert-danger");
                     message.innerHTML = `Failed To Update ${field.charAt(0).toUpperCase() + field.slice(1)}`;

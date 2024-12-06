@@ -9,22 +9,22 @@
             <div class="card">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img th:src="@{/images/logo.jpg}" class="img-fluid rounded-circle p-1" alt="Blogger Image">
+                        <img th:src="${blogger.image != null && blogger.image != '' ? '/uploads/bloggers/' + blogger.image : '/images/logo.jpg'}" style=" height: 215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
                         <div class="card-body">
-                            <h5 class="card-title" style=" color: darkblue; ">John Doe</h5>
-                            <p class="card-text" style=" color: blueviolet; "><strong>@john_doe</strong> </p>
+                            <h5 class="card-title" style=" color: darkblue; " th:text="${blogger.name}" ></h5>
+                            <p class="card-text" style=" color: blueviolet; "><strong th:text= "'@' + ${blogger.name}"></strong> </p>
                             <button class="btn btn-info"><i class="bi bi-person-plus-fill"></i></button>
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <p class="card-text text-info"><strong>Followers :</strong> 2,345</p>
-                            <p class="card-text text-info"><strong>Followings :</strong> 2,345</p>
-                            <p class="card-text text-secondary" style=" font-weight: bold; "><small class="text-muted">I am the first user and this is all that you should know about me</small></p>
-                            <p class="card-text text-secondary"><strong>6 Posts </strong> till now</p>
-                        	<p class="card-text text-primary"><strong> 542 Likes </strong> received on Posts</p>
-                            <p class="card-text text-warning"><strong>7 Comments </strong> Received</p>
-                            <p class="card-text"><strong class="text-success">Joined: January 2022</strong></p>
+                            <p class="card-text text-info"><strong th:text=" 'Followers : ' + ${blogger.followers} "></strong> </p>
+                            <p class="card-text text-info"><strong th:text=" 'Followings : ' + ${blogger.followings} "></strong></p>
+                            <p class="card-text text-secondary" style=" font-weight: bold; "><small class="text-muted" th:text="${blogger.bio}">I am the first user and this is all that you should know about me</small></p>
+                            <p class="card-text text-secondary"><strong th:text=" ${blogger.posts} + ' Posts' " ></strong> till now</p>
+                        	<p class="card-text text-primary"><strong th:text=" ${blogger.likes} + ' Likes' "> </strong> received on Posts</p>
+                            <p class="card-text text-warning"><strong th:text=" ${blogger.comments} + ' Comments' "> </strong> Received</p>
+                            <p class="card-text"><strong class="text-success" th:text= "'Joined: ' + ${blogger.createdat} "></strong></p>
                         </div>
                     </div>
                 </div>
