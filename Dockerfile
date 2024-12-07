@@ -21,6 +21,7 @@ WORKDIR /app
 # Copy the Maven project files
 COPY pom.xml ./
 COPY src ./src
+COPY uploads ./uploads
 COPY .env /app/.env
 
 # RUN pwd && ls -a
