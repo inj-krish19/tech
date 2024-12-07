@@ -210,7 +210,10 @@
                     manual.style.display = "show";
                     manual.classList.add("alert-success");
                     message.innerHTML = `Profile Picture Updated Successfully`;
-                    
+	            setTimeout( () => {
+			    location.reload(true);
+		    }, 3000);
+			
     	        } else {
     	        	 
                     manual.style.display = "show";
