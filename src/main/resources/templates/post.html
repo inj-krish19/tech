@@ -78,9 +78,10 @@
 					</div>
 				    <th:block th:each="keyword, iterStat : ${post.keywords}">
 				        <button th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
-				                th:attr="data-keyword=${keyword}"
-				                class="tag" 
-				                th:text="${keyword}" >
+				                th:attr="data-keyword=${keyword}" 
+						        th:attrappend="data-url='/mass-filter/keyword/' + ${keyword}" 
+						        class="tag" 
+				                th:text="${keyword}">
 				        </button>
 				    </th:block>
 				</div>

@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,8 +40,11 @@ import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -1465,7 +1471,7 @@ public class JdbcController {
         int offset = (page - 1) * pageSize;
 
         // SQL query to fetch posts with pagination
-        String postSql = """
+        /*String postSql = """
                 SELECT p.articleid, 
                        p.title, 
                        p.description, 
@@ -1528,9 +1534,81 @@ public class JdbcController {
         }, pageSize, offset);
 
         // Check if there are more posts to load
-        boolean hasMore = posts.size() == pageSize;
+        boolean hasMore = posts.size() == pageSize; */
 
+        String newsApiUrl = "https://newsapi.org/v2/everything";
+        String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
+                .queryParam("q", "technology")
+                .queryParam("page", page - 1)
+                .queryParam("pageSize", pageSize)
+                .queryParam("apiKey", dotenv.get("NEWS_API"))
+                .toUriString();
+        RestTemplate restTemplate = new RestTemplate();
+        HashMap<String, Object> results;
+        
+        try {
+            // Fetching the response as a HashMap
+            results = restTemplate.getForObject(url, HashMap.class);
+            
+            
+        } catch (HttpClientErrorException e) {
+            // Handling errors if the API call fails (e.g., invalid API key, quota exceeded)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "API call failed: " + e.getMessage());
+            return errorResponse;
+        }
+        int totalResults = (int) results.get("totalResults");
+
+        // Check if there are more articles based on some condition, like total results
+        boolean hasMore = true; // Example logic: more than 20 results means more articles
+
+        List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
         // Prepare response
+        List<HashMap<String, Object>> posts = new LinkedList<>();
+        
+        for( HashMap<String, Object> post : result ) {
+        
+        	HashMap<String, Object> tempPost = new HashMap<>();
+            Long articleId = 100l;
+
+            tempPost.put("articleid", articleId);
+            tempPost.put("title", post.get("title") );
+            tempPost.put("description", post.get("content") );
+            tempPost.put("likes", 0);
+            tempPost.put("dislikes", 0);
+            tempPost.put("viewscount", 0);
+            tempPost.put("comments", 0);
+            Timestamp timestamp = new Timestamp(100000000);
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
+            tempPost.put("name", post.get("author"));
+            tempPost.put("username", post.get("author"));
+            tempPost.put("bio", post.get("description"));
+            tempPost.put("category", "News");
+            tempPost.put("media", post.get("urlToImage"));
+            tempPost.put("image", post.get("urlToImage"));
+
+            // Fetch keywords for the current article
+            String keywordQuery = """
+                SELECT name 
+                FROM Keyword k 
+                JOIN KeywordAssignment ka ON k.keywordid = ka.keywordid 
+                WHERE ka.articleid = ?
+            """;
+            List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
+            tempPost.put("keywords", new LinkedList<>( Arrays.asList("C++","Java") ) );
+
+            posts.add( tempPost );
+        	
+        }
+        
+        
+        System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
         response.put("posts", posts);
         response.put("hasMore", hasMore);

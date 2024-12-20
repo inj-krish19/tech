@@ -13,6 +13,15 @@ function toggleReadMore(button) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.tag').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const url = button.getAttribute('data-url');
+                location.href = url;
+            });
+        });
+    });
+
 
 function watchPost( id ){
 	window.location.href = `/post/${id}`;
