@@ -9,7 +9,7 @@
             <div class="card">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img th:src="${blogger.image != null && blogger.image != '' ? '/uploads/bloggers/' + blogger.image : '/images/logo.jpg'}" style=" height: 215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
+                        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}" style=" height: 215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
                         <div class="card-body">
                             <h5 class="card-title" style=" color: darkblue; " th:text="${blogger.name}" ></h5>
                             <p class="card-text" style=" color: blueviolet; "><strong th:text= "'@' + ${blogger.name}"></strong> </p>

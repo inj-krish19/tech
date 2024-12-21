@@ -127,7 +127,6 @@ body {
   /* Set default text color to light for contrast */
 }
 
-/* Custom styling for the 3D animated navbar */
 .logo-text {
   font-family: 'Roboto', sans-serif;
   /* Custom Google Font */
@@ -1297,3 +1296,5 @@ button {
     border-radius: 25px;
     width: fit-content;
 }
+
+.like, .dislike{}

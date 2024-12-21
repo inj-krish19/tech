@@ -32,6 +32,10 @@ document.querySelectorAll('.oper').forEach(button => {
         const isActive = this.classList.contains('operations');
         const actionType = this.textContent.trim();
 
+		const isLike = this.classList.contains('like');
+		const isDislike = this.classList.contains('dislike');
+		const icon = button.querySelector('i');
+		
         // Reset all buttons
         this.parentElement.querySelectorAll('button').forEach(btn => btn.classList.remove('operations'));
 
@@ -39,6 +43,16 @@ document.querySelectorAll('.oper').forEach(button => {
         if (!isActive) {
             this.classList.add('operations');
         }
+		
+		if( isLike ){
+			icon.classList.add("bi-hand-thumbs-up-fill");
+			icon.classList.add("bi-hand-thumbs-up");
+		}
+		
+		if( isDislike ){
+			icon.classList.add("bi-hand-thumbs-down-fill");
+			icon.classList.add("bi-hand-thumbs-down");
+		}
 
 	 });
 });

@@ -39,6 +39,7 @@ import java.nio.file.StandardOpenOption;
 import java.security.Principal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -185,8 +186,16 @@ public class JdbcController {
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
                 post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-                post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
                 // Separate query to get keywords for the current article
                 String keywordQuery = """
@@ -280,8 +289,16 @@ public class JdbcController {
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
                 post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-                post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
                 // Separate query to get keywords for the current article
                 String keywordQuery = """
@@ -331,65 +348,89 @@ public class JdbcController {
 //            System.out.println("Blogger Is " + blogger );
             Long author = (blogger.get("authorid") != null) ? (Long) blogger.get("authorId") : null;
 
+            System.out.println("\n\n\n\n\n\n\\n\nAuthor ID: " + author + "\n\n\n\n\n\n");
+
+            try {
+                List<Map<String, Object>> result = jdbcTemplate.queryForList("""
+                        SELECT column_name, data_type 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'Connection';
+                        """);
+                System.out.print(result);
+            } catch (Exception e) {
+                System.out.print("\n\nDescribe Failed\n\n\n");
+            }
+
             
             try {
             
 	            sql = """
-	            		SELECT COUNT(*) AS followings FROM Connection WHERE followerId = ?
-	            		""";
-	            blogger.put("followings", jdbcTemplate.queryForList(sql, author, Long.class).get(0).get("followings") );
+	            		SELECT COUNT(*) AS followings FROM Connection WHERE followerId = 
+	            		""" + author;
+	            blogger.put("followings", jdbcTemplate.queryForObject(sql, Long.class)	 );
 	            
             }catch( Exception e ) {
-            	System.out.print("1");
+            	e.printStackTrace();
+            	System.out.print("\n\n1" + "\n\n");
             	blogger.put("followings", 0);
             }
 	     
             try {
 	            sql = """
-	            		SELECT COUNT(*) AS followers FROM Connection WHERE followingId = ?
-	            		""";
-	            blogger.put("followers", jdbcTemplate.queryForList(sql, author, Long.class).get(0).get("followers") );
+	            		SELECT COUNT(*) AS followers FROM Connection WHERE followingId = 
+	            		""" + author;
+	            blogger.put("followers", jdbcTemplate.queryForObject(sql, Long.class) );
 	
 	        }catch( Exception e ) {
-	        	System.out.print("2");
+            	e.printStackTrace();
+            	System.out.print("\n\n2" + "\n\n");
 	        	blogger.put("followers", 0);
 	        }
             
             try {
 	            sql = """
-	            		SELECT COUNT(*) AS likes FROM PostInteractions WHERE authorId = ? AND reactionType = 'LIKE'
-	            		""";
-	            blogger.put("likes", jdbcTemplate.queryForList(sql, author, Long.class).get(0).get("likes") );
+	            		SELECT COUNT(*) AS likes FROM PostInteraction WHERE authorId = 
+	            	""" + author + " AND reactionType = 'like' ";
+	            blogger.put("likes", jdbcTemplate.queryForObject(sql, Long.class) );
 		
 		    }catch( Exception e ) {
-		    	System.out.print("3");
+            	e.printStackTrace();
+            	System.out.print("\n\n3" + "\n\n");
 		    	blogger.put("likes", 0);
 		    }   
             
             try {
 	            sql = """
-	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = ? AND commentType = 'COMMENT'
-	            		""";
-	            blogger.put("comments", jdbcTemplate.queryForList(sql, author, Long.class).get(0).get("comments") );
-			
+	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
+	            	""" +  author + " AND commentType = 'comment' ";
+	            blogger.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
+	            
 			}catch( Exception e ) {
-				System.out.print("4");
+            	e.printStackTrace();
+            	System.out.print("\n\n4" + "\n\n");
 				blogger.put("comments", 0);
 			}       
             
             try {
 	            sql = """
-	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthorId = ?
-	            		""";
-	            blogger.put("posts", jdbcTemplate.queryForList(sql, author, Long.class).get(0).get("posts") );
-
+	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
+	            		""" + author;
+	            blogger.put("posts", jdbcTemplate.queryForObject(sql, Long.class) );
+	            
 	        }catch( Exception e ) {
-	        	System.out.print("5");
+            	e.printStackTrace();
+            	System.out.print("\n\n5" + "\n\n");
 	        	blogger.put("posts", 0);
 	        }                       
             
             if (createdat != null) {
                 blogger.put("createdat", sdf.format(createdat));
+            }
+            
+            if( blogger.get("image") == null || blogger.get("image").equals("") ) {
+            	blogger.put("image", null);
+            }else {
+            	blogger.put("image", "/uploads/bloggers/" + blogger.get("image"));
             }
             
         }
@@ -456,8 +497,16 @@ public class JdbcController {
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
                 post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-                post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
                 // Separate query to get keywords for the current article
                 String keywordQuery = """
@@ -663,8 +712,16 @@ public class JdbcController {
 	            post.put("username", rs.getString("username"));
 	            post.put("bio", rs.getString("bio"));
 	            post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-	            post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	            if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 	
 	            // Separate query to get keywords for the current article
 	            String keywordQuery = """
@@ -772,8 +829,16 @@ public class JdbcController {
          post.put("username", rs.getString("username"));
          post.put("bio", rs.getString("bio"));
          post.put("category", rs.getString("category"));
-         post.put("media", rs.getString("media"));
-         post.put("image", rs.getString("image"));
+         if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+         if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
          // Separate query to get keywords for the current article
          String keywordQuery = """
@@ -871,8 +936,16 @@ public class JdbcController {
             post.put("username", rs.getString("username"));
             post.put("bio", rs.getString("bio"));
             post.put("category", rs.getString("category"));
-            post.put("media", rs.getString("media"));
-            post.put("image", rs.getString("image"));
+            if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+            if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
             // Separate query to get keywords for the current article
             String keywordQuery = """
@@ -1040,8 +1113,16 @@ public class JdbcController {
 	         post.put("username", rs.getString("username"));
 	         post.put("bio", rs.getString("bio"));
 	         post.put("category", rs.getString("category"));
-             post.put("media", rs.getString("media"));
-	         post.put("image", rs.getString("image"));
+             if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	         if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 	
 	         // Separate query to get keywords for the current article
 	         String keywordQuery = """
@@ -1113,8 +1194,16 @@ public class JdbcController {
 	         post.put("username", rs.getString("username"));
 	         post.put("bio", rs.getString("bio"));
 	         post.put("category", rs.getString("category"));
-             post.put("media", rs.getString("media"));
-	         post.put("image", rs.getString("image"));
+             if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	         if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
 	         // Separate query to get keywords for the current article
 	         String keywordQuery = """
@@ -1193,8 +1282,16 @@ public class JdbcController {
 	            post.put("username", rs.getString("username"));
 	            post.put("bio", rs.getString("bio"));
 	            post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-	            post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	            if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
 	            // Separate query to get keywords for the current article
 	            String keywordQuery = """
@@ -1471,7 +1568,7 @@ public class JdbcController {
         int offset = (page - 1) * pageSize;
 
         // SQL query to fetch posts with pagination
-        /*String postSql = """
+        String postSql = """
                 SELECT p.articleid, 
                        p.title, 
                        p.description, 
@@ -1517,8 +1614,16 @@ public class JdbcController {
             post.put("username", rs.getString("username"));
             post.put("bio", rs.getString("bio"));
             post.put("category", rs.getString("category"));
-            post.put("media", rs.getString("media"));
-            post.put("image", rs.getString("image"));
+            if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+            if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
             // Fetch keywords for the current article
             String keywordQuery = """
@@ -1534,7 +1639,7 @@ public class JdbcController {
         }, pageSize, offset);
 
         // Check if there are more posts to load
-        boolean hasMore = posts.size() == pageSize; */
+        boolean hasMore = posts.size() == pageSize; 
 
         String newsApiUrl = "https://newsapi.org/v2/everything";
         String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
@@ -1559,13 +1664,8 @@ public class JdbcController {
         }
         int totalResults = (int) results.get("totalResults");
 
-        // Check if there are more articles based on some condition, like total results
-        boolean hasMore = true; // Example logic: more than 20 results means more articles
-
         List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
         // Prepare response
-        List<HashMap<String, Object>> posts = new LinkedList<>();
-        
         for( HashMap<String, Object> post : result ) {
         
         	HashMap<String, Object> tempPost = new HashMap<>();
@@ -1573,25 +1673,43 @@ public class JdbcController {
 
             tempPost.put("articleid", articleId);
             tempPost.put("title", post.get("title") );
-            tempPost.put("description", post.get("content") );
+            
+            String content = post.get("content") != null ? post.get("content").toString() : "";
+            String[] splitContent = content.split("…"); // Split at '...' only once
+            String description = splitContent[0]; // Take the first part
+
+            // Append the 'Read more...' button
+            description += " <button class=\"toggle-button\" style=\"width:auto;\" onclick=\" location.href='" 
+            + post.get("url") 
+            + "'; \"> Read more... </button> ";
+            
+            tempPost.put("description", description );
             tempPost.put("likes", 0);
             tempPost.put("dislikes", 0);
             tempPost.put("viewscount", 0);
             tempPost.put("comments", 0);
-            Timestamp timestamp = new Timestamp(100000000);
+            try {
+                // Parse the ISO 8601 date-time string to a java.util.Date
+                Instant instant = Instant.parse( post.get("publishedAt").toString() );
+                Timestamp timestamp = Timestamp.from(instant);
+
                 if (timestamp != null) {
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
                     String formattedDate = sdf.format(timestamp);
-                    post.put("updatedat", formattedDate);
+                    tempPost.put("updatedat", formattedDate);
                 } else {
-                    post.put("updatedat", null);
+                    tempPost.put("updatedat", null);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                tempPost.put("updatedat", null);
+            }
             tempPost.put("name", post.get("author"));
-            tempPost.put("username", post.get("author"));
-            tempPost.put("bio", post.get("description"));
+            tempPost.put("username", "tech2xplore");
+            tempPost.put("bio", "Tech2Xplore Trending News");
             tempPost.put("category", "News");
             tempPost.put("media", post.get("urlToImage"));
-            tempPost.put("image", post.get("urlToImage"));
+            tempPost.put("image", null);
 
             // Fetch keywords for the current article
             String keywordQuery = """
@@ -1603,10 +1721,270 @@ public class JdbcController {
             List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
             tempPost.put("keywords", new LinkedList<>( Arrays.asList("C++","Java") ) );
 
-            posts.add( tempPost );
+            if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
+            	tempPost.put("name", "Tech2Xplore Trending News");
+            }else {
+            	tempPost.put("name", tempPost.get("name") + " via Tech2Xplore and News API");
+            }
+            
+            if( 
+            		tempPost.get("title").equals("[Removed]") 	||
+            		tempPost.get("description").equals("[Removed]") 
+            		
+            ) {	}else {
+            	posts.add( tempPost );
+            }
         	
         }
         
+        hasMore = hasMore && ( totalResults > page * pageSize );
+        
+        System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", posts);
+        response.put("hasMore", hasMore);
+
+        return response;
+    }
+    
+    
+    @GetMapping("/trendings")
+    public String trendingPosts(Model model) {
+    	
+    	int page = 0;
+        int pageSize = 15;
+
+        List<Map<String, Object>> posts = new LinkedList<>();
+        
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+    	
+
+    	String categorySql = "SELECT name FROM Category";
+        List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
+        model.addAttribute("topics", categories);
+    	
+        String newsApiUrl = "https://newsapi.org/v2/everything";
+        String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
+                .queryParam("q", "technology")
+                .queryParam("page", page - 1)
+                .queryParam("pageSize", pageSize)
+                .queryParam("apiKey", dotenv.get("NEWS_API"))
+                .toUriString();
+        RestTemplate restTemplate = new RestTemplate();
+        HashMap<String, Object> results;
+        
+        try {
+            // Fetching the response as a HashMap
+            results = restTemplate.getForObject(url, HashMap.class);
+            
+            
+        } catch (HttpClientErrorException e) {
+            // Handling errors if the API call fails (e.g., invalid API key, quota exceeded)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "API call failed: " + e.getMessage());
+            return "redirect:/";
+        }
+        int totalResults = (int) results.get("totalResults");
+
+        List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
+        // Prepare response
+        for( HashMap<String, Object> post : result ) {
+        
+        	HashMap<String, Object> tempPost = new HashMap<>();
+            Long articleId = 100l;
+
+            tempPost.put("articleid", articleId);
+            tempPost.put("title", post.get("title") );
+            
+            String content = post.get("content") != null ? post.get("content").toString() : "";
+            String[] splitContent = content.split("…"); // Split at '...' only once
+            String description = splitContent[0]; // Take the first part
+
+            // Append the 'Read more...' button
+            description += " <button class=\"toggle-button\" style=\"width:auto;\" onclick=\" location.href='" 
+            + post.get("url") 
+            + "'; \"> Read more... </button> ";
+            
+            tempPost.put("description", description );
+            tempPost.put("likes", 0);
+            tempPost.put("dislikes", 0);
+            tempPost.put("viewscount", 0);
+            tempPost.put("comments", 0);
+            try {
+                // Parse the ISO 8601 date-time string to a java.util.Date
+                Instant instant = Instant.parse( post.get("publishedAt").toString() );
+                Timestamp timestamp = Timestamp.from(instant);
+
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    tempPost.put("updatedat", formattedDate);
+                } else {
+                    tempPost.put("updatedat", null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                tempPost.put("updatedat", null);
+            }
+            tempPost.put("name", post.get("author"));
+            tempPost.put("username", "tech2xplore");
+            tempPost.put("bio", "Tech2Xplore Trending News");
+            tempPost.put("category", "News");
+            tempPost.put("media", post.get("urlToImage"));
+            tempPost.put("image", null);
+
+            // Fetch keywords for the current article
+            String keywordQuery = """
+                SELECT name 
+                FROM Keyword k 
+                JOIN KeywordAssignment ka ON k.keywordid = ka.keywordid 
+                WHERE ka.articleid = ?
+            """;
+            List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
+            tempPost.put("keywords", new LinkedList<>( Arrays.asList("C++","Java") ) );
+
+            if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
+            	tempPost.put("name", "Tech2Xplore Trending News");
+            }else {
+            	tempPost.put("name", tempPost.get("name") + " via Tech2Xplore and News API");
+            }
+            
+            if( 
+            		tempPost.get("title").equals("[Removed]") 	||
+            		tempPost.get("description").equals("[Removed]") 
+            		
+            ) {	}else {
+            	posts.add( tempPost );
+            }
+        	
+        }
+        
+        model.addAttribute("posts", posts);
+
+//      System.out.print(posts);
+
+  	List<String> colors = new ArrayList<>(
+  			List.of(
+  				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
+  				)
+  		);
+  	
+  	model.addAttribute("colors", colors);
+        
+    	return "trending";
+    }
+    
+    @GetMapping("/trending-more-posts")
+    @ResponseBody
+    public Map<String, Object> trendingMorePost(@RequestParam("page") int page) {
+        int pageSize = 15; // Number of posts per page
+        
+        List<Map<String, Object>> posts = new LinkedList<>();
+
+        // Check if there are more posts to load
+        boolean hasMore = true; 
+
+        String newsApiUrl = "https://newsapi.org/v2/everything";
+        String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
+                .queryParam("q", "technology")
+                .queryParam("page", page - 1)
+                .queryParam("pageSize", pageSize)
+                .queryParam("apiKey", dotenv.get("NEWS_API"))
+                .toUriString();
+        RestTemplate restTemplate = new RestTemplate();
+        HashMap<String, Object> results;
+        
+        try {
+            // Fetching the response as a HashMap
+            results = restTemplate.getForObject(url, HashMap.class);
+            
+            
+        } catch (HttpClientErrorException e) {
+            // Handling errors if the API call fails (e.g., invalid API key, quota exceeded)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "API call failed: " + e.getMessage());
+            return errorResponse;
+        }
+        int totalResults = (int) results.get("totalResults");
+
+        List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
+        // Prepare response
+        for( HashMap<String, Object> post : result ) {
+        
+        	HashMap<String, Object> tempPost = new HashMap<>();
+            Long articleId = 100l;
+
+            tempPost.put("articleid", articleId);
+            tempPost.put("title", post.get("title") );
+            
+            String content = post.get("content") != null ? post.get("content").toString() : "";
+            String[] splitContent = content.split("…"); // Split at '...' only once
+            String description = splitContent[0]; // Take the first part
+
+            // Append the 'Read more...' button
+            description += " <button class=\"toggle-button\" style=\"width:auto;\" onclick=\" location.href='" 
+            + post.get("url") 
+            + "'; \"> Read more... </button> ";
+            
+            tempPost.put("description", description );
+            tempPost.put("likes", 0);
+            tempPost.put("dislikes", 0);
+            tempPost.put("viewscount", 0);
+            tempPost.put("comments", 0);
+            try {
+                // Parse the ISO 8601 date-time string to a java.util.Date
+                Instant instant = Instant.parse( post.get("publishedAt").toString() );
+                Timestamp timestamp = Timestamp.from(instant);
+
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    tempPost.put("updatedat", formattedDate);
+                } else {
+                    tempPost.put("updatedat", null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                tempPost.put("updatedat", null);
+            }
+            tempPost.put("name", post.get("author"));
+            tempPost.put("username", "tech2xplore");
+            tempPost.put("bio", "Tech2Xplore Trending News");
+            tempPost.put("category", "News");
+            tempPost.put("media", post.get("urlToImage"));
+            tempPost.put("image", null);
+
+            // Fetch keywords for the current article
+            String keywordQuery = """
+                SELECT name 
+                FROM Keyword k 
+                JOIN KeywordAssignment ka ON k.keywordid = ka.keywordid 
+                WHERE ka.articleid = ?
+            """;
+            List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
+            tempPost.put("keywords", new LinkedList<>( Arrays.asList("C++","Java") ) );
+
+            if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
+            	tempPost.put("name", "Tech2Xplore Trending News");
+            }else {
+            	tempPost.put("name", tempPost.get("name") + " via Tech2Xplore and News API");
+            }
+            
+            if( 
+            		tempPost.get("title").equals("[Removed]") 	||
+            		tempPost.get("description").equals("[Removed]") 
+            		
+            ) {	}else {
+            	posts.add( tempPost );
+            }
+        	
+        }
+        
+        hasMore = hasMore && ( totalResults > page * pageSize );
         
         System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
@@ -2433,8 +2811,16 @@ public class JdbcController {
 	             post.put("username", rs.getString("username"));
 	             post.put("bio", rs.getString("bio"));
 	             post.put("category", rs.getString("category"));
-	                post.put("media", rs.getString("media"));
-	             post.put("image", rs.getString("image"));
+	             if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	             if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 	
 	             // Separate query to get keywords for the current article
 	             String keywordQuery = """
@@ -2516,8 +2902,16 @@ public class JdbcController {
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
                 post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-                post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
                 // Separate query to get keywords for the current article
                 String keywordQuery = """
@@ -2784,8 +3178,16 @@ public class JdbcController {
 	             post.put("username", rs.getString("username"));
 	             post.put("bio", rs.getString("bio"));
 	             post.put("category", rs.getString("category"));
-	                post.put("media", rs.getString("media"));
-	             post.put("image", rs.getString("image"));
+	             if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+	             if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 	
 	             // Separate query to get keywords for the current article
 	             String keywordQuery = """
@@ -2877,8 +3279,16 @@ public class JdbcController {
                 post.put("username", rs.getString("username"));
                 post.put("bio", rs.getString("bio"));
                 post.put("category", rs.getString("category"));
-                post.put("media", rs.getString("media"));
-                post.put("image", rs.getString("image"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", "/uploads/posts/" + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", "/uploads/bloggers/" + rs.getString("image"));
+}
 
                 // Separate query to get keywords for the current article
                 String keywordQuery = """
