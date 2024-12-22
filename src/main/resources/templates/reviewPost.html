@@ -41,16 +41,16 @@
     <div th:replace="~{header :: nav}"></div>
     <div class="post-card" style="max-width: 800px;">
         
+		<div class="alert alert-info" style="display : none; " id="alertMessage" role="alert">
+            <span>Post saved as Draft</span>
+        </div>
         <div class="post-content" id="post-content">
             <div class="container">
 
-				<!-- div class="alert alert-warning" role="alert">
-                    <span>Image May Take Several Seconds To Load. Don't tap on cancel until 30 second</span>
-                </div !-->
 
                 <div class="author-box">
                     <div class="author-profile">
-                    	<img th:src="${post.image != null && post.image != '' ? '/uploads/bloggers/' + post.image : '/images/logo.jpg'}"
+                    	<img th:src="${post.image != null && post.image != '' ? post.image : '/images/logo.jpg'}"
 							 alt="Author Profile Picture" class="author-image">
                     </div>
                     <div class="author-details">
@@ -71,7 +71,7 @@
 
 				<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
 					class="post-image">
-					<img th:if="${post.image != null and post.image != '' }" th:src="@{'uploads/posts/' + ${post.image}}"  alt="Post Image"
+					<img th:if="${post.media != null and post.media != '' }" th:src="${post.media != null && post.media != '' ? post.media : ''}"  alt="Post Image"
 						th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
 
 					<div class="post-content" style="overflow-wrap:anywhere;">
@@ -108,31 +108,27 @@
                 <div class="post-metadata">
                     <div class="author-info">
                         <i class="icon-user"></i>
-                        <span class="author-bio" th:text="'inj_krish19'"></span>
+                        <span class="author-bio" th:text="'@' + ${post.username}"></span>
                     </div>
                     <div class="post-date">
                         <i class="icon-calendar"></i>
-                        <span class="date-text" th:text="'14 - 11 - 2024 12:00:00'"></span>
+                        <span class="date-text" th:text="${post.updatedat}"></span>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="post-actions">
                     <form th:action="@{/doPost}" method="post">
-                        <input type="hidden" name="title" th:value="${post.title}" />
-                        <input type="hidden" name="category" th:value="${post.category}" />
-                        <input type="hidden" name="description" th:value="${post.description}" />
-                        <input type="hidden" name="keyword" th:value="${post.keyword}" />
-                        <input type="hidden" name="image" th:value="${post.image}" />
+                        <input type="hidden" name="id" th:value="${post.articleid}" />
                         <button type="submit" class="btn-confirm" onclick="hidePost()">Confirm</button>
                     </form>
-                    <a href="/create_post" class="btn-cancel" style="margin-top: 5px; height:100%;">Cancel</a>
+                    <a onclick="cancel(event)" class="btn-cancel" style="margin-top: 5px; height:100%;">Cancel</a>
                 </div>
             </div>
         </div>
         <div class="justify-content-center mt-5 mb-5 "  style="font-size:1.75rem;	display :none; " id="loader" >
 	           <div class="alert alert-success text-center" role="alert">
-	                <span>Uploading ...</span>
+	                <span id="content">Uploading ...</span>
 	          		<div class="spinner-border text-success"role="status">
 					  <span class="sr-only">Loading...</span>
 					</div>
@@ -143,6 +139,24 @@
     <div th:replace="~{footer :: div}"></div>
 
 	<script>
+	
+		function cancel(event){
+			
+			 if (event) {
+			        event.preventDefault(); // Prevent default anchor behavior
+			    }
+			
+			const message = document.getElementById("alertMessage");
+			const content = document.getElementById("content");
+			content.innerHTML = "Saving as Draft ...";
+			
+			hidePost();
+			message.style.display = "block";
+			setTimeout( () => {
+				location.href = "/myposts";
+			}, 3000 );
+			
+		}
 	
 		function hidePost(){
 			

@@ -127,6 +127,9 @@
         <div class="page-content">
             <h1 class="recent-posts-title text-center">Recent Posts</h1>
             <div th:replace="~{post :: div}"></div>
+            <div style="width:62%; margin-left:19%; display:none; " class="alert alert-warning text-center" role="alert" id="alertMessage">
+                <span id="content">First Login Please! You are redirected at Login Page In 3 Seconds ...</span>
+            </div>
         </div>
     	<div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
               <div class="spinner-border text-dark"role="status">
@@ -147,7 +150,11 @@
         const pageSize = 5; // Number of posts to load per request
        	const loader = document.getElementById("loader");
        	const loadMore = document.getElementById("load-more");
-
+       	const posts = document.getElementById("post-container");
+       	const message = document.getElementById("alertMessage");
+       	const content = document.getElementById("alertMessage");
+       	var goLogin = null;
+       	
         function loadMorePosts() {
         	
         	loader.style.display = "show";
@@ -251,21 +258,35 @@
                     });
 
                     if (!data.hasMore) {
-                        alert('No more posts!');
-                        document.getElementById('load-more').style.display = 'none';
+//                        alert('No more posts!');
+						goLogin = true;
+	                    posts.style.display = "none";
+	                    message.style.display = "block";
+	                    message.classList.remove("alert-warning");
+	                    message.classList.add("alert-info");
+  						content.innerHTML = "No More Posts to Show :( ";
+						document.getElementById('load-more').style.display = 'none';
                     }
                 })
                 .catch(error => {
-                    alert('Please log in to load more posts.');
-                    console.error('Error loading more posts:', error);
-                    
-//                    setTimeout(() => window.location.href = '/login', 3000);
+//                    alert('Please log in to load more posts.');
+//                    console.error('Error loading more posts:', error);
+                    posts.style.display = "none";
+                    message.style.display = "block";
+                    setTimeout(() => window.location.href = '/login', 3000);
+                    goLogin = true;
                 })
             	.finally( () => {
                     loader.style.display = "none";
                     loader.classList.remove("d-flex");
                 	loadMore.style.display = "block";
             	});
+            
+            	if( goLogin ){
+                    loader.classList.add("d-flex");
+                	loadMore.style.display = "none";
+            	}
+            
         }
 
 

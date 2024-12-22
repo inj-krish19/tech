@@ -143,6 +143,16 @@ public class HomeController {
     	return "signup";
     }
     
+    @GetMapping("/home")
+    public String getHome(Model model) {
+    	if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+    	return "redirect:/";
+    }
+    
     @PostMapping("/create") // Handles form submission for creating a post
     public String savePost(Model model, String title, String body, String topic, boolean publish) {
         // Here you would handle saving the post to your database
