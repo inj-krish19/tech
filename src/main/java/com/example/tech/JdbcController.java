@@ -145,7 +145,7 @@ public class JdbcController {
     }
     
     @GetMapping("/") // Maps to the root URL (http://localhost:8080/)
-    public String home(Model model, Principal principal) {
+    public String home(Model model, Principal principal, HttpServletRequest request) {
         
     	if (principal != null && userExist != null) {
             model.addAttribute("loggedInUser", userExist = principal.getName()); // Add the logged-in username
@@ -181,6 +181,8 @@ public class JdbcController {
                 LIMIT 5
             """;
 
+        	Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = rs.getLong("articleid");
@@ -227,6 +229,24 @@ public class JdbcController {
             	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
             	post.put("keywords", keywords);
 
+            	
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+	            	
                 return post;
             });
 
@@ -287,6 +307,8 @@ public class JdbcController {
                 JOIN Category c ON pca.categoryid = c.categoryid
                 WHERE u.authorid = ? 
             """;
+        
+        	Long authorId = (Long) request.getSession().getAttribute("authorId");
 
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
@@ -333,8 +355,25 @@ public class JdbcController {
             	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
             	post.put("keywords", keywords);
 
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+            	
                 return post;
-            }, (Long) request.getSession().getAttribute("authorId"));
+            }, authorId);
 
         model.addAttribute("posts", posts);
 
@@ -481,7 +520,7 @@ public class JdbcController {
     
     // Show all post
     @GetMapping("/posts")
-    public String showpost(Model model) {
+    public String showpost(Model model, HttpServletRequest request) {
     	
     	String categorySql = "SELECT name FROM Category";
         List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
@@ -510,6 +549,8 @@ public class JdbcController {
                 JOIN Category c ON pca.categoryid = c.categoryid
             """;
 
+        	Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = rs.getLong("articleid");
@@ -556,6 +597,23 @@ public class JdbcController {
             	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
             	post.put("keywords", keywords);
 
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+            	
                 return post;
             });
 
@@ -686,7 +744,8 @@ public class JdbcController {
     public String reviewPost(Model model, String title, String category, String description, String selectedKeywords, MultipartFile image, HttpServletRequest request ) {
         
         Long primaryAuthorId = (Long) request.getSession().getAttribute("authorId");;  // Assuming logged-in user ID
-
+        Long authorId = primaryAuthorId;
+        
         Long newArticleId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(articleid), 0) + 1 FROM Post", Long.class);
         
         String uploadedImagePath = null;
@@ -704,8 +763,6 @@ public class JdbcController {
                     directory.mkdirs();
                 }
                 
-                Long authorId = primaryAuthorId;
-
                 String[] parts = fileName.split("\\.");
                 String extension = parts[parts.length - 1];
 
@@ -875,6 +932,23 @@ public class JdbcController {
 	    	        	List<String> Tkeywords = jdbcTemplate.queryForList(keywordQuery, String.class, newArticleId);
 	    	        	post.put("keywords", Tkeywords);
 
+	    	        	if( authorId != null && authorId > 0 ) {
+
+	                		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+	                		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	                	
+	    	            	post.put("isLiked", isReact == 0 ? false : true);
+	    	            	
+	    	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	    	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	    	            	
+	    	            	post.put("isDisliked", isReact == 0 ? false : true );
+	                	
+	                	}else {
+	                		post.put("isLiked", false );            		
+	                		post.put("isDisliked", false );
+	                	}
+	    	        	
 	    	            post.put("buttonIndex", buttonIndex);
 	    	        	model.addAttribute("title", post.get("title"));
 	    	            return post;
@@ -901,7 +975,9 @@ public class JdbcController {
     }
 
     @GetMapping("/post/{id}")
-    public String viewPost(Model model, @PathVariable Long id) {
+    public String viewPost(Model model, @PathVariable Long id, HttpServletRequest request) {
+    	
+    	Long authorId = (Long) request.getSession().getAttribute("authorId");
     	
     	String categorySql = "SELECT name FROM Category";
         List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
@@ -977,6 +1053,23 @@ public class JdbcController {
 	        	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	        	post.put("keywords", keywords);
 	
+	        	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+	        	
 	        	model.addAttribute("title", post.get("title"));
 	            return post;
 
@@ -1007,7 +1100,7 @@ public class JdbcController {
     
     
     @GetMapping("/filter/category/{category}")
-    public String filterCategoryPost(Model model, @PathVariable String category) {
+    public String filterCategoryPost(Model model, @PathVariable String category, HttpServletRequest request) {
         // Fetch category ID based on name (case-insensitive)
         String sql = "SELECT categoryId FROM Category WHERE LOWER(name) LIKE LOWER(?)";
         List<Long> categories = jdbcTemplate.queryForList(sql, Long.class, "%" + category + "%");
@@ -1019,6 +1112,7 @@ public class JdbcController {
         }
 
         Long categoryId = categories.get(0);
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
 
         // Query to retrieve posts along with keywords
         sql = """
@@ -1098,6 +1192,23 @@ public class JdbcController {
      	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
      	post.put("keywords", keywords);
 
+    	if( authorId != null && authorId > 0 ) {
+
+    		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+    		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+    	
+        	post.put("isLiked", isReact == 0 ? false : true);
+        	
+        	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+        	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+        	post.put("isDisliked", isReact == 0 ? false : true );
+    	
+    	}else {
+    		post.put("isLiked", false );            		
+    		post.put("isDisliked", false );
+    	}
+     	
          return post;
      }, categoryId);
 
@@ -1110,7 +1221,7 @@ public class JdbcController {
     
     
     @GetMapping("/filter/keyword/{keyword}")
-    public String filterKeywordpost(Model model, @PathVariable String keyword) {
+    public String filterKeywordpost(Model model, @PathVariable String keyword, HttpServletRequest request) {
     	
         String sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";
         List<Long> keywords = jdbcTemplate.queryForList(sql, Long.class, "%" + keyword + "%");
@@ -1121,6 +1232,7 @@ public class JdbcController {
         }
 
         Long keywordId = keywords.get(0);
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
 
         // Fetch posts based on keyword ID
         sql = """
@@ -1207,6 +1319,23 @@ public class JdbcController {
         	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
         	post.put("keywords", keywordsOfPost);
         	
+        	if( authorId != null && authorId > 0 ) {
+
+        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+            	post.put("isLiked", isReact == 0 ? false : true);
+            	
+            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+            	post.put("isDisliked", isReact == 0 ? false : true );
+        	
+        	}else {
+        		post.put("isLiked", false );            		
+        		post.put("isDisliked", false );
+        	}
+        	
         	return post;
         } ,keywordId);
 
@@ -1286,7 +1415,7 @@ public class JdbcController {
         // Query user data from the database
         String sql = "SELECT name, username, bio, email, profilePicture AS image, updatedat FROM Blogger WHERE authorId = ?";
         Map<String, Object> blogger = jdbcTemplate.queryForMap(sql, userId);
-
+        
         System.out.print(sql + " " + blogger.toString());
         
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
@@ -1298,16 +1427,102 @@ public class JdbcController {
 
         // Add user data to the model
         model.addAttribute("user", blogger);
+        blogger = null;
 
+        sql = "SELECT authorId,name,username,profilePicture AS image,createdat, bio FROM Blogger WHERE authorId = ?";
+        List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql, userId);
+        sdf = new SimpleDateFormat("MMMM yyyy");
+        
+        for (Map<String, Object> current : bloggers) {
+            Timestamp createdat = (Timestamp) current.get("createdat");
+            
+//            System.out.println("Blogger Is " + blogger );
+            Long author = (current.get("authorid") != null) ? (Long) current.get("authorId") : null;
+
+            try {
+                List<Map<String, Object>> result = jdbcTemplate.queryForList("""
+                        SELECT column_name, data_type 
+                        FROM information_schema.columns 
+                        WHERE table_name = 'Connection';
+                        """);
+                System.out.print(result);
+                
+                sql = """
+	            		SELECT COUNT(*) AS followings FROM Connection WHERE followerId = 
+	            		""" + author;
+	            current.put("followings", jdbcTemplate.queryForObject(sql, Long.class)	 );
+
+	            sql = """
+	            		SELECT COUNT(*) AS followers FROM Connection WHERE followingId = 
+	            		""" + author;
+	            current.put("followers", jdbcTemplate.queryForObject(sql, Long.class) );
+	
+	            Long likes = 0L;
+            	
+	            sql = "SELECT articleId FROM Post WHERE primaryAuthor = ?";
+	            List<Long> articles = jdbcTemplate.queryForList(sql, Long.class, author);
+	            
+	            for( Long articleId : articles ) {
+	            
+	            	sql = """
+		            		SELECT COUNT(*) AS likes FROM PostInteraction WHERE articleId = 
+		            	""" + articleId + " AND reactionType = 'like' ";
+		            likes += jdbcTemplate.queryForObject(sql, Long.class);
+	            
+	            }
+		            
+	            current.put("likes", likes);
+	            
+	            sql = """
+	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
+	            	""" +  author + " AND commentType = 'comment' ";
+	            current.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
+	            
+	            sql = """
+	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
+	            		""" + author;
+	            current.put("posts", jdbcTemplate.queryForObject(sql, Long.class) );
+	            
+	        }catch( Exception e ) {
+            	e.printStackTrace();
+            	System.out.print("\n\n5" + "\n\n");
+            	current.put("posts", 0);
+            	current.put("followings", 0);
+            	current.put("followers", 0);
+            	current.put("likes", 0);
+            	current.put("comments", 0);
+	        }                       
+            
+            if (createdat != null) {
+            	current.put("createdat", sdf.format(createdat));
+            }
+            
+            if( current.get("image") == null || current.get("image").equals("") ) {
+            	current.put("image", null);
+            }else {
+            	current.put("image", bloggerRetrieveDirectory + current.get("image"));
+            }
+            
+        }
+        model.addAttribute("bloggers", bloggers);
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
+        
+        
         // Add logged-in username if available
         String loggedInUser = (String) request.getSession().getAttribute("loggedInUser");
         model.addAttribute("loggedInUser", loggedInUser != null ? loggedInUser : "Guest");
         
-        return "profilemanagement"; // Return the profile management view
+        return "profile"; // Return the profile management view
     }
     
     @PostMapping("/search")
-    public String searchKeyword(Model model, String keyword) {
+    public String searchKeyword(Model model, String keyword, HttpServletRequest request) {
         if (keyword == null || keyword.trim().isEmpty()) {
             model.addAttribute("error", "Please enter a valid search term.");
             model.addAttribute("posts", null);
@@ -1316,6 +1531,8 @@ public class JdbcController {
         
         String likePattern = "%" + keyword + "%";        
 
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
         String sql = """
                 SELECT p.articleid, 
                        p.primaryAuthor AS author, 
@@ -1388,6 +1605,23 @@ public class JdbcController {
 	     	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	     	post.put("keywords", keywords);
 	
+        	if( authorId != null && authorId > 0 ) {
+
+        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+            	post.put("isLiked", isReact == 0 ? false : true);
+            	
+            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+            	post.put("isDisliked", isReact == 0 ? false : true );
+        	
+        	}else {
+        		post.put("isLiked", false );            		
+        		post.put("isDisliked", false );
+        	}
+	     	
 	         return post;
 	     
 	 }, likePattern, likePattern, likePattern);
@@ -1472,6 +1706,24 @@ public class JdbcController {
 	         	""";
 	     	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	     	post.put("keywords", keywords);
+	     	
+        	if( authorId != null && authorId > 0 ) {
+
+        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+            	post.put("isLiked", isReact == 0 ? false : true);
+            	
+            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+            	post.put("isDisliked", isReact == 0 ? false : true );
+        	
+        	}else {
+        		post.put("isLiked", false );            		
+        		post.put("isDisliked", false );
+        	}
+	     	
 	     	return post;
 	     	
 	     }, categories.get(0));
@@ -1564,6 +1816,23 @@ public class JdbcController {
 	            	""";
 	        	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	        	post.put("keywords", keywordsOfPost);
+	        	
+	        	if( authorId != null && authorId > 0 ) {
+
+	        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+	        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	        	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+	        	
+	        	}else {
+	        		post.put("isLiked", false );            		
+	        		post.put("isDisliked", false );
+	        	}
 	        	
 	        	return post;
 	        } ,keywordId);
@@ -1848,10 +2117,12 @@ public class JdbcController {
     
     @GetMapping("/load-more-posts")
     @ResponseBody
-    public Map<String, Object> loadMorePost(@RequestParam("page") int page) {
+    public Map<String, Object> loadMorePost(@RequestParam("page") int page, HttpServletRequest request) {
         int pageSize = 5; // Number of posts per page
         int offset = (page - 1) * pageSize;
 
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
         // SQL query to fetch posts with pagination
         String postSql = """
                 SELECT p.articleid, 
@@ -1924,6 +2195,23 @@ public class JdbcController {
             List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
             post.put("keywords", keywords);
 
+        	if( authorId != null && authorId > 0 ) {
+
+        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+            	post.put("isLiked", isReact == 0 ? false : true);
+            	
+            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+            	post.put("isDisliked", isReact == 0 ? false : true );
+        	
+        	}else {
+        		post.put("isLiked", false );            		
+        		post.put("isDisliked", false );
+        	}
+            
             return post;
         }, pageSize, offset);
 
@@ -2005,6 +2293,8 @@ public class JdbcController {
             tempPost.put("category", "News");
             tempPost.put("media", post.get("urlToImage"));
             tempPost.put("image", null);
+            tempPost.put("isLiked", false);
+            tempPost.put("isDisliked", false);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -2146,6 +2436,9 @@ public class JdbcController {
             tempPost.put("category", "News");
             tempPost.put("media", post.get("urlToImage"));
             tempPost.put("image", null);
+            tempPost.put("status", "published");
+            tempPost.put("isLiked", false);
+            tempPost.put("isDisliked", false);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -2273,6 +2566,9 @@ public class JdbcController {
             tempPost.put("category", "News");
             tempPost.put("media", post.get("urlToImage"));
             tempPost.put("image", null);
+            tempPost.put("status", "published");
+            tempPost.put("isLiked", false);
+            tempPost.put("isDisliked", false);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -3031,9 +3327,15 @@ public class JdbcController {
     @PostMapping("/custom-logout")
     public String destroySession(HttpServletRequest request, HttpServletResponse response, Authentication authentication, Model model, Principal principal) {
     	
-    	this.userExist = "";
+    	this.userExist = null;
     	model.addAttribute("loggedInUser", null); // No user logged in
     	request.getSession().setAttribute("authorId", null);
+    	
+        if (this.userExist != null && !this.userExist.isEmpty()) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
     	
     	if (authentication != null) {
             new SecurityContextLogoutHandler().logout(request, response, authentication);
@@ -3042,7 +3344,7 @@ public class JdbcController {
     }
     
     @GetMapping("/mass-filter/{entity}/{target}")
-    public String showMassFilterPage(Model model, @PathVariable String entity, @PathVariable String target ) {
+    public String showMassFilterPage(Model model, @PathVariable String entity, @PathVariable String target, HttpServletRequest request ) {
         // Fetch categories
         String categorySql = "SELECT name FROM Category";
         List<String> categoriesForTags = jdbcTemplate.queryForList(categorySql, String.class);
@@ -3052,6 +3354,8 @@ public class JdbcController {
         String keywordSql = "SELECT name FROM Keyword";
         List<String> keywordsForTags = jdbcTemplate.queryForList(keywordSql, String.class);
         model.addAttribute("keywords", keywordsForTags);
+        
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
         
         if( entity == null || target == null ) {
         	return "redirect:/mass-filter";
@@ -3154,6 +3458,24 @@ public class JdbcController {
 	         	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	         	post.put("keywords", keywords);
 	
+
+	        	if( authorId != null && authorId > 0 ) {
+
+	        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+	        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	        	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+	        	
+	        	}else {
+	        		post.put("isLiked", false );            		
+	        		post.put("isDisliked", false );
+	        	}
+	         	
 	             return post;
 	         }, categoryId);
        	
@@ -3248,6 +3570,24 @@ public class JdbcController {
                 	""";
             	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
             	post.put("keywords", keywordsOfPost);
+            	
+
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+                	post.put("isLiked", isReact == 0 ? false : true);
+                	
+                	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+                	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+                	
+                	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
             	
             	return post;
             } ,keywordId);
@@ -3404,7 +3744,7 @@ public class JdbcController {
     }
     
     @GetMapping("/entity/{entity}/{target}")
-    public String showEntityPage(Model model, @PathVariable String entity, @PathVariable String target ) {
+    public String showEntityPage(Model model, @PathVariable String entity, @PathVariable String target, HttpServletRequest request ) {
     	
     	Map<String, Object> entityInfo = new HashMap<>();
     	entityInfo.put("hasPosts", true);	
@@ -3417,6 +3757,8 @@ public class JdbcController {
         String keywordSql = "SELECT name FROM Keyword";
         List<String> keywordsForTags = jdbcTemplate.queryForList(keywordSql, String.class);
         model.addAttribute("keywords", keywordsForTags);
+        
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
         
         if( entity == null || target == null ) {
         	return "redirect:/mass-filter";
@@ -3529,6 +3871,24 @@ public class JdbcController {
 	         	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
 	         	post.put("keywords", keywords);
 	
+
+	        	if( authorId != null && authorId > 0 ) {
+
+	        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+	        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	        	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+	        	
+	        	}else {
+	        		post.put("isLiked", false );            		
+	        		post.put("isDisliked", false );
+	        	}
+	         	
 	             return post;
 	         }, categoryId);
        	
@@ -3634,6 +3994,24 @@ public class JdbcController {
             	List<String> keywordsOfPost = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
             	post.put("keywords", keywordsOfPost);
             	
+
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+                	post.put("isLiked", isReact == 0 ? false : true);
+                	
+                	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+                	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+                	
+                	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+            	
             	return post;
             } ,keywordId);
         	
@@ -3654,7 +4032,7 @@ public class JdbcController {
     	return "entity";
     }
     
-    @PostMapping("/reaction/{reaction}/{articleid}")
+    /* @PostMapping("/reaction/{reaction}/{articleid}")
     public ResponseEntity<Map<String, Object>> performReaction(
             @PathVariable String reaction,
             @PathVariable String articleid,
@@ -3676,15 +4054,24 @@ public class JdbcController {
         }
 
         try {
-            // Check if the user has already reacted
-            String sql = "SELECT COUNT(*) FROM PostInteraction WHERE articleId = ? AND authorId = ?";
-            Long result = jdbcTemplate.queryForObject(sql, Long.class, articleId, authorId);
+        	String sql = "SELECT COUNT(*) AS count, reactiontype FROM PostInteraction WHERE articleId = ? AND authorId = ? GROUP BY reactiontype";
 
-            if ("nil".equalsIgnoreCase(reaction)) {
+        	// Use a Map to fetch multiple columns
+        	Map<String, Object> results = jdbcTemplate.queryForMap(sql, articleId, authorId);
+
+        	// Extract the values
+        	Long result = (Long) results.get("count");
+        	String oldReaction = results.get("reactiontype") != null ? results.get("reactiontype").toString() : null ;
+            
+        	if ("nil".equalsIgnoreCase(reaction) ) {
                 // Remove the reaction if "nil" is passed
                 sql = "DELETE FROM PostInteraction WHERE articleId = ? AND authorId = ?";
                 jdbcTemplate.update(sql, articleId, authorId);
-                System.out.println("Reaction Removed ");
+                
+                sql = "UPDATE Post SET " + oldReaction + "s = " + oldReaction + "s - 1 WHERE articleId = ? AND primaryauthor = ? ";
+                jdbcTemplate.update(sql, articleId, authorId);
+                System.out.println("Reaction Removed " + " for " + sql);
+                
             } else if (result == null || result == 0) {
                 // Insert a new reaction if no previous reaction exists
                 sql = """
@@ -3693,7 +4080,11 @@ public class JdbcController {
                      reaction.toLowerCase() +
                     "')";
                 jdbcTemplate.update(sql, articleId, authorId);
-                System.out.println("Reaction Inserted As " + reaction);
+                
+                sql = "UPDATE Post SET " + reaction.toLowerCase() + "s = " + reaction.toLowerCase() + "s + 1 WHERE articleId = ? AND primaryauthor = ? ";
+                jdbcTemplate.update(sql, articleId, authorId);
+                
+                System.out.println("Reaction Inserted As " + reaction + " for " + sql);
             } else {
                 // Update the reaction type if a previous reaction exists
                 sql = """
@@ -3701,7 +4092,11 @@ public class JdbcController {
                      reaction.toLowerCase() +
                     "' WHERE articleId = ? AND authorId = ?";
                 jdbcTemplate.update(sql, articleId, authorId);
-                System.out.println("Reaction Updated As " + reaction);
+                
+                sql = "UPDATE Post SET " + reaction.toLowerCase() + "s = " + reaction.toLowerCase() + "s + 1, " + oldReaction + "s = " + oldReaction + "s - 1 "  + "WHERE articleId = ? AND primaryauthor = ? ";
+                jdbcTemplate.update(sql, articleId, authorId);
+                
+                System.out.println("Reaction Updated As " + reaction + " for " + sql);
             }
         } catch (Exception e) {
         	System.out.println("Error Occured");
@@ -3710,6 +4105,116 @@ public class JdbcController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Reaction processed successfully"));
+    }	*/
+    
+    @PostMapping("/reaction/{reaction}/{articleid}")
+    public ResponseEntity<Map<String, Object>> performReaction(
+            @PathVariable String reaction,
+            @PathVariable String articleid,
+            HttpServletRequest request) {
+
+        // Parse the article ID
+        Long articleId;
+        try {
+            articleId = Long.valueOf(articleid);
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Invalid article ID"));
+        }
+
+        // Retrieve the author ID from the session
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        if (authorId == null) {
+            System.out.println("User Without Login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "User not authenticated"));
+        }
+
+        try {
+            // Query to check the user's existing reaction
+            String sql = """
+                SELECT COUNT(*) AS count, reactiontype 
+                FROM PostInteraction 
+                WHERE articleId = ? AND authorId = ? 
+                GROUP BY reactiontype
+            """;
+
+            // Fetch results; use try-catch for empty result scenarios
+            Map<String, Object> results = null;
+            Long result = 0L;
+            String oldReaction = null;
+
+            try {
+                results = jdbcTemplate.queryForMap(sql, articleId, authorId);
+            } catch (Exception e) {
+                // Log the exception for debugging, but proceed with defaults
+                System.out.println("No existing reaction found or query failed: " + e.getMessage());
+            }
+
+            // Safely extract values from the results
+            if (results != null) {
+                result = (Long) results.getOrDefault("count", 0L);
+                oldReaction = (String) results.get("reactiontype");
+            }
+
+
+            if ("nil".equalsIgnoreCase(reaction)) {
+                // Remove the reaction if "nil" is passed
+                sql = "DELETE FROM PostInteraction WHERE articleId = ? AND authorId = ?";
+                jdbcTemplate.update(sql, articleId, authorId);
+
+                if (oldReaction != null) {
+                    sql = "UPDATE Post SET " + oldReaction + "s = GREATEST(" + oldReaction + "s - 1, 0) WHERE articleId = ?";
+                    jdbcTemplate.update(sql, articleId);
+                }
+
+                System.out.println("Reaction Removed");
+            } else if (result == 0) {
+                // Insert a new reaction if no previous reaction exists
+                sql = """
+                    INSERT INTO PostInteraction (createdAt, articleId, authorId, reactionType)
+                    VALUES (CURRENT_TIMESTAMP, ?, ?, '%s')
+                """.formatted(reaction.toLowerCase());
+                jdbcTemplate.update(sql, articleId, authorId);
+
+                sql = "UPDATE Post SET " + reaction.toLowerCase() + "s = " + reaction.toLowerCase() + "s + 1 WHERE articleId = ?";
+                jdbcTemplate.update(sql, articleId);
+
+                System.out.println("Reaction Inserted As " + reaction);
+            } else {
+                // Update the reaction type if a previous reaction exists
+                sql = """
+                    UPDATE PostInteraction 
+                    SET reactionType = '%s' 
+                    WHERE articleId = ? AND authorId = ?
+                """.formatted(reaction.toLowerCase());
+                jdbcTemplate.update(sql, articleId, authorId);
+
+                if (oldReaction != null) {
+                    sql = """
+                        UPDATE Post 
+                        SET %s = %s + 1, %s = GREATEST(%s - 1 , 0)
+                        WHERE articleId = ?
+                    """.formatted(
+                        reaction.toLowerCase() + "s",
+                        reaction.toLowerCase() + "s",
+                        oldReaction.toLowerCase() + "s",
+                        oldReaction.toLowerCase() + "s"
+                    );
+                    jdbcTemplate.update(sql, articleId);
+                }
+
+                System.out.println("Reaction Updated As " + reaction);
+            }
+        } catch (Exception e) {
+            System.out.println("Error Occurred");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "An error occurred: " + e.getMessage()));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Reaction processed successfully"));
     }
+
 
 }

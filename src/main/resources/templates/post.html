@@ -52,10 +52,10 @@
 						style="margin-top :0; gap: 5px; justify-content: center;">
 						<button class="articleid" th:text="${post.articleid}" style="display : none; "></button>
 						<button class="like oper btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px;">
-							<i class="bi bi-hand-thumbs-up"></i> <span class="likeCount" th:text="${post.likes}"></span>
+							<i th:class="${post.isLiked == true ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}" class="bi"></i> <span class="likeCount" th:text="${post.likes}"></span>
 						</button>
 						<button class="dislike oper btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px;">
-							<i class="bi bi-hand-thumbs-down"></i> <span class="dislikeCount" 
+							<i th:class="${post.isDisliked == true ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}" class="bi"></i> <span class="dislikeCount" 
 								th:text="${post.dislikes}"></span>
 						</button>
 						<button class="btn btn-dark d-flex align-items-center justify-content-center" data-bs-toggle="modal"

@@ -28,14 +28,15 @@ function watchPost( id ){
 }
 
 
-document.querySelectorAll('.oper').forEach(button => {
+/* document.querySelectorAll('.oper').forEach(button => {
     button.addEventListener('click', function () {
+        // Check if the button is already active
         const isActive = this.classList.contains('operations');
         const isLike = this.classList.contains('like');
         const isDislike = this.classList.contains('dislike');
         const icon = this.querySelector('i');
-		let reaction = null;
-		
+        let reaction = null;
+
         // Find like and dislike counters
         const likeButton = this.parentElement.querySelector('.like');
         const dislikeButton = this.parentElement.querySelector('.dislike');
@@ -43,81 +44,172 @@ document.querySelectorAll('.oper').forEach(button => {
         const dislikeCount = dislikeButton.querySelector('span');
         const articleId = this.parentElement.querySelector('.articleid');
 
+        // Initial states
+        const likeActive = likeButton.classList.contains('bi-hand-thumbs-up-fill');
+        const dislikeActive = dislikeButton.classList.contains('bi-hand-thumbs-down-fill');
+
         // Toggle logic for like and dislike
         if (isLike) {
-            if (isActive) {
+            if (likeActive) {
                 // Deactivate like
                 this.classList.remove('operations');
                 icon.classList.remove('bi-hand-thumbs-up-fill');
                 icon.classList.add('bi-hand-thumbs-up');
                 likeCount.textContent = Math.max(Number(likeCount.textContent) - 1, 0);
-            	reaction = 'nil';
-			} else {
+                reaction = 'nil';
+            } else {
                 // Activate like and deactivate dislike if active
                 this.classList.add('operations');
                 icon.classList.add('bi-hand-thumbs-up-fill');
                 icon.classList.remove('bi-hand-thumbs-up');
                 likeCount.textContent = Number(likeCount.textContent) + 1;
 
-                if (dislikeButton.classList.contains('operations')) {
+                if (dislikeActive) {
                     dislikeButton.classList.remove('operations');
                     const dislikeIcon = dislikeButton.querySelector('i');
                     dislikeIcon.classList.remove('bi-hand-thumbs-down-fill');
                     dislikeIcon.classList.add('bi-hand-thumbs-down');
                     dislikeCount.textContent = Math.max(Number(dislikeCount.textContent) - 1, 0);
                 }
-				reaction = "like";
+                reaction = 'like';
             }
-			console.log("Like Happened")
+            console.log("Like Happened");
         } else if (isDislike) {
-            if (isActive) {
+            if (dislikeActive) {
                 // Deactivate dislike
                 this.classList.remove('operations');
                 icon.classList.remove('bi-hand-thumbs-down-fill');
                 icon.classList.add('bi-hand-thumbs-down');
                 dislikeCount.textContent = Math.max(Number(dislikeCount.textContent) - 1, 0);
-            	reaction = 'nil';
-			} else {
+                reaction = 'nil';
+            } else {
                 // Activate dislike and deactivate like if active
                 this.classList.add('operations');
                 icon.classList.add('bi-hand-thumbs-down-fill');
                 icon.classList.remove('bi-hand-thumbs-down');
                 dislikeCount.textContent = Number(dislikeCount.textContent) + 1;
 
-                if (likeButton.classList.contains('operations')) {
+                if (likeActive) {
                     likeButton.classList.remove('operations');
                     const likeIcon = likeButton.querySelector('i');
                     likeIcon.classList.remove('bi-hand-thumbs-up-fill');
                     likeIcon.classList.add('bi-hand-thumbs-up');
                     likeCount.textContent = Math.max(Number(likeCount.textContent) - 1, 0);
                 }
-				reaction = "dislike";
+                reaction = 'dislike';
             }
-			console.log("DisLike Happened")
+            console.log("Dislike Happened");
         }
 
-        console.log(` Reaction ${reaction} Article ID : ${articleId.innerHTML} Like Count: ${likeCount.textContent}, Dislike Count: ${dislikeCount.textContent}`);
-    
-		fetch(
-			`/reaction/${reaction}/${articleId.innerHTML}`,
-			{	method: 'POST',		}
-		)
-			.then( 	response => {
+        console.log(`Reaction: ${reaction}, Article ID: ${articleId.innerHTML}, Like Count: ${likeCount.textContent}, Dislike Count: ${dislikeCount.textContent}`);
+
+        // Send reaction to server
+        fetch(`/reaction/${reaction}/${articleId.innerHTML}`, {
+            method: 'POST'
+        })
+            .then(response => {
                 if (!response.ok) {
                     throw new Error(`Network response was not ok: ${response.statusText}`);
                 }
                 return response.json(); // Parse JSON
-            } )	
-			.then( data => { console.log("Data"); } )	
-            .catch(error => {
-                setTimeout(() => window.location.href = '/login', 3000);
             })
-        	.finally();
-		
-		reaction = null;
-			
-	});
+            .then(data => {
+                console.log("Server response:", data);
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                setTimeout(() => window.location.href = '/login', 3000);
+            });
+    });
+}); */
+
+document.querySelectorAll('.oper').forEach(button => {
+    button.addEventListener('click', function () {
+        // Get button states
+        const isLike = this.classList.contains('like');
+        const isDislike = this.classList.contains('dislike');
+        const icon = this.querySelector('i');
+        let reaction = null;
+
+        // Find like and dislike counters
+        const likeButton = this.parentElement.querySelector('.like');
+        const dislikeButton = this.parentElement.querySelector('.dislike');
+        const likeCount = likeButton.querySelector('span');
+        const dislikeCount = dislikeButton.querySelector('span');
+        const articleId = this.parentElement.querySelector('.articleid');
+
+        // Check if buttons are active
+        const likeActive = likeButton.querySelector('i').classList.contains('bi-hand-thumbs-up-fill');
+        const dislikeActive = dislikeButton.querySelector('i').classList.contains('bi-hand-thumbs-down-fill');
+
+        if (isLike) {
+            if (likeActive) {
+                // Deactivate like
+                icon.classList.remove('bi-hand-thumbs-up-fill');
+                icon.classList.add('bi-hand-thumbs-up');
+                likeCount.textContent = Math.max(Number(likeCount.textContent) - 1, 0);
+                reaction = 'nil';
+            } else {
+                // Activate like and deactivate dislike if active
+                icon.classList.add('bi-hand-thumbs-up-fill');
+                icon.classList.remove('bi-hand-thumbs-up');
+                likeCount.textContent = Number(likeCount.textContent) + 1;
+
+                if (dislikeActive) {
+                    const dislikeIcon = dislikeButton.querySelector('i');
+                    dislikeIcon.classList.remove('bi-hand-thumbs-down-fill');
+                    dislikeIcon.classList.add('bi-hand-thumbs-down');
+                    dislikeCount.textContent = Math.max(Number(dislikeCount.textContent) - 1, 0);
+                }
+                reaction = 'like';
+            }
+        } else if (isDislike) {
+            if (dislikeActive) {
+                // Deactivate dislike
+                icon.classList.remove('bi-hand-thumbs-down-fill');
+                icon.classList.add('bi-hand-thumbs-down');
+                dislikeCount.textContent = Math.max(Number(dislikeCount.textContent) - 1, 0);
+                reaction = 'nil';
+            } else {
+                // Activate dislike and deactivate like if active
+                icon.classList.add('bi-hand-thumbs-down-fill');
+                icon.classList.remove('bi-hand-thumbs-down');
+                dislikeCount.textContent = Number(dislikeCount.textContent) + 1;
+
+                if (likeActive) {
+                    const likeIcon = likeButton.querySelector('i');
+                    likeIcon.classList.remove('bi-hand-thumbs-up-fill');
+                    likeIcon.classList.add('bi-hand-thumbs-up');
+                    likeCount.textContent = Math.max(Number(likeCount.textContent) - 1, 0);
+                }
+                reaction = 'dislike';
+            }
+        }
+
+        console.log(`Reaction: ${reaction}, Article ID: ${articleId.innerHTML}, Like Count: ${likeCount.textContent}, Dislike Count: ${dislikeCount.textContent}`);
+
+        // Send reaction to server
+        if (reaction !== null) {
+            fetch(`/reaction/${reaction}/${articleId.innerHTML}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Network response was not ok: ${response.statusText}`);
+                    }
+                    return response.json(); // Parse JSON
+                })
+                .then(data => {
+                    console.log("Server response:", data);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    setTimeout(() => window.location.href = '/login', 3000);
+                });
+        }
+    });
 });
+
 
 
 $(document).ready(function () {
