@@ -1512,7 +1512,114 @@ public class JdbcController {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
         
+        String categorySql = "SELECT name FROM Category";
+        List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
+        model.addAttribute("topics", categories);
+
+        String postSql = """
+                SELECT p.articleid, 
+                       p.primaryAuthor AS author, 
+                       p.title, 
+                       p.description, 
+                       p.likes, 
+                       p.dislikes, 
+                       p.viewscount, 
+                       p.commentscount AS comments, 
+                       p.updatedat, 
+                       p.postmedia AS media,
+                    p.poststatus AS status,
+                       u.name AS name, 
+                       u.username AS username, 
+                       u.bio AS bio, 
+                       u.profilepicture AS image,
+                       c.name AS category
+                FROM Post p 
+                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                JOIN Category c ON pca.categoryid = c.categoryid
+                WHERE u.authorid = ? 
+            """;
         
+        	Long authorId = (Long) request.getSession().getAttribute("authorId");
+
+            List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
+                Map<String, Object> post = new HashMap<>();
+                Long articleId = (Long) rs.getLong("articleid");
+                
+                post.put("articleid", articleId);
+                post.put("title", rs.getString("title"));
+                post.put("description", rs.getString("description"));
+                post.put("likes", rs.getInt("likes"));
+                post.put("dislikes", rs.getInt("dislikes"));
+                post.put("viewscount", rs.getInt("viewscount"));
+                post.put("comments", rs.getInt("comments"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat ssdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = ssdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
+                post.put("name", rs.getString("name"));
+                post.put("username", rs.getString("username"));
+                post.put("bio", rs.getString("bio"));
+                post.put("status", rs.getString("status"));
+                post.put("category", rs.getString("category"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", postRetrieveDirectory + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", bloggerRetrieveDirectory + rs.getString("image"));
+}
+
+                // Separate query to get keywords for the current article
+                String keywordQuery = """
+                		SELECT name FROM Keyword k 
+                		JOIN KeywordAssignment ka 
+                		ON k.keywordid = ka.keywordid 
+                		WHERE ka.articleid = ?
+                	""";
+            	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
+            	post.put("keywords", keywords);
+
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+            	
+                return post;
+            }, authorId);
+
+        model.addAttribute("posts", posts);
+
+        System.out.print(posts);
+
+    	List<String> colors = new ArrayList<>(
+    			List.of(
+    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
+    				)
+    		);
+    	
+    	model.addAttribute("colors", colors);
+    	model.addAttribute("followers", null);
+    	model.addAttribute("followings", null);
         
         // Add logged-in username if available
         String loggedInUser = (String) request.getSession().getAttribute("loggedInUser");
@@ -3399,7 +3506,6 @@ public class JdbcController {
                     p.updatedat, 
                     p.postmedia AS media,
                     p.poststatus AS status,
-                    p.poststatus AS
                     u.name AS name, 
                     u.username AS username, 
                     u.bio AS bio, 
