@@ -13,11 +13,11 @@ public class Connection {
 
     @ManyToOne
     @JoinColumn(name = "followerId", nullable = false)
-    private Blogger followerId;
+    private Blogger followerId; // to
 
     @ManyToOne
     @JoinColumn(name = "followingId", nullable = false)
-    private Blogger followingId;
+    private Blogger followingId; // from
 
     @Column(name = "createdAt", updatable = false, nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();

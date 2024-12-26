@@ -206,10 +206,10 @@
 				<div class="container tab-pane fade" id="nav-follower" role="tabpanel"
 					aria-labelledby="nav-follower-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followers </h2>
-					<div th:if="${#lists.isEmpty(followers)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
 				    	<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
-					<div th:each="blogger : ${followers}" class="container m-5" style="max-width:800px;">
+					<div th:each="blogger : ${followersList}" class="container m-5" style="max-width:800px;">
 						<div class="author-box">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
@@ -227,10 +227,10 @@
 				<div class="container tab-pane fade" id="nav-following" role="tabpanel"
 					aria-labelledby="nav-following-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followings </h2>
-					<div th:if="${#lists.isEmpty(followings)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
 				    	<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
-					<div th:each="blogger : ${followings}" class="container m-5" style="max-width:800px;">
+					<div th:each="blogger : ${followingsList}" class="container m-5" style="max-width:800px;">
 						<div class="author-box">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"

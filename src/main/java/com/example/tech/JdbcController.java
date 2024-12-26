@@ -399,8 +399,11 @@ public class JdbcController {
     
     // Get all bloggers
     @GetMapping("/bloggers")
-    public String getAllBloggers(Model model) {
-        String sql = "SELECT authorId,name,username,profilePicture AS image,createdat, bio FROM Blogger ORDER BY authorId ASC";
+    public String getAllBloggers(Model model, HttpServletRequest request) {
+    	
+    	Long authorId = (Long) request.getSession().getAttribute("authorId");
+    	
+        String sql = "SELECT authorId,name,username,profilePicture AS image,createdat, bio FROM Blogger ORDER BY authorId ASC ";
         List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql);
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
 
@@ -409,23 +412,13 @@ public class JdbcController {
             
 //            System.out.println("Blogger Is " + blogger );
             Long author = (blogger.get("authorid") != null) ? (Long) blogger.get("authorId") : null;
-
-            System.out.println("\n\n\n\n\n\n\\n\nAuthor ID: " + author + "\n\n\n\n\n\n");
-
-            try {
-                List<Map<String, Object>> result = jdbcTemplate.queryForList("""
-                        SELECT column_name, data_type 
-                        FROM information_schema.columns 
-                        WHERE table_name = 'Connection';
-                        """);
-                System.out.print(result);
-            } catch (Exception e) {
-                System.out.print("\n\nDescribe Failed\n\n\n");
-            }
-
             
             try {
             
+            	// my id is in followers that means 
+            	// that means i am follower of someone 
+            	// that is following for me
+            	
 	            sql = """
 	            		SELECT COUNT(*) AS followings FROM Connection WHERE followerId = 
 	            		""" + author;
@@ -438,6 +431,10 @@ public class JdbcController {
             }
 	     
             try {
+            	
+            	// my id is in following that means 
+            	// someone is my follower
+            	
 	            sql = """
 	            		SELECT COUNT(*) AS followers FROM Connection WHERE followingId = 
 	            		""" + author;
@@ -494,7 +491,36 @@ public class JdbcController {
             	e.printStackTrace();
             	System.out.print("\n\n5" + "\n\n");
 	        	blogger.put("posts", 0);
-	        }                       
+	        }    
+            
+            try {
+                sql = "SELECT COUNT(*) FROM Connection WHERE followerId = " + authorId + " AND followingId = " + author ;
+                Long count = jdbcTemplate.queryForObject(sql, Long.class);
+                System.out.println(sql);  // This should print the parameterized query
+                blogger.put("status", count > 0 ? true : false); 
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("\n\nError while fetching connection status: " + e.getMessage() + "\n\n");
+                blogger.put("status", false);
+            }
+
+            
+            /* try {
+                sql = "SELECT COUNT(*) FROM Connection WHERE followerId = " + authorId + " AND followingId = " + author ;
+                Long count = jdbcTemplate.queryForObject(sql, Long.class);
+                System.out.println(sql);
+                blogger.put("status", count > 0 ? "true" : "false");
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("\n\nError while fetching connection status: " + e.getMessage() + "\n\n");
+                blogger.put("status", false);
+            } */
+            
+            
+
+            if( author == authorId ) {
+            	blogger.put("status", null);            	
+            }
             
             if (createdat != null) {
                 blogger.put("createdat", sdf.format(createdat));
@@ -507,13 +533,17 @@ public class JdbcController {
             }
             
         }
-        model.addAttribute("bloggers", bloggers);
         
+        model.addAttribute("bloggers", bloggers);
+        model.addAttribute("isMe", authorId);
+
         if (this.userExist != "" && userExist != null ) {
             model.addAttribute("loggedInUser", userExist); // Add the logged-in username
         } else {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
+        
+        System.out.print(bloggers);
         
         return "bloggers";
     }
@@ -1477,7 +1507,10 @@ public class JdbcController {
 	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
 	            	""" +  author + " AND commentType = 'comment' ";
 	            current.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
-	            
+
+	         // Step 1: Fetch all following IDs
+
+
 	            sql = """
 	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
 	            		""" + author;
@@ -1488,7 +1521,9 @@ public class JdbcController {
             	System.out.print("\n\n5" + "\n\n");
             	current.put("posts", 0);
             	current.put("followings", 0);
+            	current.put("followingsList", null);
             	current.put("followers", 0);
+            	current.put("followersList", null);
             	current.put("likes", 0);
             	current.put("comments", 0);
 	        }                       
@@ -1505,6 +1540,77 @@ public class JdbcController {
             
         }
         model.addAttribute("bloggers", bloggers);
+        
+        try {
+            // Fetch all IDs the current author is following
+            sql = """
+                  SELECT followingId FROM Connection WHERE followerId = 
+                  """ + userId + " GROUP BY followingId";
+            List<Long> followingIds = jdbcTemplate.queryForList(sql, Long.class);
+
+            List<Map<String, Object>> followingDetails = new ArrayList<>();
+            
+            for( Long id : followingIds ) {
+            	 sql = """
+                      SELECT authorId, name, username, bio, profilePicture AS image 
+                      FROM Blogger 
+                      WHERE authorId = """ + id;
+            	 List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql);
+            	 if( temp.get(0).get("image") == null || temp.get(0).get("image").equals("") ) {
+            		 temp.get(0).put("image", null);
+                 }else {
+                	 temp.get(0).put("image", bloggerRetrieveDirectory + temp.get(0).get("image"));
+                 }
+            	 followingDetails.add( temp.get(0) );
+            }
+            model.addAttribute("followingsList", followingDetails);
+            
+            // Fetch details of these bloggers
+            if (followingIds.isEmpty()) {
+            	model.addAttribute("followingsList", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\n\nError fetching followings\n\n");
+            model.addAttribute("followingsList", null);
+        }
+
+        // Step 2: Fetch all follower IDs
+        try {
+            // Fetch all IDs of users who follow the current author
+            sql = """
+                  SELECT followerId FROM Connection WHERE followingId = 
+                  """ + userId + " GROUP BY followerId";
+            List<Long> followerIds = jdbcTemplate.queryForList(sql, Long.class);
+
+            // Fetch details of these bloggers
+            List<Map<String, Object>> followerDetails = new ArrayList<>();
+            
+            for( Long id : followerIds ) {
+            	 sql = """
+                      SELECT authorId, name, username, bio, profilePicture AS image 
+                      FROM Blogger 
+                      WHERE authorId = """ + id;
+            	 List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql);
+            	 if( temp.get(0).get("image") == null || temp.get(0).get("image").equals("") ) {
+            		 temp.get(0).put("image", null);
+                 }else {
+                	 temp.get(0).put("image", bloggerRetrieveDirectory + temp.get(0).get("image"));
+                 }
+            	 followerDetails.add( temp.get(0) );
+
+            }
+            model.addAttribute("followersList", followerDetails);
+            
+            // Fetch details of these bloggers
+            if (followerIds.isEmpty()) {
+                model.addAttribute("followersList", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\n\nError fetching followings\n\n");
+            model.addAttribute("followersList", null);
+        }
         
         if (this.userExist != "" && userExist != null ) {
             model.addAttribute("loggedInUser", userExist); // Add the logged-in username
@@ -4320,6 +4426,74 @@ public class JdbcController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", "Reaction processed successfully"));
+    }
+
+    @PostMapping("/connection/{action}/{to}")
+    public ResponseEntity<Map<String, Object>> addConnection(
+            @PathVariable String action,
+            @PathVariable String to,
+            HttpServletRequest request) {
+
+    	Long authorId = (Long) request.getSession().getAttribute("authorId");
+        if (authorId == null) {
+            System.out.println("User Without Login");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "User not authenticated"));
+        }
+        
+        Long toBlogger = Long.valueOf(to);
+        if (toBlogger == null) {
+            System.out.println("Blogger To Not Exist");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "User not authenticated"));
+        }
+        
+        if (toBlogger == authorId) {
+            System.out.println("Blogger and Follower Should Not Be Same");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "User not authenticated"));
+        }
+        
+        String sql;
+        
+        if( action.equals("follow") ) {
+        	 
+        	sql = "SELECT COUNT(*) AS count FROM Connection WHERE followerId = "
+        		 + authorId + " AND followingId = " + toBlogger + ";";
+        	
+        	Long count = jdbcTemplate.queryForObject(sql, Long.class);
+        	
+        	if( count == 0 ) {
+	        	 sql = """
+	        	 		INSERT INTO Connection(followerId, followingId, connectionStatus, createdAt)
+	        	 		VALUES(
+	        	 	""" + authorId +  // its like author is follower
+	        	 	"," + toBlogger   + // and following this is to that means following
+	        	 	", 'accepted' ,CURRENT_TIMESTAMP)";
+	        	 jdbcTemplate.update(sql);
+        	}
+        }
+        
+        else if( action.equals("unfollow") ) {
+        	
+        	sql = """
+                    DELETE FROM Connection
+                    WHERE followerId = 
+                  """ + authorId + " AND followingId = " + toBlogger+ ";"
+                  .formatted("rejected");
+        	
+        	 jdbcTemplate.update(sql); 
+        }
+        
+        else {
+        	return ResponseEntity.status(HttpStatus.OK).
+        			body(Map.of("message", "Different Message"));
+        	
+        }
+        System.out.print(sql);
+        
+        
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", this.capitalize(action) + " processed successfully"));
     }
 
 

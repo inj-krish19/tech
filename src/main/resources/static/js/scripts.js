@@ -22,6 +22,70 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+/* function sendRequest( other, blogger, action ){
+	
+	fetch(`/connection/${action}/${blogger}`, {
+        method: 'POST'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json(); // Parse JSON
+        })
+        .then(data => {
+            console.log("Server response:", data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            setTimeout(() => window.location.href = '/login', 3000);
+        });
+} */
+
+function sendRequest(other, blogger, action) {
+    let meCard = document.querySelector(".card.me");
+    let followingsText = meCard.querySelector(".card-body > p.text-info > strong");
+    let otherButton = other.querySelector("button");
+    let otherIcon = otherButton.querySelector("i");
+
+    fetch(`/connection/${action}/${blogger}`, {
+        method: 'POST'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            return response.json(); // Parse JSON
+        })
+        .then(data => {
+            console.log("Server response:", data);
+
+            // Update button icon for "other"
+            if (action === "follow") {
+                otherIcon.classList.remove("bi-person-plus-fill");
+                otherIcon.classList.add("bi-person-check-fill");
+                otherButton.setAttribute("onclick", `sendRequest(this, ${blogger}, 'unfollow')`);
+            } else if (action === "unfollow") {
+                otherIcon.classList.remove("bi-person-check-fill");
+                otherIcon.classList.add("bi-person-plus-fill");
+                otherButton.setAttribute("onclick", `sendRequest(this, ${blogger}, 'follow')`);
+            }
+
+            // Increment followings count for "me"
+            if (action === "follow") {
+                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+                followingsText.textContent = `Followings: ${currentFollowings + 1}`;
+            } else if (action === "unfollow") {
+                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+                followingsText.textContent = `Followings: ${currentFollowings - 1}`;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            setTimeout(() => window.location.href = '/login', 3000);
+        });
+}
+
 
 function watchPost( id ){
 	window.location.href = `/post/${id}`;
