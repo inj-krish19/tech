@@ -172,7 +172,7 @@
                     }
                     return response.json(); // Parse JSON
                 })
-                .then(data => {
+                                .then(data => {
                     const postContainer = document.getElementById('post-container');
 
                     data.posts.forEach(post => {
@@ -181,82 +181,135 @@
                         postDiv.style.maxWidth = '800px';
 
                         postDiv.innerHTML = `
-                        <div class="post-card p-4">
-                            <div class="post-content">
-                                <div class="container">
-                                    <div class="author-box">
-                                        <div class="author-profile">
-                                            <img src="${post.image ? post.image : 'images/logo.jpg'}" alt="Author Profile Picture" class="author-image">
-                                        </div>
-                                        <div class="author-details">
-                                            <h3 class="author-name">${post.name}</h3>
-                                            <span>@${post.username}</span>
-                                            <p class="author-bio">${post.bio}</p>
-                                        </div>
-                                    </div>
-                                    <div class="post-header d-flex align-items-center">
-                                        <h2 class="post-title mb-0">${post.title}</h2>
-                                        <div class="post-category">
-                                            <span class="badge bg-secondary">${post.category}</span>
-                                        </div>
-                                    </div>
-                                    <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}">
-	                                    <img src="${post.media && post.media !== '' ? post.media : ''}" alt="Post Image"
-	                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  ${post.media == null || post.media === '' ? ' display: none;' : ''}">
-	                                    <div class="post-content" style="overflow-wrap: anywhere;">
-	                                        ${post.description.length <= 1000 ? `
-	                                            <p class="post-description" style="text-align: left;">
-	                                                ${post.description}
-	                                            </p>
-	                                        ` : `
-	                                            <p class="post-description" style="text-align: left;">
-	                                                <span>${post.description.substring(0, 1000)}</span>
-	                                                <span class="more-text" style="display: none;">
-	                                                    ${post.description.length > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}
-	                                                </span>
-	                                                <button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read more...</button>
-	                                            </p>
-	                                        `}
+                        	<div class="post-card p-4">
+	                            <div class="post-content">
+	                                <div class="container">
+	
+	                                    <div class="author-box">
+	                                        <div class="author-profile">
+	                                            <img src="${post.image !== null && post.image !== '' ? post.image : '/images/logo.jpg'}"
+	                                                 alt="Author Profile Picture" class="author-image">
+	                                        </div>
+	                                        <div class="author-details">
+	                                            <h3 class="author-name">${post.name}</h3>
+	                                            <span>@${post.username}</span>
+	                                            <p class="author-bio">${post.bio}</p>
+	                                        </div>
+	                                    </div>
+	
+	                                    <div class="post-header d-flex align-items-center">
+	                                        <h2 class="post-title mb-0">${post.title}</h2>
+	                                        <div class="post-category">
+	                                            <span class="badge bg-secondary">${post.category}</span>
+	                                        </div>
+	                                    </div>
+	
+	                                    <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}">
+		                                    <img src="${post.media && post.media !== '' ? post.media : ''}" alt="Post Image"
+		                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  ${post.media == null || post.media === '' ? ' display: none;' : ''}">
+		                                    <div class="post-content" style="overflow-wrap: anywhere;">
+		                                        ${post.description.length <= 1000 ? `
+		                                            <p class="post-description" style="text-align: left;">
+		                                                ${post.description}
+		                                            </p>
+		                                        ` : `
+		                                            <p class="post-description" style="text-align: left;">
+		                                                <span>${post.description.substring(0, 1000)}</span>
+		                                                <span class="more-text" style="display: none;">
+		                                                    ${post.description.length > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}
+		                                                </span>
+		                                                <button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read more...</button>
+		                                            </p>
+		                                        `}
+		                                    </div>
+		                                </div>
+	
+		                                <div class="post-actions d-flex border-top pt-3" style="margin-top: 0; gap: 5px; justify-content: center;">
+			                                <button class="articleid" style="display: none;">${post.articleid}</button>
+			                                <button class="like oper btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
+			                                    <i class="${post.isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}"></i>
+			                                    <span class="likeCount">${post.likes}</span>
+			                                </button>
+			                                <button class="dislike oper btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
+			                                    <i class="${post.isDisliked ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}"></i>
+			                                    <span class="dislikeCount">${post.dislikes}</span>
+			                                </button>
+			                                <button class="commentBox btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" 
+			                                        style="gap: 5px;" onclick="requestComments(this, 'open');">
+			                                    <i class="bi bi-chat"></i>
+			                                    <span>${post.comments}</span>
+			                                </button>
+			                                <button class="btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
+			                                    <i class="bi bi-reply"></i>
+			                                </button>
+			                                <button class="btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;"
+			                                        onclick="${post.articleid ? `watchPost(${post.articleid})` : ''}">
+			                                    <i class="bi bi-share"></i>
+			                                </button>
+			                            </div>
+	
+	                                    <div class="postComments card mt-3 mb-3 p-3" style="display: none;">
+		                                    ${
+		                                        post.postComments !== null || post.postComments.length === 0
+		                                            ? '<div class="container"><h3 class="text-info">Nobody has shared their thoughts.</h3></div>'
+		                                            : post.postComments.map(comment => `
+		                                                <div class="container mb-3">
+		                                                    <div class="author-box">
+		                                                        <div class="author-profile">
+		                                                            <img src="${comment.image ? comment.image : '/images/logo.jpg'}" 
+		                                                                 alt="Author Profile Picture" class="author-image">
+		                                                        </div>
+		                                                        <div class="author-details">
+		                                                            <h3 class="author-name">${comment.name} says,</h3>
+		                                                            <p class="text-light">${comment.comment}</p>
+		                                                        </div>
+		                                                    </div>
+		                                                </div>
+		                                              `).join('')
+		                                    }
+		                                </div>
+	                                    
+	                                    ${post.disable === null || post.disable === false
+		                                   ? `<div class="mycard mt-1 mb-3 d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background-color: #f9f9f9;">
+		                                        <div class="d-flex flex-grow-1">					    
+		                                            <img src="${data.personalImage !== null && data.personalImage !== '' ? data.personalImage : '/images/logo.jpg'}" 
+		                                                 alt="User" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+		                                            <input type="text" placeholder="Write a comment..." class="comment form-control mb-2" style="width: 80%;border-radius: 2rem;box-shadow: none;">
+		                                            <button class="btn btn-info" onclick="${post.articleid ? `sendComment(this, ${post.articleid})` : ''}" style="margin-left: auto; width: 9%; height: 50px; border-radius: 2rem;">
+		                                                <i class="bi bi-send-fill"></i>
+		                                            </button>
+		                                        </div>
+		                                    </div>`
+		                                   : `` }
+	
+	                                    <div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+	                                        ${post.keywords !== null && post.keywords.length !== 0 
+	                                            ? `<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
+	                                                ${post.keywords.map((keyword, index) => `
+	                                                    <button class="tag color-${index}-clicked" data-keyword="${keyword}" data-url="/mass-filter/keyword/${keyword}" class="tag">
+	                                                        ${keyword}
+	                                                    </button>
+	                                                `).join('')}`
+	                                            : '<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>'
+	                                        }
+	                                    </div>
+	
+	                                </div>
+	
+	                                <div class="post-metadata">
+	                                    <div class="author-info">
+	                                        <span class="author-bio">@${post.username}</span>
+	                                    </div>
+	                                    <div class="post-date">
+	                                        <i class="bi bi-calendar-fill" style="margin-right : 5px;"></i>
+	                                        <span class="date-text">${post.status === 'draft' ? 'Drafted on ' : ''}${post.status === 'published' ? 'Published on ' : ''}${post.updatedat}</span>
 	                                    </div>
 	                                </div>
-                                    
-                                    <div class="post-actions d-flex border-top pt-3" style="gap: 5px; justify-content: center;">
-                                        <button class="oper btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px;">
-                                            <i class="bi bi-hand-thumbs-up"></i> <span>${post.likes}</span>
-                                        </button>
-                                        <button class="oper btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px;">
-                                            <i class="bi bi-hand-thumbs-down"></i> <span>${post.dislikes}</span>
-                                        </button>
-                                        <button class="btn btn-dark d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#commentModal" style="gap: 5px;">
-                                            <i class="bi bi-chat"></i><span>${post.comments}</span>
-                                        </button>
-                                        <button class="btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px; ">
-                                            <i class="bi bi-reply"></i>
-                                        </button>
-                                        <button class="btn btn-dark d-flex align-items-center justify-content-center" style="gap: 5px; ">
-                                            <i class="bi bi-share"></i>
-                                        </button>
-                                    </div>
-                                    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-                                        ${post.keywords.length ? `
-                                            <h2 style="display: inline; color: #5c5b5b;">Keywords:</h2>
-                                            ${post.keywords.map((keyword, index) => `
-                                                <button class="tag color-${index}-clicked" data-keyword="${keyword}" onclick="selectKeyword(this, event)">
-                                                    ${keyword}
-                                                </button>`).join('')}
-                                        ` : `<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>`}
-                                    </div>
-                                    <div class="post-metadata">
-                                        <div class="author-info">
-                                            <i class="icon-user"></i> <span>@${post.username}</span>
-                                        </div>
-                                        <div class="post-date">
-                                            <i class="icon-calendar"></i> <span>${post.updatedat}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>`;
+	
+	                            </div>
+	                        </div>
+                			`;
+                        
                         postContainer.appendChild(postDiv);
                     });
 
@@ -271,9 +324,9 @@
                 })
                 .catch(error => {
 //                    alert('Please log in to load more posts.');
-//                    console.error('Error loading more posts:', error);
+                    console.error('Error loading more posts:', error);
                     posts.style.display = "none";
-                    setTimeout(() => window.location.href = '/', 3000);
+//                    setTimeout(() => window.location.href = '/', 3000);
                     message.style.display = "block";
                     redirectHome = true;
                 })
@@ -296,3 +349,5 @@
 </body>
 
 </html>
+
+

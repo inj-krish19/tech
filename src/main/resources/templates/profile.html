@@ -201,6 +201,92 @@
 							</button>
 						</div>
 					</div>
+					
+									
+					<!-- Modals for Editing -->
+					<!-- Edit Username Modal -->
+					<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel"
+						aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
+									<h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<input type="text" class="form-control" id="editUsername" name="editUsername"
+										th:value="${user.username}">
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('username')">Save
+										changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+					<!-- Edit Email Modal -->
+					<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
+									<h5 class="modal-title" id="editEmailModalLabel">Edit Email</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<input type="email" class="form-control" id="editEmail" name="editEmail" th:value="${user.email}">
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('email')">Save changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+					<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel"
+						aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
+									<h5 class="modal-title" id="editPasswordModalLabel">Change Password</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<input type="password" class="form-control" id="editPassword" name="editPassword"
+										th:value="'********'">
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('password')">Save
+										changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				
+					<!-- Edit Bio Modal -->
+					<div class="modal fade" id="editBioModal" tabindex="-1" aria-labelledby="editBioModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
+									<h5 class="modal-title" id="editBioModalLabel">Edit Bio</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<textarea class="form-control" id="editBio" name="editBio" rows="3"
+										th:text="${user.bio}"></textarea>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('bio')">Save changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					
 				</div>
 
 				<div class="container tab-pane fade" id="nav-follower" role="tabpanel"
@@ -209,8 +295,8 @@
 					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
 				    	<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
-					<div th:each="blogger : ${followersList}" class="container m-5" style="max-width:800px;">
-						<div class="author-box">
+					<div th:each="blogger : ${followersList}" class="container m-5 mx-auto" style="max-width:800px;">
+						<div class="author-box mb-5">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
 								 alt="Author Profile Picture" class="author-image">
@@ -230,8 +316,8 @@
 					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
 				    	<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
-					<div th:each="blogger : ${followingsList}" class="container m-5" style="max-width:800px;">
-						<div class="author-box">
+					<div th:each="blogger : ${followingsList}" class="container m-5 mx-auto" style="max-width:800px;">
+						<div class="author-box mb-5">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
 								 alt="Author Profile Picture" class="author-image">
@@ -252,91 +338,6 @@
 			</div>
 		</div>
 	</div>
-
-
-	<!-- Modals for Editing -->
-	<!-- Edit Username Modal -->
-	<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel"
-		aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content bg-secondary text-light">
-				<div class="modal-header">
-					<h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<input type="text" class="form-control" id="editUsername" name="editUsername"
-						th:value="${user.username}">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="updateProfile('username')">Save
-						changes</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Edit Email Modal -->
-	<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content bg-secondary text-light">
-				<div class="modal-header">
-					<h5 class="modal-title" id="editEmailModalLabel">Edit Email</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<input type="email" class="form-control" id="editEmail" name="editEmail" th:value="${user.email}">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="updateProfile('email')">Save changes</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel"
-		aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content bg-secondary text-light">
-				<div class="modal-header">
-					<h5 class="modal-title" id="editPasswordModalLabel">Change Password</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<input type="password" class="form-control" id="editPassword" name="editPassword"
-						th:value="'********'">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="updateProfile('password')">Save
-						changes</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Edit Bio Modal -->
-	<div class="modal fade" id="editBioModal" tabindex="-1" aria-labelledby="editBioModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content bg-secondary text-light">
-				<div class="modal-header">
-					<h5 class="modal-title" id="editBioModalLabel">Edit Bio</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<textarea class="form-control" id="editBio" name="editBio" rows="3"
-						th:text="${user.bio}"></textarea>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-					<button type="button" class="btn btn-primary" onclick="updateProfile('bio')">Save changes</button>
-				</div>
-			</div>
-		</div>
-	</div>
-
 
 	<div th:replace="~{footer :: div}"></div>
 

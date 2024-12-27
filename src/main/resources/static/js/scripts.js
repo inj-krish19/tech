@@ -42,11 +42,81 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 } */
 
+function requestComments( commentButton, status ){
+	
+	console.log(`Post Box is shifting to ${status}`);
+	let commentBox = commentButton.parentElement.parentElement.querySelector(".postComments.card");
+	
+	if( status === "open" ){
+	
+		commentBox.style.display = "block";
+		commentButton.setAttribute("onclick", `requestComments(this, 'close')`);
+		
+	}
+	else if( status === "close" ){
+		
+		commentBox.style.display = "none";
+		commentButton.setAttribute("onclick", `requestComments(this, 'open')`);
+		
+	}
+	
+	
+}
+
+function sendComment( other, articleId ){
+	
+	const comment = other.parentElement.querySelector(".comment");
+	const commentBox = other.parentElement.parentElement.parentElement.querySelector(".postComments > .container");
+	
+	const authorBox = other.parentElement.parentElement.parentElement.querySelector(".author-box");
+	
+	let message = comment.value;
+	let image = "/uploads" + authorBox.querySelector(".author-profile > img").src.split("/uploads")[1];
+	let username = authorBox.querySelector(".author-details > h3").innerHTML;
+	let name = authorBox.querySelector(".author-details > span").innerHTML;
+	let temp;
+	
+	console.log( `Name : ${name}, Image : ${image}, Username : ${username}, Message : ${message}  ` )
+	
+	fetch(`/comment/${articleId}`, {
+	        method: 'POST',
+			headers: {
+	            'Content-Type': 'application/json', // Specify JSON content
+	        },
+	        body: JSON.stringify({
+	            message: comment.value // Use .value to get input or textarea content
+	        })
+	    })
+	        .then(response => {
+	            if (!response.ok) {
+	                throw new Error(`Network response was not ok: ${response.statusText}`);
+	            }
+				temp = "Failed to comment";
+	            return response.json(); // Parse JSON
+	        })
+			.then(data => {
+				temp = "Comment Posted Successfully";				
+			    console.log("Server response:", data);
+			})
+			.catch(error => {
+				temp = "Failed to comment";
+	            console.error("Error:", error);
+	            // setTimeout(() => window.location.href = '/login', 3000);
+	        })
+			.finally( () => {
+				comment.placeholder = temp;	
+				comment.value = "";
+			});
+	
+}
+
 function sendRequest(other, blogger, action) {
     let meCard = document.querySelector(".card.me");
-    let followingsText = meCard.querySelector(".card-body > p.text-info > strong");
-    let otherButton = other.querySelector("button");
-    let otherIcon = otherButton.querySelector("i");
+    let followingsText = meCard.querySelector(".card-body > p.following > strong");
+    //  let otherButton = other.querySelector("button");
+    let otherIcon = other.querySelector("i");
+	let godFather = other.parentElement.parentElement.parentElement;
+    let followersText = godFather.querySelector(".card-body > p.follower > strong");
 
     fetch(`/connection/${action}/${blogger}`, {
         method: 'POST'
@@ -64,25 +134,34 @@ function sendRequest(other, blogger, action) {
             if (action === "follow") {
                 otherIcon.classList.remove("bi-person-plus-fill");
                 otherIcon.classList.add("bi-person-check-fill");
-                otherButton.setAttribute("onclick", `sendRequest(this, ${blogger}, 'unfollow')`);
+                other.setAttribute("onclick", `sendRequest(this, ${blogger}, 'unfollow')`);
             } else if (action === "unfollow") {
                 otherIcon.classList.remove("bi-person-check-fill");
                 otherIcon.classList.add("bi-person-plus-fill");
-                otherButton.setAttribute("onclick", `sendRequest(this, ${blogger}, 'follow')`);
+                other.setAttribute("onclick", `sendRequest(this, ${blogger}, 'follow')`);
             }
 
             // Increment followings count for "me"
-            if (action === "follow") {
-                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
-                followingsText.textContent = `Followings: ${currentFollowings + 1}`;
-            } else if (action === "unfollow") {
-                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
-                followingsText.textContent = `Followings: ${currentFollowings - 1}`;
-            }
+			if (action === "follow") {
+			    let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+			    followingsText.textContent = `Followings : ${currentFollowings + 1}`;
+				
+				currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
+				followersText.textContent = `Followers : ${currentFollowings + 1}`;
+			} else if (action === "unfollow") {
+			    let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+			    let newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
+			    followingsText.textContent = `Followings : ${newFollowings}`;
+				
+				currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
+			    newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
+			    followersText.textContent = `Followers : ${newFollowings}`;
+			}
+
         })
         .catch(error => {
             console.error("Error:", error);
-            setTimeout(() => window.location.href = '/login', 3000);
+            setTimeout(() => window.location.href = '/', 3000);
         });
 }
 

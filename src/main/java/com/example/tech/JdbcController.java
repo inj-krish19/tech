@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -157,6 +158,25 @@ public class JdbcController {
         List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
         model.addAttribute("topics", categories);
 
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
+        
         String postSql = """
                 SELECT p.articleid, 
                        p.primaryAuthor AS author, 
@@ -181,15 +201,67 @@ public class JdbcController {
                 LIMIT 5
             """;
 
-        	Long authorId = (Long) request.getSession().getAttribute("authorId");
+        	// Long authorId = (Long) request.getSession().getAttribute("authorId");
         
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
                 
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -310,12 +382,29 @@ public class JdbcController {
         
         	Long authorId = (Long) request.getSession().getAttribute("authorId");
 
+        	if( authorId != null && authorId > 0 ) {
+            	
+            	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+            	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+            	
+            	if( imageSQL == null || imageSQL.equals("") ) {
+            		model.addAttribute("personalImage",null);
+            	}else {
+            		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+            	}
+            	
+            	
+            }else {
+            	model.addAttribute("personalImage",null);
+            }
+        	
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = (Long) rs.getLong("articleid");
                 
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -470,10 +559,22 @@ public class JdbcController {
 		    }   
             
             try {
-	            sql = """
-	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
-	            	""" +  author + " AND commentType = 'comment' ";
-	            blogger.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
+            	
+            	sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
+            	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
+            	
+            	Long commenst = 0L;
+            	
+            	for( Long id : ids ) {
+            		
+            		sql = """
+	            		SELECT commentscount FROM Post WHERE articleId = 
+	            	""" +  id;
+            		
+            		commenst += jdbcTemplate.queryForObject(sql, Long.class);
+            		
+            	}
+	            blogger.put("comments", commenst );
 	            
 			}catch( Exception e ) {
             	e.printStackTrace();
@@ -497,7 +598,7 @@ public class JdbcController {
                 sql = "SELECT COUNT(*) FROM Connection WHERE followerId = " + authorId + " AND followingId = " + author ;
                 Long count = jdbcTemplate.queryForObject(sql, Long.class);
                 System.out.println(sql);  // This should print the parameterized query
-                blogger.put("status", count > 0 ? true : false); 
+                blogger.put("status", count != null && count > 0 ); 
             } catch (Exception e) {
                 e.printStackTrace();
                 System.out.println("\n\nError while fetching connection status: " + e.getMessage() + "\n\n");
@@ -518,7 +619,7 @@ public class JdbcController {
             
             
 
-            if( author == authorId ) {
+            if( author == authorId || author == null ) {
             	blogger.put("status", null);            	
             }
             
@@ -581,13 +682,82 @@ public class JdbcController {
 
         	Long authorId = (Long) request.getSession().getAttribute("authorId");
         
+        	if( authorId != null && authorId > 0 ) {
+            	
+            	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+            	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+            	
+            	if( imageSQL == null || imageSQL.equals("") ) {
+            		model.addAttribute("personalImage",null);
+            	}else {
+            		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+            	}
+            	
+            	
+            }else {
+            	model.addAttribute("personalImage",null);
+            }
+        	
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
                 
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -677,6 +847,7 @@ public class JdbcController {
     	
     	Map<String, Object> postData = new HashMap<>();
         postData.put("title", title);
+        post.put("disable",false);
         postData.put("category", category);
         description = description.replaceAll("<[^>]*>", "").trim();
         postData.put("description", description);
@@ -920,9 +1091,62 @@ public class JdbcController {
 	    	            Map<String, Object> post = new HashMap<>();
 	    	            Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
+                
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
 	    	            
 	    	            post.put("articleid", articleId);
 	    	            post.put("title", rs.getString("title"));
+	    	            post.put("disable",false);
 	    	            post.put("description", rs.getString("description"));
 	    	            post.put("likes", rs.getInt("likes"));
 	    	            post.put("dislikes", rs.getInt("dislikes"));
@@ -1000,6 +1224,22 @@ public class JdbcController {
 	            model.addAttribute("loggedInUser", null); // No user logged in
 	        }
 	        
+	        if( authorId != null && authorId > 0 ) {
+	        	
+	        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+	        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+	        	
+	        	if( imageSQL == null || imageSQL.equals("") ) {
+	        		model.addAttribute("personalImage",null);
+	        	}else {
+	        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+	        	}
+	        	
+	        	
+	        }else {
+	        	model.addAttribute("personalImage",null);
+	        }
+	        
 	        return "reviewPost";
 	        
     }
@@ -1008,6 +1248,22 @@ public class JdbcController {
     public String viewPost(Model model, @PathVariable Long id, HttpServletRequest request) {
     	
     	Long authorId = (Long) request.getSession().getAttribute("authorId");
+    	
+    	if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
     	
     	String categorySql = "SELECT name FROM Category";
         List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
@@ -1041,9 +1297,62 @@ public class JdbcController {
 	            Map<String, Object> post = new HashMap<>();
 	            Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
+                
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
 	            
 	            post.put("articleid", articleId);
 	            post.put("title", rs.getString("title"));
+	            post.put("disable",false);
 	            post.put("description", rs.getString("description"));
 	            post.put("likes", rs.getInt("likes"));
 	            post.put("dislikes", rs.getInt("dislikes"));
@@ -1144,6 +1453,22 @@ public class JdbcController {
         Long categoryId = categories.get(0);
         Long authorId = (Long) request.getSession().getAttribute("authorId");
 
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         // Query to retrieve posts along with keywords
         sql = """
                 SELECT p.articleid, 
@@ -1180,9 +1505,62 @@ public class JdbcController {
          Map<String, Object> post = new HashMap<>();
          Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
+                
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
          
          post.put("articleid", articleId);
          post.put("title", rs.getString("title"));
+         post.put("disable",false);
          post.put("description", rs.getString("description"));
          post.put("likes", rs.getInt("likes"));
          post.put("dislikes", rs.getInt("dislikes"));
@@ -1264,6 +1642,22 @@ public class JdbcController {
         Long keywordId = keywords.get(0);
         Long authorId = (Long) request.getSession().getAttribute("authorId");
 
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         // Fetch posts based on keyword ID
         sql = """
             SELECT 
@@ -1307,9 +1701,61 @@ public class JdbcController {
         	Map<String, Object> post = new HashMap<>();
             Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
             
             post.put("articleid", articleId);
             post.put("title", rs.getString("title"));
+            post.put("disable",false);
             post.put("description", rs.getString("description"));
             post.put("likes", rs.getInt("likes"));
             post.put("dislikes", rs.getInt("dislikes"));
@@ -1442,6 +1888,22 @@ public class JdbcController {
             return "redirect:/login";
         }
         
+        if( userId != null && userId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, userId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         // Query user data from the database
         String sql = "SELECT name, username, bio, email, profilePicture AS image, updatedat FROM Blogger WHERE authorId = ?";
         Map<String, Object> blogger = jdbcTemplate.queryForMap(sql, userId);
@@ -1503,12 +1965,36 @@ public class JdbcController {
 		            
 	            current.put("likes", likes);
 	            
-	            sql = """
+	            try {
+	            	
+	            	sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
+	            	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
+	            	
+	            	Long commenst = 0L;
+	            	
+	            	for( Long id : ids ) {
+	            		
+	            		sql = """
+		            		SELECT commentscount FROM Post WHERE articleId = 
+		            	""" +  id;
+	            		
+	            		commenst += jdbcTemplate.queryForObject(sql, Long.class);
+	            		
+	            	}
+		            blogger.put("comments", commenst );
+		            
+				}catch( Exception e ) {
+	            	e.printStackTrace();
+	            	System.out.print("\n\n4" + "\n\n");
+					blogger.put("comments", 0);
+				}    
+	            
+	            /* sql = """
 	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
 	            	""" +  author + " AND commentType = 'comment' ";
 	            current.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
 
-	         // Step 1: Fetch all following IDs
+	         */ // Step 1: Fetch all following IDs
 
 
 	            sql = """
@@ -1643,7 +2129,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                WHERE u.authorid = ? 
+                WHERE u.authorid = ? ORDER BY p.articleid DESC
             """;
         
         	Long authorId = (Long) request.getSession().getAttribute("authorId");
@@ -1652,8 +2138,61 @@ public class JdbcController {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = (Long) rs.getLong("articleid");
                 
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
+                
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -1746,6 +2285,22 @@ public class JdbcController {
 
         Long authorId = (Long) request.getSession().getAttribute("authorId");
         
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         String sql = """
                 SELECT p.articleid, 
                        p.primaryAuthor AS author, 
@@ -1777,8 +2332,60 @@ public class JdbcController {
 	         Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 	         
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
 	         post.put("articleid", articleId);
 	         post.put("title", rs.getString("title"));
+	         post.put("disable",false);
 	         post.put("description", rs.getString("description"));
 	         post.put("likes", rs.getInt("likes"));
 	         post.put("dislikes", rs.getInt("dislikes"));
@@ -1879,8 +2486,60 @@ public class JdbcController {
 	         Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 	         
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
 	         post.put("articleid", articleId);
 	         post.put("title", rs.getString("title"));
+	         post.put("disable",false);
 	         post.put("description", rs.getString("description"));
 	         post.put("likes", rs.getInt("likes"));
 	         post.put("dislikes", rs.getInt("dislikes"));
@@ -1989,8 +2648,60 @@ public class JdbcController {
 	            Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 	            
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
 	            post.put("articleid", articleId);
 	            post.put("title", rs.getString("title"));
+	            post.put("disable",false);
 	            post.put("description", rs.getString("description"));
 	            post.put("likes", rs.getInt("likes"));
 	            post.put("dislikes", rs.getInt("dislikes"));
@@ -2367,8 +3078,60 @@ public class JdbcController {
             Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
             post.put("articleid", articleId);
             post.put("title", rs.getString("title"));
+            post.put("disable",false);
             post.put("description", rs.getString("description"));
             post.put("likes", rs.getInt("likes"));
             post.put("dislikes", rs.getInt("dislikes"));
@@ -2465,7 +3228,7 @@ public class JdbcController {
 
         	List<String> tempKeywords = new LinkedList<>();
         	HashMap<String, Object> tempPost = new HashMap<>();
-            Long articleId = 100l;
+            Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
             tempPost.put("title", post.get("title") );
@@ -2501,6 +3264,7 @@ public class JdbcController {
                 tempPost.put("updatedat", null);
             }
             tempPost.put("name", post.get("author"));
+            tempPost.put("status", "published");
             tempPost.put("username", "tech2xplore");
             tempPost.put("bio", "Tech2Xplore Trending News");
             tempPost.put("category", "News");
@@ -2508,6 +3272,7 @@ public class JdbcController {
             tempPost.put("image", null);
             tempPost.put("isLiked", false);
             tempPost.put("isDisliked", false);
+            tempPost.put("disable", true);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -2542,6 +3307,23 @@ public class JdbcController {
         
         System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
+     
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		response.put("personalImage",null);
+        	}else {
+        		response.put("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	response.put("personalImage",null);
+        }
+        
         response.put("posts", posts);
         response.put("hasMore", hasMore);
 
@@ -2550,7 +3332,7 @@ public class JdbcController {
     
     
     @GetMapping("/trendings")
-    public String trendingPosts(Model model) {
+    public String trendingPosts(Model model, HttpServletRequest request) {
     	
         if (this.userExist != null && !this.userExist.isEmpty()) {
             model.addAttribute("loggedInUser", userExist); // Add the logged-in username
@@ -2560,6 +3342,23 @@ public class JdbcController {
     	
     	int page = 1;
         int pageSize = 15;
+        
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
 
         List<Map<String, Object>> posts = new LinkedList<>();
         
@@ -2608,7 +3407,7 @@ public class JdbcController {
         
         	List<String> tempKeywords = new LinkedList<>();
         	HashMap<String, Object> tempPost = new HashMap<>();
-            Long articleId = 100l;
+            Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
             tempPost.put("title", post.get("title") );
@@ -2622,6 +3421,7 @@ public class JdbcController {
             + post.get("url") 
             + "'; \"> Read more... </button> ";
             
+            tempPost.put("postComments", null);
             tempPost.put("description", description );
             tempPost.put("likes", 0);
             tempPost.put("dislikes", 0);
@@ -2644,6 +3444,7 @@ public class JdbcController {
                 tempPost.put("updatedat", null);
             }
             tempPost.put("name", post.get("author"));
+            tempPost.put("status", "published");
             tempPost.put("username", "tech2xplore");
             tempPost.put("bio", "Tech2Xplore Trending News");
             tempPost.put("category", "News");
@@ -2652,6 +3453,7 @@ public class JdbcController {
             tempPost.put("status", "published");
             tempPost.put("isLiked", false);
             tempPost.put("isDisliked", false);
+            tempPost.put("disable", true);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -2698,7 +3500,7 @@ public class JdbcController {
     
     @GetMapping("/trending-more-posts")
     @ResponseBody
-    public Map<String, Object> trendingMorePost(@RequestParam("page") int page) {
+    public Map<String, Object> trendingMorePost(@RequestParam("page") int page, HttpServletRequest request) {
         int pageSize = 15; // Number of posts per page
         
         List<Map<String, Object>> posts = new LinkedList<>();
@@ -2738,7 +3540,7 @@ public class JdbcController {
 
         	List<String> tempKeywords = new LinkedList<>();
         	HashMap<String, Object> tempPost = new HashMap<>();
-            Long articleId = 100l;
+            Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
             tempPost.put("title", post.get("title") );
@@ -2752,6 +3554,7 @@ public class JdbcController {
             + post.get("url") 
             + "'; \"> Read more... </button> ";
             
+            tempPost.put("postComments", null );
             tempPost.put("description", description );
             tempPost.put("likes", 0);
             tempPost.put("dislikes", 0);
@@ -2774,6 +3577,7 @@ public class JdbcController {
                 tempPost.put("updatedat", null);
             }
             tempPost.put("name", post.get("author"));
+            tempPost.put("status", "published");
             tempPost.put("username", "tech2xplore");
             tempPost.put("bio", "Tech2Xplore Trending News");
             tempPost.put("category", "News");
@@ -2782,6 +3586,7 @@ public class JdbcController {
             tempPost.put("status", "published");
             tempPost.put("isLiked", false);
             tempPost.put("isDisliked", false);
+            tempPost.put("disable", true);
 
             // Fetch keywords for the current article
             for( String keyword: keywords ) {
@@ -2814,6 +3619,24 @@ public class JdbcController {
         
         System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		response.put("personalImage",null);
+        	}else {
+        		response.put("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	response.put("personalImage",null);
+        }
+        
         response.put("posts", posts);
         response.put("hasMore", hasMore);
 
@@ -3570,6 +4393,22 @@ public class JdbcController {
         
         Long authorId = (Long) request.getSession().getAttribute("authorId");
         
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         if( entity == null || target == null ) {
         	return "redirect:/mass-filter";
         }
@@ -3629,8 +4468,60 @@ public class JdbcController {
 	             Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 	             
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
 	             post.put("articleid", articleId);
 	             post.put("title", rs.getString("title"));
+	             post.put("disable",false);
 	             post.put("description", rs.getString("description"));
 	             post.put("likes", rs.getInt("likes"));
 	             post.put("dislikes", rs.getInt("dislikes"));
@@ -3742,8 +4633,60 @@ public class JdbcController {
                 Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
                 
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -3972,6 +4915,22 @@ public class JdbcController {
         
         Long authorId = (Long) request.getSession().getAttribute("authorId");
         
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
         if( entity == null || target == null ) {
         	return "redirect:/mass-filter";
         }
@@ -4042,8 +5001,60 @@ public class JdbcController {
 	             Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
 	             
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
 	             post.put("articleid", articleId);
 	             post.put("title", rs.getString("title"));
+	             post.put("disable",false);
 	             post.put("description", rs.getString("description"));
 	             post.put("likes", rs.getInt("likes"));
 	             post.put("dislikes", rs.getInt("dislikes"));
@@ -4165,8 +5176,60 @@ public class JdbcController {
                 Long articleId = rs.getLong("articleid");
                 Long tempAuthorId = rs.getLong("author");
                 
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
+                post.put("disable",false);
                 post.put("description", rs.getString("description"));
                 post.put("likes", rs.getInt("likes"));
                 post.put("dislikes", rs.getInt("dislikes"));
@@ -4496,5 +5559,44 @@ public class JdbcController {
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("message", this.capitalize(action) + " processed successfully"));
     }
 
+    @PostMapping("/comment/{articleId}")
+    public ResponseEntity<?> postComment(
+    		@PathVariable Long articleId, 
+    		@RequestBody Map<String, String> commentRequest,
+    		HttpServletRequest request){
+        // Validate input
+    	String message = commentRequest.get("message");
+    	
+    	Long authorId = (Long) request.getSession().getAttribute("authorId");
+    	
+    	if( authorId == null || authorId < 1L ) {
+    		return ResponseEntity.badRequest().body("Login First");
+    	}
+    	
+        if ( message == null || message.isEmpty() ) {
+        	
+            return ResponseEntity.badRequest().body("Comment message cannot be empty.");
+        }
+
+        String sql = """
+        			INSERT INTO PostComment(articleId, authorId, comment, createdat, commentType)
+        			VALUES(? , ? , ? , CURRENT_TIMESTAMP, 'comment' )
+        		""";
+        jdbcTemplate.update(sql, articleId, authorId, message);
+        
+        
+        sql = """
+        		UPDATE Post
+        		SET commentscount = commentscount + 1
+        		WHERE articleId = ? 
+        	""";
+        jdbcTemplate.update(sql, articleId);
+        
+        // Process the comment (e.g., save to database)
+        System.out.print("Comment Is " + message);
+
+        // Return success response
+        return ResponseEntity.ok().body(Map.of("message","Comment Posted Successfully"));
+    }
 
 }
