@@ -247,7 +247,7 @@
 	
 	                                    <div class="postComments card mt-3 mb-3 p-3" style="display: none;">
 		                                    ${
-		                                        post.postComments !== null || post.postComments.length === 0
+		                                        post.postComments === null || post.postComments.length === 0
 		                                            ? '<div class="container"><h3 class="text-info">Nobody has shared their thoughts.</h3></div>'
 		                                            : post.postComments.map(comment => `
 		                                                <div class="container mb-3">

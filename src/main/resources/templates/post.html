@@ -37,13 +37,13 @@
 						<div class="post-content" style="overflow-wrap:anywhere;">
 						    <!-- Show full description if less than or equal to 1000 characters -->
 						    <p class="post-description" th:if="${post.description.length() <= 1000}" 
-						       th:text="${post.description}" style="text-align: left;"></p>
+						       th:utext="${post.description}" style="text-align: left;"></p>
 						
 						    <!-- Show truncated description if more than 1000 characters -->
 						    <p class="post-description" th:if="${post.description.length() > 1000}" style="text-align: left;">
-						        <span th:text="${post.description.substring(0, 1000)}"></span>
+						        <span th:utext="${post.description.substring(0, 1000)}"></span>
 						        <span class="more-text" style="display: none;" 
-						              th:text="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
+						              th:utext="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
 						        <button class="toggle-button" style="width:auto;"  onclick="toggleReadMore(this)">Read more...</button>
 						    </p>
 						</div>

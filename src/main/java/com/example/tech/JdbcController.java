@@ -563,7 +563,7 @@ public class JdbcController {
             	sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
             	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
             	
-            	Long commenst = 0L;
+            	Long comments = 0L;
             	
             	for( Long id : ids ) {
             		
@@ -571,10 +571,10 @@ public class JdbcController {
 	            		SELECT commentscount FROM Post WHERE articleId = 
 	            	""" +  id;
             		
-            		commenst += jdbcTemplate.queryForObject(sql, Long.class);
+            		comments += jdbcTemplate.queryForObject(sql, Long.class);
             		
             	}
-	            blogger.put("comments", commenst );
+	            blogger.put("comments", comments );
 	            
 			}catch( Exception e ) {
             	e.printStackTrace();
@@ -1965,37 +1965,21 @@ public class JdbcController {
 		            
 	            current.put("likes", likes);
 	            
-	            try {
-	            	
-	            	sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
-	            	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
-	            	
-	            	Long commenst = 0L;
-	            	
-	            	for( Long id : ids ) {
-	            		
-	            		sql = """
-		            		SELECT commentscount FROM Post WHERE articleId = 
-		            	""" +  id;
-	            		
-	            		commenst += jdbcTemplate.queryForObject(sql, Long.class);
-	            		
-	            	}
-		            blogger.put("comments", commenst );
-		            
-				}catch( Exception e ) {
-	            	e.printStackTrace();
-	            	System.out.print("\n\n4" + "\n\n");
-					blogger.put("comments", 0);
-				}    
-	            
-	            /* sql = """
-	            		SELECT COUNT(*) AS comments FROM PostComment WHERE authorId = 
-	            	""" +  author + " AND commentType = 'comment' ";
-	            current.put("comments", jdbcTemplate.queryForObject(sql, Long.class) );
-
-	         */ // Step 1: Fetch all following IDs
-
+	            sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
+            	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
+            	
+            	Long comments = 0L;
+            	
+            	for( Long id : ids ) {
+            		
+            		sql = """
+	            		SELECT commentscount FROM Post WHERE articleId = 
+	            	""" +  id;
+            		
+            		comments += jdbcTemplate.queryForObject(sql, Long.class);
+            		
+            	}
+	            current.put("comments", comments );
 
 	            sql = """
 	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
@@ -5465,7 +5449,7 @@ public class JdbcController {
                 """.formatted(reaction.toLowerCase());
                 jdbcTemplate.update(sql, articleId, authorId);
 
-                if (oldReaction != null) {
+                if (oldReaction != null && (!oldReaction.equalsIgnoreCase(reaction)) ){
                     sql = """
                         UPDATE Post 
                         SET %s = %s + 1, %s = GREATEST(%s - 1 , 0)
