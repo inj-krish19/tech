@@ -3247,7 +3247,9 @@ public class JdbcController {
                 e.printStackTrace();
                 tempPost.put("updatedat", null);
             }
+            
             tempPost.put("name", post.get("author"));
+            tempPost.put("postComments", null);
             tempPost.put("status", "published");
             tempPost.put("username", "tech2xplore");
             tempPost.put("bio", "Tech2Xplore Trending News");
