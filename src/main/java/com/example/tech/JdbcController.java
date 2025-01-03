@@ -133,6 +133,12 @@ public class JdbcController {
 		                model.addAttribute("loggedInUser", null); // No user logged in
 		            }
 		            
+		            if (this.userExist != null && !this.userExist.isEmpty()) {
+		                model.addAttribute("loggedInUser", userExist);
+		            } else {
+		                model.addAttribute("loggedInUser", null);
+		            }
+		            
 		            request.getSession().setAttribute("authorId", authorId);
 		            
 		            System.out.print("ID : " + (Long) request.getSession().getAttribute("authorId") );
@@ -401,6 +407,57 @@ public class JdbcController {
             List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
                 Map<String, Object> post = new HashMap<>();
                 Long articleId = (Long) rs.getLong("articleid");
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
                 
                 post.put("articleid", articleId);
                 post.put("title", rs.getString("title"));
@@ -2624,7 +2681,7 @@ public class JdbcController {
 	            WHERE k.keywordid = ?
 	            GROUP BY p.articleid, p.title, p.description, p.likes, p.dislikes, 
 	                     p.viewscount, p.commentscount, p.updatedat,
-	                     u.name, u.username, u.bio, c.name
+	                     u.name, u.username, u.bio, c.name, p.primaryAuthor
 	            """;
 
 	        keywordsPosts = jdbcTemplate.query(sql, (rs, rowNum) -> {
@@ -3289,7 +3346,7 @@ public class JdbcController {
         	
         }
         
-        hasMore = hasMore && ( totalResults > page * pageSize );
+        hasMore = hasMore || ( totalResults > page * pageSize );
         
         System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
@@ -3492,7 +3549,7 @@ public class JdbcController {
         List<Map<String, Object>> posts = new LinkedList<>();
 
         // Check if there are more posts to load
-        boolean hasMore = true; 
+        boolean hasMore = false; 
 
         String keywordSql = "SELECT name FROM Keyword";
         List<String> keywords = jdbcTemplate.queryForList(keywordSql, String.class);
@@ -3601,7 +3658,7 @@ public class JdbcController {
         	
         }
         
-        hasMore = hasMore && ( totalResults > page * pageSize );
+        hasMore = hasMore || ( totalResults > page * pageSize );
         
         System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
         Map<String, Object> response = new HashMap<>();
@@ -3644,7 +3701,7 @@ public class JdbcController {
     }
 
     
-    @GetMapping("/destroy")
+    /* @GetMapping("/destroy")
     public String destroyTables(){
 
     	try {
@@ -3980,7 +4037,7 @@ public class JdbcController {
             }
             
 
-            /*/ Add triggers to tables with `updated_at` column
+            // Add triggers to tables with `updated_at` column
             jdbcTemplate.execute("""
                 CREATE TRIGGER set_updated_at_blogger
                 BEFORE UPDATE ON Blogger
@@ -4035,13 +4092,13 @@ public class JdbcController {
                 BEFORE UPDATE ON Collaboration
                 FOR EACH ROW
                 EXECUTE FUNCTION update_updated_at_column();
-            """);	*/
+            """);	//
 
 
             
             return "redirect:/";
             
-    }
+    } 
     
     @GetMapping("/xyz")
     public String xyz() {
@@ -4126,8 +4183,8 @@ public class JdbcController {
         """);
     	
     	return "bloggers";
-    }
-    
+    }	*/
+
     
     
     @GetMapping("/description")
