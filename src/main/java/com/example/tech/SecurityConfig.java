@@ -31,6 +31,8 @@ public class SecurityConfig {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+//    public static List<UserDeatails> users;
+
     Dotenv dotenv = Dotenv.load();
     
     @Value("${ADMIN_USERNAME}")

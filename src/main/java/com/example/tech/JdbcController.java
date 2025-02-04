@@ -3700,8 +3700,8 @@ public class JdbcController {
     	return "show";
     }
 
-    
-    /* @GetMapping("/destroy")
+    /*
+    @GetMapping("/destroy")
     public String destroyTables(){
 
     	try {
@@ -3732,6 +3732,7 @@ public class JdbcController {
     	return "show";
     }    
     
+    /*
     @GetMapping("/insert_data")
     public String insertIntoTables() {
     
@@ -3889,92 +3890,92 @@ public class JdbcController {
                $$ LANGUAGE plpgsql;
            """);
             
-            jdbcTemplate.execute("""
-        	    DO $$
-        	    BEGIN
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_blogger'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_blogger
-        	            BEFORE UPDATE ON Blogger
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_post'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_post
-        	            BEFORE UPDATE ON Post
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_category'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_category
-        	            BEFORE UPDATE ON Category
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-        	        
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_keyword'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_keyword
-        	            BEFORE UPDATE ON Keyword
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_communities'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_communities
-        	            BEFORE UPDATE ON Community
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_keyword_assignments'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_keyword_assignments
-        	            BEFORE UPDATE ON KeywordAssignment
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_post_category_assignments'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_post_category_assignments
-        	            BEFORE UPDATE ON PostCategoryAssignment
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_memberships'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_memberships
-        	            BEFORE UPDATE ON Membership
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-
-        	        IF NOT EXISTS (
-        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_collaboration'
-        	        ) THEN
-        	            CREATE TRIGGER set_updated_at_collaboration
-        	            BEFORE UPDATE ON Collaboration
-        	            FOR EACH ROW
-        	            EXECUTE FUNCTION update_updated_at_column();
-        	        END IF;
-        	    END;
-        	    $$;
-        	""");
+//            jdbcTemplate.execute("""
+//        	    DO $$
+//        	    BEGIN
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_blogger'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_blogger
+//        	            BEFORE UPDATE ON Blogger
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_post'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_post
+//        	            BEFORE UPDATE ON Post
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_category'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_category
+//        	            BEFORE UPDATE ON Category
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//        	        
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_keyword'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_keyword
+//        	            BEFORE UPDATE ON Keyword
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_communities'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_communities
+//        	            BEFORE UPDATE ON Community
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_keyword_assignments'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_keyword_assignments
+//        	            BEFORE UPDATE ON KeywordAssignment
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_post_category_assignments'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_post_category_assignments
+//        	            BEFORE UPDATE ON PostCategoryAssignment
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_memberships'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_memberships
+//        	            BEFORE UPDATE ON Membership
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//
+//        	        IF NOT EXISTS (
+//        	            SELECT 1 FROM pg_trigger WHERE tgname = 'set_updated_at_collaboration'
+//        	        ) THEN
+//        	            CREATE TRIGGER set_updated_at_collaboration
+//        	            BEFORE UPDATE ON Collaboration
+//        	            FOR EACH ROW
+//        	            EXECUTE FUNCTION update_updated_at_column();
+//        	        END IF;
+//        	    END;
+//        	    $$;
+//        	"""); 
             
             // function for => follower != following
             
@@ -4100,6 +4101,7 @@ public class JdbcController {
             
     } 
     
+
     @GetMapping("/xyz")
     public String xyz() {
 
