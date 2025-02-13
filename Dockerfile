@@ -34,8 +34,6 @@ COPY .env /app/.env
 #     if [ -f /app/.env ]; then echo '.env file created successfully at /app/.env'; else echo '.env file not found'; fi
 
 
-
-
 # Build the application
 RUN java -version
 
