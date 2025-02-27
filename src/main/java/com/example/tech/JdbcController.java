@@ -3732,7 +3732,7 @@ public class JdbcController {
     	return "show";
     }    
     
-    /*
+    *//*
     @GetMapping("/insert_data")
     public String insertIntoTables() {
     
@@ -3760,7 +3760,7 @@ public class JdbcController {
     	return "show";
     }
     
-    
+    *//*
     @GetMapping("/enums")
     public String enums() {
 
@@ -4101,7 +4101,7 @@ public class JdbcController {
             
     } 
     
-
+    *//*
     @GetMapping("/xyz")
     public String xyz() {
 
@@ -4808,6 +4808,31 @@ public class JdbcController {
         return "massfilter";
     }
     
+    @GetMapping("/mission")
+    public ResponseEntity<?> mission( HttpServletRequest request) {
+
+    	try {
+    		
+    		ArrayList<Long> ids = new ArrayList<Long>(
+    				List.of(41L, 42L, 43L, 44L)
+				);
+    		
+    		for( Long userId : ids ) {
+	    		String fileName = "post-" + userId + ".jpg";
+	    		
+		    	String sql = "UPDATE Post SET postmedia = ? WHERE articleid = ?";
+		        jdbcTemplate.update(sql, fileName, userId);
+		
+		        System.out.print(sql + " " + fileName + " " + userId );
+    		}
+	        return ResponseEntity.ok(Map.of("message", "Profile picture updated successfully"));
+	    } catch (Exception e ) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to save profile picture"));
+	    }
+    	
+    }
+    
     @PostMapping("/update-picture")
     public ResponseEntity<?> updateProfilePicture(@RequestParam("profilePicture") MultipartFile file, HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("authorId");
@@ -4846,7 +4871,7 @@ public class JdbcController {
             System.out.print(sql + " " + fileName + " " + userId );
             
             return ResponseEntity.ok(Map.of("message", "Profile picture updated successfully"));
-        } catch (IOException e ) {
+        } catch (Exception e ) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to save profile picture"));
         }
