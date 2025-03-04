@@ -1,12 +1,195 @@
+<!-- div class="deep-posts-list" id="post-container">
+    <div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
+        <h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
+    </div>
+
+    <div th:each="post : ${posts}" class="deep-post-card card mb-4">
+
+        <div class="deep-author-section card-header bg-transparent d-flex flex-column flex-md-row align-items-start">
+            <div class="deep-author-image me-3 mb-2 mb-md-0">
+                <img th:src="${post.image != null && post.image != '' ? post.image : '/images/logo.jpg'}"
+                     class="rounded-circle"
+                     style="width: 60px; height: 60px; object-fit: cover;">
+            </div>
+            <div class="deep-author-info">
+                <h3 class="h6 mb-0" th:text="${post.name}"></h3>
+                <small class="text-muted" th:text="'@'+${post.username}"></small>
+                <p class="deep-author-bio small mb-0 text-muted" th:text="${post.bio}"></p>
+            </div>
+        </div>
+
+
+        <div class="card-body">
+            <div class="deep-post-header d-flex flex-wrap justify-content-between align-items-center mb-3">
+                <h2 class="deep-post-title h5 mb-2" th:text="${post.title}"></h2>
+                <span class="deep-post-category badge bg-secondary" th:text="${post.category}"></span>
+            </div>
+
+
+            <div class="deep-post-media mb-3">
+                <img th:if="${post.media != null && post.media != ''}"
+                     th:src="${post.media}"
+                     class="img-fluid rounded"
+                     style="max-height: 500px; object-fit: contain;">
+            </div>
+
+
+            <div class="deep-post-description mb-3">
+				<p class="post-description" th:if="${post.description.length() <= 1000}" 
+			       th:utext="${post.description}" style="text-align: left;"></p>
+			
+			    <p class="post-description" th:if="${post.description.length() > 1000}" style="text-align: left;">
+			        <span th:utext="${post.description.substring(0, 1000)}"></span>
+			        <span class="more-text" style="display: none;" 
+			              th:utext="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
+			        <button class="toggle-button" style="width:auto;"  onclick="toggleReadMore(this)">Read more...</button>
+			    </p>
+
+            </div>
+
+            <div class="deep-post-actions row g-2 border-top pt-3">
+                <div class="col-6 col-md">
+                    <button th:class="'like oper btn btn-dark w-100 d-flex justify-content-center align-items-center' + (${ post.disable != null && post.disable == true ? ' disabled' : '' })">
+                        <i th:class="${post.isLiked == true ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'} " class="bi me-2"></i>
+                        <span class="likeCount" th:text="${post.likes}"></span>
+                    </button>
+					<button th:class="'dislike oper btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })" style="gap: 5px;">
+						<i th:class="${post.isDisliked == true ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}" class="bi"></i> <span class="dislikeCount" 
+							th:text="${post.dislikes}"></span>
+					</button>
+					<button th:class="'commentBox btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })" 
+					 style="gap: 5px; position:static; " onclick="requestComments(this, 'open');">
+						<i class="bi bi-chat"></i><span
+							th:text="${post.comments}"></span>
+					</button>
+					<button th:class="'btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })" style="gap: 5px;">
+						<i class="bi bi-reply"></i>
+					</button>
+					<button th:class="'btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })" style="gap: 5px; " 
+						th:attr="onclick=${post.articleid != null} ? 'watchPost(' + ${post.articleid} + ')' : null">							
+						<i class="bi bi-share"></i>
+					</button>
+                </div>
+            </div>
+			
+            <div class="deep-comments-section mt-4">
+				<div class="container" th:if="${#lists.isEmpty(post.postComments)}">
+					<h3 class="text-info"> Anybody hasn't shared their thoughts. </h3>
+				</div>
+				<div th:if="${!#lists.isEmpty(post.postComments)}" th:each="comment : ${post.postComments}" class="container mb-3">
+			        <div class="author-box ">
+						<div class="author-profile">
+							<img th:src="${comment.image != null && comment.image != '' ? comment.image : '/images/logo.jpg'}"
+							 alt="Author Profile Picture" class="author-image">
+						</div>
+						<div class="author-details">
+							<h3 class="author-name" th:text="${comment.name} + ' says, '"></h3>
+							<p class="text-light" th:text="${comment.comment}"></p>
+						</div>
+					</div>
+			    </div>
+            </div>
+
+            <div th:if="${ post.disable == null or post.disable == false}" class="deep-comment-input d-flex align-items-center gap-3 mt-4">
+                <img th:src="${personalImage != null && personalImage != '' ? personalImage : '/images/logo.jpg'}"
+                     class="rounded-circle"
+                     style="width: 40px; height: 40px; object-fit: cover;">
+                <div class="input-group">
+                    <input type="text" class="form-control rounded-pill" placeholder="Write a comment...">
+                    <button class="btn btn-primary rounded-pill px-4" 
+                            th:attr="onclick=${post.articleid != null} ? 'sendComment( this,' + ${post.articleid} + ' )' : null">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="deep-post-keywords d-flex flex-wrap gap-2 mt-4">
+				<div th:if="${#lists.isEmpty(post.keywords)}">
+				    <h2 style="display: inline; color: #5c5b5b;" >Keywords Not Selected</h2>
+				</div>
+				<div th:if="${!#lists.isEmpty(post.keywords)}">
+				    <h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
+				</div>
+			    <th:block th:each="keyword, iterStat : ${post.keywords}">
+			        <button th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
+			                th:attr="data-keyword=${keyword}" 
+					        th:attrappend="data-url='/mass-filter/keyword/' + ${keyword}" 
+					        class="tag" 
+			                th:text="${keyword}">
+			        </button>
+			    </th:block>
+			</div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+<style>
+/* Prefixed custom styles */
+.deep-post-card {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.deep-author-section {
+    padding: 1.5rem;
+}
+
+.deep-post-title {
+    max-width: 70%;
+}
+
+@media (max-width: 768px) {
+    .deep-post-card {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+    }
+    
+    .deep-author-image img {
+        width: 50px !important;
+        height: 50px !important;
+    }
+    
+    .deep-post-title {
+        font-size: 1.1rem;
+        max-width: 100%;
+    }
+    
+    .deep-post-actions .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .deep-comment-input .input-group {
+        flex-wrap: nowrap;
+    }
+    
+    .deep-comment-input input {
+        font-size: 0.9rem;
+    }
+    
+    .deep-post-keywords .badge {
+        font-size: 0.8rem;
+    }
+}
+</style --> 
+
+
+
 <div class="posts-list" id="post-container">
 	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
     	<h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
 	</div>
 
-	<div th:each="post : ${posts}" class="post mb-4" style="max-width:800px;">
-		<div class="post-card p-4">
+	<div th:each="post : ${posts}" class="post mb-1" style="max-width:800px; min-width: 300px; ">
+		<div class="post-card p-2">
 			<div class="post-content">
-				<div class="container">
+				<div class="container ">
 
 					<div class="author-box">
 						<div class="author-profile">
