@@ -4832,7 +4832,7 @@ public class JdbcController {
 	    }
     	
     }
-    
+    	
     @PostMapping("/update-picture")
     public ResponseEntity<?> updateProfilePicture(@RequestParam("profilePicture") MultipartFile file, HttpServletRequest request) {
         Long userId = (Long) request.getSession().getAttribute("authorId");
@@ -4855,10 +4855,10 @@ public class JdbcController {
             Path path = Paths.get(uploadDir, fileName);
 
             if( Files.exists(path)) {
-            	Files.delete(path);
+//            	Files.delete(path);
             }
 
-            try (OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE_NEW)) {
+            try (OutputStream os = Files.newOutputStream(path, StandardOpenOption.CREATE)) {
                 os.write(file.getBytes());
             }catch(IOException e) {
             	return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Failed to save profile picture"));            	
