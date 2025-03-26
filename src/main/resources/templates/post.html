@@ -211,13 +211,17 @@
 
 
 					<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
-					class="post-image">
+					class="post-image row">
 						<img
 							th:if="${post.media != null && post.media != ''}"
 							th:src="${post.media != null && post.media != '' ? post.media : ''}" alt="Post Image"
-							th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
+							th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'"
+							th:class="${#strings.length(post.description) > 1000} ? 'col-12' : 'col-6'"
+						 />
 	
-						<div class="post-content" style="overflow-wrap:anywhere;">
+						<div class="post-content " style="overflow-wrap:anywhere;"
+							th:class="${#strings.length(post.description) > 1000} ? 'col-12' : 'col-6'"
+						>
 						    <!-- Show full description if less than or equal to 1000 characters -->
 						    <p class="post-description" th:if="${post.description.length() <= 1000}" 
 						       th:utext="${post.description}" style="text-align: left;"></p>
