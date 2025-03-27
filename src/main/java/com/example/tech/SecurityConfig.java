@@ -49,7 +49,7 @@ public class SecurityConfig {
         	)
             .authorizeHttpRequests(authorize -> authorize
 //                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/about", "/entity/**", "/error").permitAll()
-                .requestMatchers( "/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/error").permitAll()
+                .requestMatchers( "runQuery","/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/error").permitAll()
                 .requestMatchers("/profile","/load-more-posts").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
