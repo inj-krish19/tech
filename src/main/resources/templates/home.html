@@ -201,16 +201,16 @@
 	                                        </div>
 	                                    </div>
 	
-	                                    <div class="post-image ${post.description.length > 1000 ? 'post-image-large' : 'post-image-flex'}">
-		                                    <img src="${post.media && post.media !== '' ? post.media : ''}" alt="Post Image"
-		                                         style="${post.description.length > 1000 ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'}  ${post.media == null || post.media === '' ? ' display: none;' : ''}">
-		                                    <div class="post-content" style="overflow-wrap: anywhere;">
+	                                    <div class="row flex-col d-flex">
+		                                    <img src="${post.media && post.media !== '' ? post.media : ''}" alt="Post Image" class="col-12"
+		                                         style="${post.media == null || post.media === '' ? ' display: none;' : ''}">
+		                                    <div class="post-content col-12 text-center" style="overflow-wrap: anywhere;">
 		                                        ${post.description.length <= 1000 ? `
-		                                            <p class="post-description" style="text-align: left;">
+		                                            <p class="post-description" style="text-align: left; overflow: hidden;">
 		                                                ${post.description}
 		                                            </p>
 		                                        ` : `
-		                                            <p class="post-description" style="text-align: left;">
+		                                            <p class="post-description" style="text-align: left; overflow: hidden;">
 		                                                <span>${post.description.substring(0, 1000)}</span>
 		                                                <span class="more-text" style="display: none;">
 		                                                    ${post.description.length > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}
