@@ -1,40 +1,51 @@
 <div class="container" id="blogger-container">
-	<div th:if="${#lists.isEmpty(bloggers)}" class="alert alert-dark text-center">
-    	<h2 th:text="${news == null ? 'Our Bloggers' : 'Blogges Are Inactive Right Now'}"></h2>
-	</div>
+    <div th:if="${#lists.isEmpty(bloggers)}" class="alert alert-dark text-center">
+        <h2 th:text="${news == null ? 'Our Bloggers' : 'Blogges Are Inactive Right Now'}"></h2>
+    </div>
 
-	<div class="row mb-4" >
-		<div th:each="blogger : ${bloggers}" class="col-md-6 mb-4" >
+    <div class="row mb-4">
+        <div th:each="blogger : ${bloggers}" class="col-12 mb-4">
 
             <div th:class="'card ' + (${isMe == blogger.authorId ? 'me' : ''} )">
                 <div class="row g-0">
                     <div class="col-md-4">
-                        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}" style=" height: 215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
+                        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
+                            style=" height: 215px; " class="img-fluid rounded-circle p-1" alt="Blogger Image">
                         <div class="card-body">
-                            <h5 class="card-title" style=" color: darkblue; " th:text="${blogger.name}" ></h5>
-                            <p class="card-text" style=" color: blueviolet; "><strong th:text= "'@' + ${blogger.name}"></strong> </p>
-                           	<button th:attr="onclick=${blogger.authorId != null} ? 'sendRequest( this,' + ${blogger.authorId} + ', &quot;' + ${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' } + '&quot; )' : null" 
-                           	th:class="'btn btn-info ' + (${blogger.status == null ? 'disabled' : ''} )"  >
-                           		<i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
-                           	</button>
+                            <h5 class="card-title" style=" color: darkblue; " th:text="${blogger.name}"></h5>
+                            <p class="card-text" style=" color: blueviolet; "><strong
+                                    th:text="'@' + ${blogger.name}"></strong> </p>
+                            <button
+                                th:attr="onclick=${blogger.authorId != null} ? 'sendRequest( this,' + ${blogger.authorId} + ', &quot;' + ${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' } + '&quot; )' : null"
+                                th:class="'btn btn-info ' + (${blogger.status == null ? 'disabled' : ''} )">
+                                <i
+                                    th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
+                            </button>
                             <!--  h4 th:text="${blogger.status}"></h4 -->
-                           
+
                         </div>
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
-                            <p class="card-text text-info follower"><strong th:text=" 'Followers : ' + ${blogger.followers} "></strong> </p>
-                            <p class="card-text text-info following"><strong th:text=" 'Followings : ' + ${blogger.followings} "></strong></p>
-                            <p class="card-text text-secondary" style=" font-weight: bold; "><small class="text-muted" th:text="${blogger.bio}">Person hasn't described about self.</small></p>
-                            <p class="card-text text-secondary"><strong th:text=" ${blogger.posts} + ' Posts' " ></strong> till now</p>
-                        	<p class="card-text text-primary"><strong th:text=" ${blogger.likes} + ' Likes' "> </strong> received on Posts</p>
-                            <p class="card-text text-warning"><strong th:text=" ${blogger.comments} + ' Comments' "> </strong> Received</p>
-                            <p class="card-text"><strong class="text-success" th:text= "'Joined: ' + ${blogger.createdat} "></strong></p>
+                            <p class="card-text text-info follower"><strong
+                                    th:text=" 'Followers : ' + ${blogger.followers} "></strong> </p>
+                            <p class="card-text text-info following"><strong
+                                    th:text=" 'Followings : ' + ${blogger.followings} "></strong></p>
+                            <p class="card-text text-secondary" style=" font-weight: bold; "><small class="text-muted"
+                                    th:text="${blogger.bio}">Person hasn't described about self.</small></p>
+                            <p class="card-text text-secondary"><strong
+                                    th:text=" ${blogger.posts} + ' Posts' "></strong> till now</p>
+                            <p class="card-text text-primary"><strong th:text=" ${blogger.likes} + ' Likes' "> </strong>
+                                received on Posts</p>
+                            <p class="card-text text-warning"><strong th:text=" ${blogger.comments} + ' Comments' ">
+                                </strong> Received</p>
+                            <p class="card-text"><strong class="text-success"
+                                    th:text="'Joined: ' + ${blogger.createdat} "></strong></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-                
-	</div>
+
+    </div>
 </div>
