@@ -218,7 +218,7 @@
 						<div class="post-content col-12 text-center" style="overflow-wrap:anywhere;"></div>
 						<!-- Show full description if less than or equal to 1000 characters -->
 						<p class="post-description" th:if="${post.description.length() <= 1000}"
-							th:utext="${post.description}" style="text-align: left;"></p>
+							th:utext="${post.description}" style="text-align: left; overflow: hidden;"></p>
 
 						<!-- Show truncated description if more than 1000 characters -->
 						<p class="post-description" th:if="${post.description.length() > 1000}"
