@@ -203,7 +203,8 @@ public class JdbcController {
                 FROM Post p 
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
-                JOIN Category c ON pca.categoryid = c.categoryid
+                JOIN Category c ON pca.categoryid = c.categoryid 
+                ORDER BY p.createdat DESC
                 LIMIT 5
             """;
 
@@ -383,7 +384,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                WHERE u.authorid = ? 
+                WHERE u.authorid = ? ORDER BY p.createdat DESC
             """;
         
         	Long authorId = (Long) request.getSession().getAttribute("authorId");
@@ -2170,7 +2171,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                WHERE u.authorid = ? ORDER BY p.articleid DESC
+                WHERE u.authorid = ? ORDER BY p.createdat DESC
             """;
         
         	Long authorId = (Long) request.getSession().getAttribute("authorId");
@@ -3110,7 +3111,7 @@ public class JdbcController {
                 JOIN Blogger u ON p.primaryAuthor = u.authorid 
                 JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
                 JOIN Category c ON pca.categoryid = c.categoryid
-                ORDER BY p.articleid ASC
+                ORDER BY p.createdat DESC
                 LIMIT ? OFFSET ?
             """;
 
