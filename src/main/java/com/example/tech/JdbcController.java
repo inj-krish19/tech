@@ -4256,6 +4256,7 @@ public class JdbcController {
 
         // Loop through tables and get their column details
         for (String table : tables) {
+        	
             System.out.println("\nTable: " + table);
             String getColumnsQuery = String.format("""
                     SELECT *
@@ -5647,6 +5648,13 @@ public class JdbcController {
     		HttpServletRequest request){
         // Validate input
     	String message = commentRequest.get("message");
+    	boolean curse = false;
+    	
+    	ArrayList<String> curseWords = new ArrayList<String>(
+    		List.of(
+				"arse", "arsehead", "arsehole", "ass", "ass hole", "asshole", "bastard", "bitch", "bloody", "bollocks", "brotherfucker", "bugger", "bullshit", "child-fucker", "Christ on a bike", "Christ on a cracker", "cock", "cocksucker", "crap", "cunt", "dammit", "damn", "damned", "damn it", "dick", "dick-head", "dickhead", "dumb ass", "dumb-ass", "dumbass", "dyke", "faggot", "father-fucker", "fatherfucker", "fuck", "fucked", "fucker", "fucking", "god dammit", "goddammit", "God damn", "god damn", "goddamn", "Goddamn", "goddamned", "goddamnit", "godsdamn", "hell", "holy shit", "horseshit", "in shit", "jackarse", "jack-ass", "jackass", "Jesus Christ", "Jesus fuck", "Jesus Harold Christ", "Jesus H. Christ", "Jesus, Mary and Joseph", "Jesus wept", "kike", "mother fucker", "mother-fucker", "motherfucker", "nigga", "nigra", "pigfucker", "piss", "prick", "pussy", "shit", "shit ass", "shite", "sibling fucker", "sisterfuck", "sisterfucker", "slut", "son of a bitch", "son of a whore", "spastic", "sweet Jesus", "twat", "wanker"
+			)
+		);
     	
     	Long authorId = (Long) request.getSession().getAttribute("authorId");
     	
@@ -5655,8 +5663,16 @@ public class JdbcController {
     	}
     	
         if ( message == null || message.isEmpty() ) {
-        	
             return ResponseEntity.badRequest().body("Comment message cannot be empty.");
+        }
+        
+        if( message.isEmpty() == false ) {
+        	curse = curseWords.stream().anyMatch( word -> message.toLowerCase().contains(word.toLowerCase()));
+        
+        	if( curse ) {
+        		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Comment message cannot be empty.");
+        	}
+        	
         }
 
         String sql = """
