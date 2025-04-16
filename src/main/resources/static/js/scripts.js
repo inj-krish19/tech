@@ -88,8 +88,18 @@ function sendComment( other, articleId ){
 	        })
 	    })
 	        .then(response => {
+				
 	            if (!response.ok) {
-	                throw new Error(`Network response was not ok: ${response.statusText}`);
+					if( response.status === 400 ){
+						temp = "Failed to Comment"
+						throw new Error("Bad Request")
+					} else if( response.status === 401 ){
+						temp = "Inappropriate Comment. Hate Speech Not Allowed."
+						throw new Error("Unauthorized")
+					} else{
+					temp = "Failed to Comment"
+						throw new Error(`Network response was not ok: ${response.statusText}`);						
+					}
 	            }
 				temp = "Failed to comment";
 	            return response.json(); // Parse JSON
@@ -99,9 +109,7 @@ function sendComment( other, articleId ){
 			    console.log("Server response:", data);
 			})
 			.catch(error => {
-				temp = "Failed to comment";
 	            console.error("Error:", error);
-	            // setTimeout(() => window.location.href = '/login', 3000);
 	        })
 			.finally( () => {
 				comment.placeholder = temp;	
