@@ -5,51 +5,48 @@
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/about"><i class="bi bi-info-circle"></i> About Us</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/bloggers"><i class="bi bi-person-badge"></i> Bloggers</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/posts"><i class="bi bi-file-earmark-post"></i> Posts</a>
-                </li>
-                <li class="nav-item">
-            		<a class="nav-link" href="/trendings"><i class="bi bi-fire"></i></a>
-		        </li>
-                <li class="nav-item">
-            		<a class="nav-link" href="/mass-filter"><i class="bi bi-funnel"></i></a>
-		        </li>
-		        <li class="nav-item">
-            		<a class="nav-link" href="/entity"><i class="bi bi-box-seam-fill"></i></a>
-		        </li>
+        <div class="collapse navbar-collapse p-2" id="navbarNav">
+			<ul class="navbar-nav mx-auto">
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/about"><span class="fs-6">About Us</span></a>
+	            </li>
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/bloggers"><span class="fs-6">Bloggers</span></a>
+	            </li>
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/posts"><span class="fs-6">Posts</span></a>
+	            </li>
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/trendings"><span class="fs-6">Trendings</span></a>
+	            </li>
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/mass-filter"><span class="fs-6">Filter</span></a>
+	            </li>
+	            <li class="nav-item">
+	              <a class="nav-link p-0 fw-bolder" href="/entity"><span class="fs-6">Entity</span></a>
+	            </li>
+	          </ul>
 		        
-                <!-- Login and Sign Up options for unauthenticated users -->
+			  <ul class="navbar-nav ms-auto">
+
                 <li class="nav-item" th:if="${loggedInUser == null}">
-                    <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right"></i> </a>
+                    <a class="nav-link p-0 fw-bolder" href="/register"><i class="bi bi-person-plus"></i></a>
                 </li>
                 <li class="nav-item" th:if="${loggedInUser == null}">
-                    <a class="nav-link" href="/register"><i class="bi bi-person-plus"></i></a>
+                    <a class="nav-link p-0 fw-bolder" href="/login"><i class="bi bi-box-arrow-in-right"></i></a>
                 </li>
                 
-                
-                <!-- Post option for authenticated users -->
                 <li class="nav-item" th:if="${loggedInUser != null}">
-                    <a class="nav-link" href="/create_post"><i class="bi bi-pencil-square"></i> </a>
-                </li>
-
-                <!-- My Posts option for authenticated users -->
+                    <a class="nav-link p-0 fw-bolder" href="/create_post"><i class="bi bi-pencil-square"></i> </a>
+				</li>
                 <li class="nav-item" th:if="${loggedInUser != null}">
-                    <a class="nav-link" href="/myposts"><i class="bi bi-file-earmark-person"></i> </a>
-                </li>
-
+                	<a class="nav-link p-0 fw-bolder" href="/myposts"><i class="bi bi-file-earmark-person"></i></a>
+				</li>
 				<li class="nav-item" th:if="${loggedInUser != null}">
-					<a class="nav-link" href="/profile"><i class="bi bi-person"></i></a>
+					<a class="nav-link p-0 fw-bolder" href="/profile"><i class="bi bi-person"></i> </a>
                 </li>
                 <li class="nav-item" th:if="${loggedInUser != null}">
-                	<a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+					<a class="nav-link p-0 fw-bolder" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
                 </li>
 
             </ul>
