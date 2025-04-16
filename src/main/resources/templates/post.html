@@ -210,10 +210,10 @@
 					</div>
 
 
-					<div class="row flex-col d-flex">
+					<div class="row flex-col d-flex my-1">
 						<img th:if="${post.media != null && post.media != ''}"
 							th:src="${post.media != null && post.media != '' ? post.media : ''}" alt="Post Image"
-							class="col-12'" />
+							class="col-12" />
 
 						<div class="post-content col-12 text-center" style="overflow-wrap:anywhere;"></div>
 						<!-- Show full description if less than or equal to 1000 characters -->
