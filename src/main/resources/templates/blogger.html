@@ -6,7 +6,8 @@
     <div class="row mb-4">
         <div th:each="blogger : ${bloggers}" class="col-12 mb-4">
 
-            <div th:class="'card ' + (${isMe == blogger.authorId ? 'me' : ''} )">
+            <div th:class="'card ' + (${isMe == blogger.authorId ? 'me' : ''} )" 
+					th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
                 <div class="row g-0">
                     <div class="col-md-4">
                         <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
@@ -15,12 +16,11 @@
                         <div class="card-body">
                             <h5 class="card-title" style=" color: darkblue; " th:text="${blogger.name}"></h5>
                             <p class="card-text" style=" color: blueviolet; "><strong
-                                    th:text="'@' + ${blogger.name}"></strong> </p>
+                                    th:text="'@' + ${blogger.username}"></strong> </p>
                             <button
                                 th:attr="onclick=${blogger.authorId != null} ? 'sendRequest( this,' + ${blogger.authorId} + ', &quot;' + ${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' } + '&quot; )' : null"
                                 th:class="'btn btn-info ' + (${blogger.status == null ? 'disabled' : ''} )">
-                                <i
-                                    th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
+                                <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
                             </button>
                             <!--  h4 th:text="${blogger.status}"></h4 -->
 
