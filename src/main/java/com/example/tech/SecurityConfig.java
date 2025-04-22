@@ -49,7 +49,7 @@ public class SecurityConfig {
         	)
             .authorizeHttpRequests(authorize -> authorize
 //                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/about", "/entity/**", "/error").permitAll()
-                .requestMatchers( "runQuery","/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/error").permitAll()
+                .requestMatchers( "/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/error").permitAll()
                 .requestMatchers("/profile","/load-more-posts").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -69,7 +69,7 @@ public class SecurityConfig {
             );
         return http.build();
     }
-
+    
     @PostMapping("/login")
     public String login(@RequestParam String username, @RequestParam String password, Model model, HttpServletRequest request) {
         String sql = "SELECT authorId, password FROM Blogger WHERE username = ?";

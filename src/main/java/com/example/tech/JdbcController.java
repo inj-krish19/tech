@@ -3771,7 +3771,7 @@ public class JdbcController {
     	return "show";
     }
     
-    *//*
+    */
     @GetMapping("/enums")
     public String enums() {
 
@@ -3987,7 +3987,9 @@ public class JdbcController {
 //        	    END;
 //        	    $$;
 //        	"""); 
-            
+
+// (1,'2025-03-19T11:47:13.483Z','2025-04-16T15:24:07.270Z','active','{}','$2a$10$fp5nqs.KlxBYXkHCTi5Ituy.Ejf8udQ/kKYUQoJnEQko7waFTaoUi','','I am Developer','krish','krish@gmail.com','krish')
+           
             // function for => follower != following
             
             jdbcTemplate.execute("""
@@ -4022,8 +4024,10 @@ public class JdbcController {
                 SELECT COUNT(*) FROM Category
             """,Long.class);
             
-            if( count == 0 ) {
-            	jdbcTemplate.execute("""
+            /*
+             * Now not needed cause
+             * Backup Script is created
+        	jdbcTemplate.execute("""
             			INSERT INTO Category (categoryid, createdat, updatedat, createdby, categorydescription, categoryicon, name)
             			VALUES 
             			(1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 'Coding is a category in which can explore the posts and articles regarding coding, coding memes and code of variety of programming languages and code', 'coding.jpg', 'Coding'),
@@ -4047,7 +4051,7 @@ public class JdbcController {
 				(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Rust is general purpose fast in computation programming language', 'rust.jpg', 'Rust');
                  """);
             }
-            
+            */
 
             // Add triggers to tables with `updated_at` column
             jdbcTemplate.execute("""
@@ -4112,7 +4116,7 @@ public class JdbcController {
             
     } 
     
-    *//*
+    /*
     @GetMapping("/xyz")
     public String xyz() {
 
@@ -5694,6 +5698,370 @@ public class JdbcController {
 
         // Return success response
         return ResponseEntity.ok().body(Map.of("message","Comment Posted Successfully"));
+    }
+    
+    @GetMapping("/blogger/{id}")
+    public String getBlogger(HttpServletRequest request, Model model, 
+            @PathVariable Long id) {
+
+
+        // Fetch userId from session
+        Long userId = id;
+        
+        if (userId == null) {
+            System.out.println("User not logged in. Redirecting to login.");
+            model.addAttribute("error", "You need to log in to view your profile.");
+            return "redirect:/";
+        }
+        
+        if( userId != null && userId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, userId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		model.addAttribute("personalImage",null);
+        	}else {
+        		model.addAttribute("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	model.addAttribute("personalImage",null);
+        }
+        
+
+        String sql = "SELECT authorId,name,username,profilePicture AS image,createdat, bio FROM Blogger WHERE authorId = ?";
+        List<Map<String, Object>> bloggers = jdbcTemplate.queryForList(sql, userId);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy");
+        String title = "Krish";
+        
+        for (Map<String, Object> current : bloggers) {
+            Timestamp createdat = (Timestamp) current.get("createdat");
+            title = current.get("name").toString();
+            
+//            System.out.println("Blogger Is " + blogger );
+            Long author = (current.get("authorid") != null) ? (Long) current.get("authorId") : null;
+
+            try {
+                
+                sql = """
+	            		SELECT COUNT(*) AS followings FROM Connection WHERE followerId = 
+	            		""" + author;
+	            current.put("followings", jdbcTemplate.queryForObject(sql, Long.class)	 );
+
+	            sql = """
+	            		SELECT COUNT(*) AS followers FROM Connection WHERE followingId = 
+	            		""" + author;
+	            current.put("followers", jdbcTemplate.queryForObject(sql, Long.class) );
+	
+	            Long likes = 0L;
+            	
+	            sql = "SELECT articleId FROM Post WHERE primaryAuthor = ?";
+	            List<Long> articles = jdbcTemplate.queryForList(sql, Long.class, author);
+	            
+	            for( Long articleId : articles ) {
+	            
+	            	sql = """
+		            		SELECT COUNT(*) AS likes FROM PostInteraction WHERE articleId = 
+		            	""" + articleId + " AND reactionType = 'like' ";
+		            likes += jdbcTemplate.queryForObject(sql, Long.class);
+	            
+	            }
+		            
+	            current.put("likes", likes);
+	            
+	            sql = "SELECT articleId FROM Post WHERE primaryAuthor = " + author;
+            	List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);
+            	
+            	Long comments = 0L;
+            	
+            	for( Long articleId : ids ) {
+            		
+            		sql = """
+	            		SELECT commentscount FROM Post WHERE articleId = 
+	            	""" +  articleId;
+            		
+            		comments += jdbcTemplate.queryForObject(sql, Long.class);
+            		
+            	}
+	            current.put("comments", comments );
+
+	            sql = """
+	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
+	            		""" + userId;
+	            current.put("posts", jdbcTemplate.queryForObject(sql, Long.class) );
+	            
+	        }catch( Exception e ) {
+            	e.printStackTrace();
+            	System.out.print("\n\n5" + "\n\n");
+            	current.put("posts", 0);
+            	current.put("followings", 0);
+            	current.put("followingsList", null);
+            	current.put("followers", 0);
+            	current.put("followersList", null);
+            	current.put("likes", 0);
+            	current.put("comments", 0);
+	        }                       
+            
+            if (createdat != null) {
+            	current.put("createdat", sdf.format(createdat));
+            }
+            
+            if( current.get("image") == null || current.get("image").equals("") ) {
+            	current.put("image", null);
+            }else {
+            	current.put("image", bloggerRetrieveDirectory + current.get("image"));
+            }
+            
+        }
+        model.addAttribute("bloggers", bloggers);
+        model.addAttribute("title", title);
+        
+        try {
+            // Fetch all IDs the current author is following
+            sql = """
+                  SELECT followingId FROM Connection WHERE followerId = 
+                  """ + userId + " GROUP BY followingId";
+            List<Long> followingIds = jdbcTemplate.queryForList(sql, Long.class);
+
+            List<Map<String, Object>> followingDetails = new ArrayList<>();
+            
+            for( Long flwId : followingIds ) {
+            	 sql = """
+                      SELECT authorId, name, username, bio, profilePicture AS image 
+                      FROM Blogger 
+                      WHERE authorId = """ + flwId;
+            	 List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql);
+            	 if( temp.get(0).get("image") == null || temp.get(0).get("image").equals("") ) {
+            		 temp.get(0).put("image", null);
+                 }else {
+                	 temp.get(0).put("image", bloggerRetrieveDirectory + temp.get(0).get("image"));
+                 }
+            	 followingDetails.add( temp.get(0) );
+            }
+            model.addAttribute("followingsList", followingDetails);
+            
+            // Fetch details of these bloggers
+            if (followingIds.isEmpty()) {
+            	model.addAttribute("followingsList", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\n\nError fetching followings\n\n");
+            model.addAttribute("followingsList", null);
+        }
+
+        // Step 2: Fetch all follower IDs
+        try {
+            // Fetch all IDs of users who follow the current author
+            sql = """
+                  SELECT followerId FROM Connection WHERE followingId = 
+                  """ + userId + " GROUP BY followerId";
+            List<Long> followerIds = jdbcTemplate.queryForList(sql, Long.class);
+
+            // Fetch details of these bloggers
+            List<Map<String, Object>> followerDetails = new ArrayList<>();
+            
+            for( Long folId : followerIds ) {
+            	 sql = """
+                      SELECT authorId, name, username, bio, profilePicture AS image 
+                      FROM Blogger 
+                      WHERE authorId = """ + folId;
+            	 List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql);
+            	 if( temp.get(0).get("image") == null || temp.get(0).get("image").equals("") ) {
+            		 temp.get(0).put("image", null);
+                 }else {
+                	 temp.get(0).put("image", bloggerRetrieveDirectory + temp.get(0).get("image"));
+                 }
+            	 followerDetails.add( temp.get(0) );
+
+            }
+            model.addAttribute("followersList", followerDetails);
+            
+            // Fetch details of these bloggers
+            if (followerIds.isEmpty()) {
+                model.addAttribute("followersList", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("\n\nError fetching followings\n\n");
+            model.addAttribute("followersList", null);
+        }
+        
+        if (this.userExist != "" && userExist != null ) {
+            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
+        } else {
+            model.addAttribute("loggedInUser", null); // No user logged in
+        }
+        
+        String categorySql = "SELECT name FROM Category";
+        List<String> categories = jdbcTemplate.queryForList(categorySql, String.class);
+        model.addAttribute("topics", categories);
+
+        String postSql = """
+                SELECT p.articleid, 
+                       p.primaryAuthor AS author, 
+                       p.title, 
+                       p.description, 
+                       p.likes, 
+                       p.dislikes, 
+                       p.viewscount, 
+                       p.commentscount AS comments, 
+                       p.updatedat, 
+                       p.postmedia AS media,
+                    p.poststatus AS status,
+                       u.name AS name, 
+                       u.username AS username, 
+                       u.bio AS bio, 
+                       u.profilepicture AS image,
+                       c.name AS category
+                FROM Post p 
+                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                JOIN Category c ON pca.categoryid = c.categoryid
+                WHERE u.authorid = ? ORDER BY p.createdat DESC
+            """;
+        
+        	Long authorId = userId;
+
+            List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
+                Map<String, Object> post = new HashMap<>();
+                Long articleId = (Long) rs.getLong("articleid");
+                
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
+                
+                post.put("articleid", articleId);
+                post.put("title", rs.getString("title"));
+                post.put("disable",false);
+                post.put("description", rs.getString("description"));
+                post.put("likes", rs.getInt("likes"));
+                post.put("dislikes", rs.getInt("dislikes"));
+                post.put("viewscount", rs.getInt("viewscount"));
+                post.put("comments", rs.getInt("comments"));
+                Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat ssdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = ssdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
+                post.put("name", rs.getString("name"));
+                post.put("username", rs.getString("username"));
+                post.put("bio", rs.getString("bio"));
+                post.put("status", rs.getString("status"));
+                post.put("category", rs.getString("category"));
+                if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", postRetrieveDirectory + rs.getString("media"));
+}
+                if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", bloggerRetrieveDirectory + rs.getString("image"));
+}
+
+                // Separate query to get keywords for the current article
+                String keywordQuery = """
+                		SELECT name FROM Keyword k 
+                		JOIN KeywordAssignment ka 
+                		ON k.keywordid = ka.keywordid 
+                		WHERE ka.articleid = ?
+                	""";
+            	List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, (Long) articleId);
+            	post.put("keywords", keywords);
+
+            	if( authorId != null && authorId > 0 ) {
+
+            		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+            		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+	            	post.put("isLiked", isReact == 0 ? false : true);
+	            	
+	            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+	            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+	            	
+	            	post.put("isDisliked", isReact == 0 ? false : true );
+            	
+            	}else {
+            		post.put("isLiked", false );            		
+            		post.put("isDisliked", false );
+            	}
+            	
+                return post;
+            }, authorId);
+
+        model.addAttribute("posts", posts);
+
+        System.out.print(posts);
+
+    	List<String> colors = new ArrayList<>(
+    			List.of(
+    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
+    				)
+    		);
+    	
+    	model.addAttribute("colors", colors);
+    	model.addAttribute("followers", null);
+    	model.addAttribute("followings", null);
+        
+        // Add logged-in username if available
+        String loggedInUser = (String) request.getSession().getAttribute("loggedInUser");
+        model.addAttribute("loggedInUser", loggedInUser != null ? loggedInUser : "Guest");
+        
+        return "author"; // Return the author management view
     }
 
 }

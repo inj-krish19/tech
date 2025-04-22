@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class Post {
 
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long articleId;
 
     @Column(length = 255, nullable = false)
