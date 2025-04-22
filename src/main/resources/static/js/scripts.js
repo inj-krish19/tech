@@ -173,6 +173,10 @@ function sendRequest(other, blogger, action) {
         });
 }
 
+function redirectToBlogger(id){
+	window.location.href = `/blogger/${id}`;
+}
+
 
 function watchPost( id ){
 	window.location.href = `/post/${id}`;
