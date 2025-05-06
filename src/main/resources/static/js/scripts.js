@@ -1,3 +1,36 @@
+const toggleBtn = document.getElementById('toggleModeBtn');
+const modeIcon = document.getElementById('modeIcon');
+const body = document.body;
+
+// Load saved mode from localStorage
+let savedMode = localStorage.getItem('mode') || 'dark';
+setMode(savedMode);
+
+toggleBtn.addEventListener('click', () => {
+    let currentMode = body.classList.contains('light-mode') ? 'light' : 'dark';
+    let newMode = currentMode === 'light' ? 'dark' : 'light';
+    setMode(newMode);
+    localStorage.setItem('mode', newMode);
+});
+
+function setMode(mode) {
+    if (mode === 'light') {
+        body.classList.add('light-mode');
+        body.classList.remove('dark-mode');
+        toggleBtn.classList.remove('btn-outline-light');
+        toggleBtn.classList.add('btn-outline-dark');
+        modeIcon.classList.remove('bi-moon-fill');
+        modeIcon.classList.add('bi-sun-fill');
+    } else {
+        body.classList.add('dark-mode');
+        body.classList.remove('light-mode');
+        toggleBtn.classList.remove('btn-outline-dark');
+        toggleBtn.classList.add('btn-outline-light');
+        modeIcon.classList.remove('bi-sun-fill');
+        modeIcon.classList.add('bi-moon-fill');
+    }
+}
+
 function toggleReadMore(button) {
     const parent = button.closest('.post-description');
     const moreText = parent.querySelector('.more-text');

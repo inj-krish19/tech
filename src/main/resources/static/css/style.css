@@ -251,8 +251,6 @@ body {
   /* Center text */
 }
 
-@import url('https://fonts.googleapis.com/css?family=Lora');
-@import url('https://fonts.googleapis.com/css?family=Candal');
 
 html,
 body {
@@ -1298,3 +1296,19 @@ button {
 }
 
 .like, .dislike{}
+
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light mode */
+body.light-mode {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* Dark mode */
+body.dark-mode {
+    background-color: #343a40;
+    color: #f8f9fa;
+}
