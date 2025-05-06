@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title >Contcat Us </title>
+    <title>Contcat Us </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -13,7 +13,7 @@
 
 </head>
 
-<body style="background:#343a40">
+<body>
 
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-4">
@@ -21,20 +21,22 @@
         <div class="container py-5" style="max-width: 500px; ">
             <h1 class="text-center mb-4">Contact Us</h1>
             <form th:action="@{/contact}" method="post">
-                 <div class="mb-3">
-			        <select name="type" id="type" class="form-select" required style="background: #272727; color: #6c757d; border: 1px solid #272727; font-family: 'Lora', sarif; ">
-			            <option value="bug_report">Feedback Type ...</option>
-			            <option value="bug_report">Bug Report</option>
-			            <option value="general">General</option>
-			            <option value="feature_request">Feature Request</option>
-			        </select>
-			    </div>
-			    <div class="mb-3">
-                	<textarea name="message" cols="30" rows="3" class="text-input contact-input"
-                    	placeholder="Message..." style="min-width: 250px; min-height: 150px; max-height: 200px; border-radius : 0.25rem; background : #272727; border : 1px solid #272727; color: #bebdbd; border-radius : 0.375rem;  "></textarea>
+                <div class="mb-3">
+                    <select name="type" id="type" class="form-select" required
+                        style="background: #272727; color: #6c757d; border: 1px solid #272727; font-family: 'Lora', sarif; ">
+                        <option value="bug_report">Feedback Type ...</option>
+                        <option value="bug_report">Bug Report</option>
+                        <option value="general">General</option>
+                        <option value="feature_request">Feature Request</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <textarea name="message" cols="30" rows="3" class="text-input contact-input"
+                        placeholder="Message..."
+                        style="min-width: 250px; min-height: 150px; max-height: 200px; border-radius : 0.25rem; background : #272727; border : 1px solid #272727; color: #bebdbd; border-radius : 0.375rem;  "></textarea>
                 </div>
                 <button type="submit" name="send-msg-btn" class="send-msg-btn"
-                	style="background: #008489; border: 1px solid #008489; color: #d3d3d3; border-radius: 0.25rem; font-family: 'Lora', sarif; height: 50px;" >
+                    style="background: #008489; border: 1px solid #008489; color: #d3d3d3; border-radius: 0.25rem; font-family: 'Lora', sarif; height: 50px;">
                     <i class="fa fa-send"></i> Send
                 </button>
             </form>
