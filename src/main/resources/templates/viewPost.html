@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -36,7 +36,6 @@
     }
 </style>
 
-
 <style th:each="color, iterStat : ${colors}">
 	.color--[[${iterStat.index}]]:hover {
 	    color : [[${color}]];
@@ -48,10 +47,11 @@
 		color : #5c5b5b;
 	}
 </style>
-
+   
+   	
 <style th:each="color, iterStat : ${colors}">
 	.color-[[${iterStat.index}]] {
-	    background-color : white;
+	    background-color: white;
 	    border : 1px solid [[${color}]];
 	    color : [[${color}]];
 	}
@@ -73,8 +73,7 @@
 	    border: 1px solid [[${color}]];
 	}
 </style>
-
-<body style="background:#343a40">
+<body>
 
 
     <div th:replace="~{header :: nav}"></div>
@@ -141,9 +140,9 @@
             </div>
         </div>
     </div>
-    
+
     <div th:replace="~{post :: div} "></div>
-    
+
     <div th:replace="~{footer :: div}"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

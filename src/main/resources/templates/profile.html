@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
@@ -52,89 +52,91 @@
 	<div class="container mt-5">
 
 		<div class="container p-5" id="blogger-container">
-		    <div class="row mb-4" th:each="blogger : ${bloggers}">
-		        <div class="col-md-12">
-		            <div class="card mb-3">
-		                <div class="row g-0 align-items-center p-2">
-		                    <!-- Blogger Image -->
-		                    <div class="col-md-4 text-center">
-		                        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-		                            class="img-fluid rounded-circle p-1" style="height: 250px; width: 250px;" alt="Blogger Image">
-		                    </div>
-		
-		                    <!-- Blogger Info -->
-		                    <div class="col-md-4">
-		                        <div class="card-body">
-		                            <h3 class="card-title text-dark" th:text="${blogger.name}"></h3>
-		                            <h4 class="text-secondary">
-		                                <strong th:text="'@' + ${blogger.username}"></strong>
-		                            </h4>
-		                            <h5>
-			                            <strong class="text-success" th:text="'Joined at ' + ${blogger.createdat}"></strong>
-			                        </h5>
-		                            <h5 class="text-muted">
-		                                <small th:text="${blogger.bio}"></small>
-		                            </h5>
-		                            <div class="d-flex justify-content-center gap-2">
-			                            <button class="btn btn-info">
-			                                <i class="bi bi-person-plus-fill"></i>
-			                            </button>
-			                            <button class="btn btn-info">
-			                                <i class="bi bi-linkedin"></i>
-			                            </button>
-			                        </div>
-		                        </div>
-		                    </div>
-		
-		                    <!-- Blogger Stats and Actions -->
-		                    <div class="col-md-4">
-		                    	<div class="card-body">
-		                            <p class="text-secondary mb-1">
-		                                <strong th:text="${blogger.posts} + ' Posts'"></strong> till now
-		                            </p>
-			                        <p class="text-primary mb-1">
-		                                <strong th:text="${blogger.likes} + ' Likes'"></strong> received on Posts
-		                            </p>
-			                        <p class="text-warning">
-			                            <strong th:text="${blogger.comments} + ' Comments'"></strong> Received
-			                        </p>
-		                            <p class="text-info mb-1">
-		                                <strong th:text="'Followers: ' + ${blogger.followers}"></strong>
-		                            </p>
-		                            <p class="text-info mb-1">
-		                                <strong th:text="'Followings: ' + ${blogger.followings}"></strong>
-		                            </p>
-			                    </div>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    </div>
+			<div class="row mb-4" th:each="blogger : ${bloggers}">
+				<div class="col-md-12">
+					<div class="card mb-3">
+						<div class="row g-0 align-items-center p-2">
+							<!-- Blogger Image -->
+							<div class="col-md-4 text-center">
+								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
+									class="img-fluid rounded-circle p-1" style="height: 250px; width: 250px;"
+									alt="Blogger Image">
+							</div>
+
+							<!-- Blogger Info -->
+							<div class="col-md-4">
+								<div class="card-body">
+									<h3 class="card-title text-dark" th:text="${blogger.name}"></h3>
+									<h4 class="text-secondary">
+										<strong th:text="'@' + ${blogger.username}"></strong>
+									</h4>
+									<h5>
+										<strong class="text-success"
+											th:text="'Joined at ' + ${blogger.createdat}"></strong>
+									</h5>
+									<h5 class="text-muted">
+										<small th:text="${blogger.bio}"></small>
+									</h5>
+									<div class="d-flex justify-content-center gap-2">
+										<button class="btn btn-info">
+											<i class="bi bi-person-plus-fill"></i>
+										</button>
+										<button class="btn btn-info">
+											<i class="bi bi-linkedin"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- Blogger Stats and Actions -->
+							<div class="col-md-4">
+								<div class="card-body">
+									<p class="text-secondary mb-1">
+										<strong th:text="${blogger.posts} + ' Posts'"></strong> till now
+									</p>
+									<p class="text-primary mb-1">
+										<strong th:text="${blogger.likes} + ' Likes'"></strong> received on Posts
+									</p>
+									<p class="text-warning">
+										<strong th:text="${blogger.comments} + ' Comments'"></strong> Received
+									</p>
+									<p class="text-info mb-1">
+										<strong th:text="'Followers: ' + ${blogger.followers}"></strong>
+									</p>
+									<p class="text-info mb-1">
+										<strong th:text="'Followings: ' + ${blogger.followings}"></strong>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		
+
 
 		<div class="container p-2" style=" border: 2px solid #495057; border-radius: 5px;">
 			<nav class="nav nav-pills nav-justified ">
-				  <a class="nav-link nav-item active special " id="nav-profile-tab" data-bs-toggle="tab" href="#nav-profile" role="tab"
-				    aria-controls="nav-profile" aria-selected="true">
-				    <i class="bi bi-person-vcard-fill"></i> 
+				<a class="nav-link nav-item active special " id="nav-profile-tab" data-bs-toggle="tab"
+					href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="true">
+					<i class="bi bi-person-vcard-fill"></i>
 					<span>Profile</span>
-				  </a>
-				  <a class="nav-link nav-item special " id="nav-follower-tab" data-bs-toggle="tab" href="#nav-follower" role="tab"
-				    aria-controls="nav-follower" aria-selected="false">
-				    <i class="bi bi-people-fill"></i> 
+				</a>
+				<a class="nav-link nav-item special " id="nav-follower-tab" data-bs-toggle="tab" href="#nav-follower"
+					role="tab" aria-controls="nav-follower" aria-selected="false">
+					<i class="bi bi-people-fill"></i>
 					<span>Followers</span>
-				  </a>
-				  <a class="nav-link nav-item special " id="nav-following-tab" data-bs-toggle="tab" href="#nav-following" role="tab"
-				    aria-controls="nav-following" aria-selected="false">
-				    <i class="bi bi-person-fill-check"></i> 
+				</a>
+				<a class="nav-link nav-item special " id="nav-following-tab" data-bs-toggle="tab" href="#nav-following"
+					role="tab" aria-controls="nav-following" aria-selected="false">
+					<i class="bi bi-person-fill-check"></i>
 					<span>Followings</span>
-				  </a>
-				  <a class="nav-link nav-item special " id="nav-posts-tab" data-bs-toggle="tab" href="#nav-posts" role="tab"
-				    aria-controls="nav-posts" aria-selected="false">
-				    <i class="bi bi-person-square"></i> 
+				</a>
+				<a class="nav-link nav-item special " id="nav-posts-tab" data-bs-toggle="tab" href="#nav-posts"
+					role="tab" aria-controls="nav-posts" aria-selected="false">
+					<i class="bi bi-person-square"></i>
 					<span>Posts</span>
-				  </a>
+				</a>
 			</nav>
 			<hr class="mb-5">
 
@@ -205,107 +207,121 @@
 							</button>
 						</div>
 					</div>
-					
-									
+
+
 					<!-- Modals for Editing -->
 					<!-- Edit Username Modal -->
-					<div class="modal fade" id="editUsernameModal" tabindex="-1" aria-labelledby="editUsernameModalLabel"
-						aria-hidden="true">
+					<div class="modal fade" id="editUsernameModal" tabindex="-1"
+						aria-labelledby="editUsernameModalLabel" aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content bg-secondary text-light">
 								<div class="modal-header">
 									<h5 class="modal-title" id="editUsernameModalLabel">Edit Username</h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"
+										aria-label="Close"></button>
 								</div>
 								<div class="modal-body">
 									<input type="text" class="form-control" id="editUsername" name="editUsername"
 										th:value="${user.username}">
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-									<button type="button" class="btn btn-primary" onclick="updateProfile('username')">Save
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary"
+										onclick="updateProfile('username')">Save
 										changes</button>
 								</div>
 							</div>
 						</div>
 					</div>
-				
+
 					<!-- Edit Email Modal -->
-					<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel" aria-hidden="true">
-						<div class="modal-dialog">
-							<div class="modal-content bg-secondary text-light">
-								<div class="modal-header">
-									<h5 class="modal-title" id="editEmailModalLabel">Edit Email</h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-								</div>
-								<div class="modal-body">
-									<input type="email" class="form-control" id="editEmail" name="editEmail" th:value="${user.email}">
-								</div>
-								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-									<button type="button" class="btn btn-primary" onclick="updateProfile('email')">Save changes</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				
-					<div class="modal fade" id="editPasswordModal" tabindex="-1" aria-labelledby="editPasswordModalLabel"
+					<div class="modal fade" id="editEmailModal" tabindex="-1" aria-labelledby="editEmailModalLabel"
 						aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content bg-secondary text-light">
 								<div class="modal-header">
+									<h5 class="modal-title" id="editEmailModalLabel">Edit Email</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"
+										aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<input type="email" class="form-control" id="editEmail" name="editEmail"
+										th:value="${user.email}">
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('email')">Save
+										changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="modal fade" id="editPasswordModal" tabindex="-1"
+						aria-labelledby="editPasswordModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
 									<h5 class="modal-title" id="editPasswordModalLabel">Change Password</h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"
+										aria-label="Close"></button>
 								</div>
 								<div class="modal-body">
 									<input type="password" class="form-control" id="editPassword" name="editPassword"
 										th:value="'********'">
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-									<button type="button" class="btn btn-primary" onclick="updateProfile('password')">Save
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary"
+										onclick="updateProfile('password')">Save
 										changes</button>
 								</div>
 							</div>
 						</div>
 					</div>
-				
+
 					<!-- Edit Bio Modal -->
-					<div class="modal fade" id="editBioModal" tabindex="-1" aria-labelledby="editBioModalLabel" aria-hidden="true">
+					<div class="modal fade" id="editBioModal" tabindex="-1" aria-labelledby="editBioModalLabel"
+						aria-hidden="true">
 						<div class="modal-dialog">
 							<div class="modal-content bg-secondary text-light">
 								<div class="modal-header">
 									<h5 class="modal-title" id="editBioModalLabel">Edit Bio</h5>
-									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"
+										aria-label="Close"></button>
 								</div>
 								<div class="modal-body">
 									<textarea class="form-control" id="editBio" name="editBio" rows="3"
 										th:text="${user.bio}"></textarea>
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-									<button type="button" class="btn btn-primary" onclick="updateProfile('bio')">Save changes</button>
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary" onclick="updateProfile('bio')">Save
+										changes</button>
 								</div>
 							</div>
 						</div>
 					</div>
-					
-					
+
+
 				</div>
 
 				<div class="container tab-pane fade" id="nav-follower" role="tabpanel"
 					aria-labelledby="nav-follower-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followers </h2>
 					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
-				    	<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
+						<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
 					<div th:each="blogger : ${followersList}" class="container m-5 mx-auto" style="max-width:800px;">
 						<div class="author-box mb-5"
-							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"
-						>
+							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-								 alt="Author Profile Picture" class="author-image">
+									alt="Author Profile Picture" class="author-image">
 							</div>
 							<div class="author-details">
 								<h3 class="author-name" th:text="${blogger.name}"></h3>
@@ -320,15 +336,14 @@
 					aria-labelledby="nav-following-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followings </h2>
 					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
-				    	<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
+						<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
 					<div th:each="blogger : ${followingsList}" class="container m-5 mx-auto" style="max-width:800px;">
 						<div class="author-box mb-5"
-							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"
-						>
+							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-								 alt="Author Profile Picture" class="author-image">
+									alt="Author Profile Picture" class="author-image">
 							</div>
 							<div class="author-details">
 								<h3 class="author-name" th:text="${blogger.name}"></h3>

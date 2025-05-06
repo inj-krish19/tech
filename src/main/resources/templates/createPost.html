@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -20,37 +20,34 @@
             /* Dark background for the body */
             height: auto;
         }
-
-        		        
     </style>
 </head>
 
 <body>
-
-	<style th:each="color, iterStat : ${colors}">
-        .color-[[${iterStat.index}]] {
-            background-color: white;
-            border : 1px solid [[${color}]];
-            color : [[${color}]];
-        }
-        .color-[[${iterStat.index}]]:hover {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-        
-        .color-[[${iterStat.index}]]:click {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-        
-        .color-[[${iterStat.index}]]-clicked {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-    </style>
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color: white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+</style>
 
     <div th:replace="~{header :: nav}"></div>
     <div class="container mt-5">
@@ -58,14 +55,14 @@
             <div class="col-lg-8 col-md-10">
                 <div class="card shadow-lg border-light">
                     <div class="card-body p-4" style="background: grey;" id="cardContent">
-                        
+
                         <h2 class="text-center">Create Post</h2>
                         <form th:action="@{/review}" method="post" enctype="multipart/form-data">
-                            
+
                             <div th:if="${param.error}" class="alert alert-danger" role="alert">
-		                        <span>Content Can't Be Empty</span>
-		                    </div>
-                            
+                                <span>Content Can't Be Empty</span>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="category" class="form-label">Category</label>
                                 <select class="form-select" id="category" name="category" required>
@@ -88,7 +85,8 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="image" class="form-label">Choose a Media ( Images and PDF Supported) </label>
+                                <label for="image" class="form-label">Choose a Media ( Images and PDF Supported)
+                                </label>
                                 <input type="file" class="form-control" id="image" name="image" accept="image/*">
                             </div>
 
@@ -102,40 +100,42 @@
                                 <label class="form-check-label" for="private">Private</label>
                             </div !-->
 
-							<input type="hidden" id="selectedKeywords" name="selectedKeywords" value="">
+                            <input type="hidden" id="selectedKeywords" name="selectedKeywords" value="">
 
-							<div class="d-flex mb-3">
-							    <label class="form-label">Selected Keywords</label>
-							</div>
-							<div class="card d-flex" id="selected" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-							    <!-- Selected keywords will appear here -->
-							</div>
-							
-							<div class="d-flex mb-3">
-							    <label class="form-label">Remaining Keywords</label>
-							</div>
-							<div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-							    <th:block th:each="keyword, iterStat : ${keywords}">
-							        <button th:class="'tag color-' + ${iterStat.index}" 
-							                th:attr="data-keyword=${keyword}" 
-							                class="tag" 
-							                th:text="${keyword}" 
-							                onclick="selectKeyword(this, event)">
-							        </button>
-							    </th:block>
-							</div>
-							
-                            <button type="submit" class="btn btn-primary w-100" onclick="hideForm(this)">Generate Preview</button>
+                            <div class="d-flex mb-3">
+                                <label class="form-label">Selected Keywords</label>
+                            </div>
+                            <div class="card d-flex" id="selected"
+                                style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+                                <!-- Selected keywords will appear here -->
+                            </div>
+
+                            <div class="d-flex mb-3">
+                                <label class="form-label">Remaining Keywords</label>
+                            </div>
+                            <div class="mycard d-flex" id="remaining"
+                                style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+                                <th:block th:each="keyword, iterStat : ${keywords}">
+                                    <button th:class="'tag color-' + ${iterStat.index}"
+                                        th:attr="data-keyword=${keyword}" class="tag" th:text="${keyword}"
+                                        onclick="selectKeyword(this, event)">
+                                    </button>
+                                </th:block>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" onclick="hideForm(this)">Generate
+                                Preview</button>
                         </form>
                     </div>
-                    <div class="justify-content-center mt-5 mb-5 "  style="display :none; font-size : 1.75rem;" id="loader" >
-		               <div class="alert alert-success text-center" role="alert">
-		                    <span>Generating Preview ...</span>
-				           <div class="spinner-border text-success"role="status">
-							  <span class="sr-only">Loading...</span>
-							</div>
-						</div>
-					</div>
+                    <div class="justify-content-center mt-5 mb-5 " style="display :none; font-size : 1.75rem;"
+                        id="loader">
+                        <div class="alert alert-success text-center" role="alert">
+                            <span>Generating Preview ...</span>
+                            <div class="spinner-border text-success" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -152,101 +152,101 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    
-    function hideForm(){
-		
-		const cardContent = document.getElementById("cardContent");
-		const loader = document.getElementById("loader");
-		
-		cardContent.style.display = "none";
-		loader.style.display = "show";
-		loader.style.background ="grey;"
-		loader.classList.add("d-flex");
-		
-	}
-    
-    const selected = document.getElementById("selected");
-    const remaining = document.getElementById("remaining");
-    const selectedKeywordsField = document.getElementById("selectedKeywords");
 
-    function selectKeyword(button, event) {
-        event.preventDefault(); // Prevent form submission
+        function hideForm() {
 
-        const keyword = button.getAttribute('data-keyword');
-        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+            const cardContent = document.getElementById("cardContent");
+            const loader = document.getElementById("loader");
 
-        if (!selectedKeywords.includes(keyword)) {
-        	
-        	const classList = Array.from(button.classList);
+            cardContent.style.display = "none";
+            loader.style.display = "show";
+            loader.style.background = "grey;"
+            loader.classList.add("d-flex");
 
-        	for (let i = 0; i < classList.length; i++) {
-        	    const splitClass = classList[i].split("-");
-        	    if (splitClass.length > 1) {
-        	        selectedKeywords.push(keyword + "-" + splitClass[1]);
-        	        break;
-        	    }
-        	}
-        	
-            button.innerHTML = `${keyword} <span onclick="removeKeyword(this.parentNode, event); event.stopPropagation();">❌</span>`;
-            button.classList.toggle('liked');
-            button.setAttribute('onclick', 'removeKeyword(this, event)');
-            selected.appendChild(button);
         }
-        toggleClass(button)
 
-        selectedKeywordsField.value = selectedKeywords.join(',');
-        console.log('Selected Keywords:', selectedKeywords);
-    }
+        const selected = document.getElementById("selected");
+        const remaining = document.getElementById("remaining");
+        const selectedKeywordsField = document.getElementById("selectedKeywords");
 
-    function removeKeyword(button, event) {
-        event.preventDefault(); // Prevent form submission
-        event.stopPropagation(); // Prevent triggering selectKeyword
+        function selectKeyword(button, event) {
+            event.preventDefault(); // Prevent form submission
 
-        const keyword = button.getAttribute('data-keyword');
-        let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+            const keyword = button.getAttribute('data-keyword');
+            let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
 
-        console.log( "Keyword : " + keyword );
-        
-        selectedKeywords = selectedKeywords.filter(k => !k.startsWith(keyword));
-        button.innerHTML = keyword;
-        button.setAttribute('onclick', 'selectKeyword(this, event)');
+            if (!selectedKeywords.includes(keyword)) {
 
-        // Insert button at the correct position in "remaining" to preserve order
-        const allRemainingButtons = Array.from(remaining.children);
-        let inserted = false;
-        for (let i = 0; i < allRemainingButtons.length; i++) {
-            if (keyword.localeCompare(allRemainingButtons[i].getAttribute('data-keyword')) < 0) {
-                remaining.insertBefore(button, allRemainingButtons[i]);
-                inserted = true;
-                break;
+                const classList = Array.from(button.classList);
+
+                for (let i = 0; i < classList.length; i++) {
+                    const splitClass = classList[i].split("-");
+                    if (splitClass.length > 1) {
+                        selectedKeywords.push(keyword + "-" + splitClass[1]);
+                        break;
+                    }
+                }
+
+                button.innerHTML = `${keyword} <span onclick="removeKeyword(this.parentNode, event); event.stopPropagation();">❌</span>`;
+                button.classList.toggle('liked');
+                button.setAttribute('onclick', 'removeKeyword(this, event)');
+                selected.appendChild(button);
             }
-        }
-        if (!inserted) {
-            remaining.appendChild(button);
+            toggleClass(button)
+
+            selectedKeywordsField.value = selectedKeywords.join(',');
+            console.log('Selected Keywords:', selectedKeywords);
         }
 
-        toggleClass(button)
-        selectedKeywordsField.value = selectedKeywords.join(',');
-        console.log('Remaining Keywords:', selectedKeywords);
-    }
+        function removeKeyword(button, event) {
+            event.preventDefault(); // Prevent form submission
+            event.stopPropagation(); // Prevent triggering selectKeyword
 
-	function toggleClass(button){
-		const classList = Array.from(button.classList);
-		console.log(classList);
-	    classList.forEach(cls => {
-	    	if(cls.endsWith('-clicked')){
-	            button.classList.toggle(cls);
-	            button.classList.toggle(cls.substring(0, cls.length - 8));
-	            return;
-	        }
-	        if (cls.startsWith("color-")) {
-	            button.classList.toggle(cls);
-	            button.classList.toggle(cls + "-clicked");
-	            return;
-	        }
-	    });
-	}
-    	
+            const keyword = button.getAttribute('data-keyword');
+            let selectedKeywords = selectedKeywordsField.value ? selectedKeywordsField.value.split(',') : [];
+
+            console.log("Keyword : " + keyword);
+
+            selectedKeywords = selectedKeywords.filter(k => !k.startsWith(keyword));
+            button.innerHTML = keyword;
+            button.setAttribute('onclick', 'selectKeyword(this, event)');
+
+            // Insert button at the correct position in "remaining" to preserve order
+            const allRemainingButtons = Array.from(remaining.children);
+            let inserted = false;
+            for (let i = 0; i < allRemainingButtons.length; i++) {
+                if (keyword.localeCompare(allRemainingButtons[i].getAttribute('data-keyword')) < 0) {
+                    remaining.insertBefore(button, allRemainingButtons[i]);
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted) {
+                remaining.appendChild(button);
+            }
+
+            toggleClass(button)
+            selectedKeywordsField.value = selectedKeywords.join(',');
+            console.log('Remaining Keywords:', selectedKeywords);
+        }
+
+        function toggleClass(button) {
+            const classList = Array.from(button.classList);
+            console.log(classList);
+            classList.forEach(cls => {
+                if (cls.endsWith('-clicked')) {
+                    button.classList.toggle(cls);
+                    button.classList.toggle(cls.substring(0, cls.length - 8));
+                    return;
+                }
+                if (cls.startsWith("color-")) {
+                    button.classList.toggle(cls);
+                    button.classList.toggle(cls + "-clicked");
+                    return;
+                }
+            });
+        }
+
 
         // Quill Editor Initialization
         document.addEventListener('DOMContentLoaded', function () {
@@ -268,16 +268,16 @@
             });
 
             const form = document.querySelector('form');
-            form.onsubmit = function ( event ) {
-            	const rawContent = quill.getText().trim(); // Extract text without HTML tags
+            form.onsubmit = function (event) {
+                const rawContent = quill.getText().trim(); // Extract text without HTML tags
                 const bodyInput = document.querySelector('#body-input');
 
                 // Set cleaned content
                 bodyInput.value = rawContent;
-                
-                if( !rawContent || rawContent === "" ){
-                	event.preventDefault();
-                	window.location.href = "/create_post?error=true";
+
+                if (!rawContent || rawContent === "") {
+                    event.preventDefault();
+                    window.location.href = "/create_post?error=true";
                 }
             };
         });

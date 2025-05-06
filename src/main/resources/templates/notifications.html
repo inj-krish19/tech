@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<title>Error</title>
@@ -11,22 +11,21 @@
 
 </head>
 
-<body style="background:#343a40">
+<body>
 
 	<div th:replace="~{header :: nav}"></div>
 
 	<div class="container mt-5">
-		
+
 		<div class="posts-list" id="post-container">
-			<div th:if="${#lists.isEmpty(notifications)}" 
-			class="alert alert-dark text-center">
-		    	<h2 th:text="${news != null ? news : 'No Activity Spotted'}"></h2>
+			<div th:if="${#lists.isEmpty(notifications)}" class="alert alert-dark text-center">
+				<h2 th:text="${news != null ? news : 'No Activity Spotted'}"></h2>
 			</div>
 			<div th:each="{notification : ${notifications}}" class="container">
 				<div class="author-box">
 					<div class="author-profile">
 						<img th:src="${notification.image != null && notification.image != '' ? notification.image : '/images/logo.jpg'}"
-						 alt="Author Profile Picture" class="author-image">
+							alt="Author Profile Picture" class="author-image">
 					</div>
 					<div class="author-details">
 						<h3 class="author-name" th:text="${notification.name}"></h3>

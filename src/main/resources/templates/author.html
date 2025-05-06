@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
@@ -21,7 +21,7 @@
 		width: 100%;
 	}
 </style>
-   	
+
 <style th:each="color, iterStat : ${colors}">
 	.color-[[${iterStat.index}]] {
 	    background-color: white;
@@ -52,90 +52,93 @@
 	<div class="container mt-5">
 
 		<div class="container p-5" id="blogger-container">
-		    <div class="row mb-4" th:each="blogger : ${bloggers}">
-		        <div class="col-md-12">
-		            <div class="card mb-3">
-		                <div class="row g-0 align-items-center p-2">
-		                    <!-- Blogger Image -->
-		                    <div class="col-md-4 text-center">
-		                        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-		                            class="img-fluid rounded-circle p-1" style="height: 250px; width: 250px;" alt="Blogger Image">
-		                    </div>
-		
-		                    <!-- Blogger Info -->
-		                    <div class="col-md-4">
-		                        <div class="card-body">
-		                            <h3 class="card-title text-dark" th:text="${blogger.name}"></h3>
-		                            <h4 class="text-secondary">
-		                                <strong th:text="'@' + ${blogger.username}"></strong>
-		                            </h4>
-		                            <h5>
-			                            <strong class="text-success" th:text="'Joined at ' + ${blogger.createdat}"></strong>
-			                        </h5>
-		                            <h5 class="text-muted">
-		                                <small th:text="${blogger.bio}"></small>
-		                            </h5>
-		                            <div class="d-flex justify-content-center gap-2">
-			                            <button class="btn btn-info">
-			                                <i class="bi bi-person-plus-fill"></i>
-			                            </button>
-			                            <button class="btn btn-info">
-			                                <i class="bi bi-linkedin"></i>
-			                            </button>
-			                        </div>
-		                        </div>
-		                    </div>
-		
-		                    <!-- Blogger Stats and Actions -->
-		                    <div class="col-md-4">
-		                    	<div class="card-body">
-		                            <p class="text-secondary mb-1">
-		                                <strong th:text="${blogger.posts} + ' Posts'"></strong> till now
-		                            </p>
-			                        <p class="text-primary mb-1">
-		                                <strong th:text="${blogger.likes} + ' Likes'"></strong> received on Posts
-		                            </p>
-			                        <p class="text-warning">
-			                            <strong th:text="${blogger.comments} + ' Comments'"></strong> Received
-			                        </p>
-		                            <p class="text-info mb-1">
-		                                <strong th:text="'Followers: ' + ${blogger.followers}"></strong>
-		                            </p>
-		                            <p class="text-info mb-1">
-		                                <strong th:text="'Followings: ' + ${blogger.followings}"></strong>
-		                            </p>
-			                    </div>
-		                    </div>
-		                </div>
-		            </div>
-		        </div>
-		    </div>
+			<div class="row mb-4" th:each="blogger : ${bloggers}">
+				<div class="col-md-12">
+					<div class="card mb-3">
+						<div class="row g-0 align-items-center p-2">
+							<!-- Blogger Image -->
+							<div class="col-md-4 text-center">
+								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
+									class="img-fluid rounded-circle p-1" style="height: 250px; width: 250px;"
+									alt="Blogger Image">
+							</div>
+
+							<!-- Blogger Info -->
+							<div class="col-md-4">
+								<div class="card-body">
+									<h3 class="card-title text-dark" th:text="${blogger.name}"></h3>
+									<h4 class="text-secondary">
+										<strong th:text="'@' + ${blogger.username}"></strong>
+									</h4>
+									<h5>
+										<strong class="text-success"
+											th:text="'Joined at ' + ${blogger.createdat}"></strong>
+									</h5>
+									<h5 class="text-muted">
+										<small th:text="${blogger.bio}"></small>
+									</h5>
+									<div class="d-flex justify-content-center gap-2">
+										<button class="btn btn-info">
+											<i class="bi bi-person-plus-fill"></i>
+										</button>
+										<button class="btn btn-info">
+											<i class="bi bi-linkedin"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+
+							<!-- Blogger Stats and Actions -->
+							<div class="col-md-4">
+								<div class="card-body">
+									<p class="text-secondary mb-1">
+										<strong th:text="${blogger.posts} + ' Posts'"></strong> till now
+									</p>
+									<p class="text-primary mb-1">
+										<strong th:text="${blogger.likes} + ' Likes'"></strong> received on Posts
+									</p>
+									<p class="text-warning">
+										<strong th:text="${blogger.comments} + ' Comments'"></strong> Received
+									</p>
+									<p class="text-info mb-1">
+										<strong th:text="'Followers: ' + ${blogger.followers}"></strong>
+									</p>
+									<p class="text-info mb-1">
+										<strong th:text="'Followings: ' + ${blogger.followings}"></strong>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-		
+
 
 		<div class="container p-2" style=" border: 2px solid #495057; border-radius: 5px;">
 			<nav class="nav nav-pills nav-justified ">
-				<a class="nav-link nav-item active special " id="nav-posts-tab" data-bs-toggle="tab" href="#nav-posts" role="tab"
-				  aria-controls="nav-posts" aria-selected="false">
-				  <i class="bi bi-person-square"></i> 
-				  <span>Posts</span>
+				<a class="nav-link nav-item active special " id="nav-posts-tab" data-bs-toggle="tab" href="#nav-posts"
+					role="tab" aria-controls="nav-posts" aria-selected="false">
+					<i class="bi bi-person-square"></i>
+					<span>Posts</span>
 				</a>
-				  <a class="nav-link nav-item special " id="nav-follower-tab" data-bs-toggle="tab" href="#nav-follower" role="tab"
-				    aria-controls="nav-follower" aria-selected="false">
-				    <i class="bi bi-people-fill"></i> 
+				<a class="nav-link nav-item special " id="nav-follower-tab" data-bs-toggle="tab" href="#nav-follower"
+					role="tab" aria-controls="nav-follower" aria-selected="false">
+					<i class="bi bi-people-fill"></i>
 					<span>Followers</span>
-				  </a>
-				  <a class="nav-link nav-item special " id="nav-following-tab" data-bs-toggle="tab" href="#nav-following" role="tab"
-				    aria-controls="nav-following" aria-selected="false">
-				    <i class="bi bi-person-fill-check"></i> 
+				</a>
+				<a class="nav-link nav-item special " id="nav-following-tab" data-bs-toggle="tab" href="#nav-following"
+					role="tab" aria-controls="nav-following" aria-selected="false">
+					<i class="bi bi-person-fill-check"></i>
 					<span>Followings</span>
-				  </a>
+				</a>
 			</nav>
 			<hr class="mb-5">
 
 			<div class="tab-content" id="nav-tabContent">
-				
-				<div class="container tab-pane fade active show" id="nav-posts" role="tabpanel" aria-labelledby="nav-posts-tab">
+
+				<div class="container tab-pane fade active show" id="nav-posts" role="tabpanel"
+					aria-labelledby="nav-posts-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">My Posts </h2>
 					<div th:replace="~{post :: div}"></div>
 				</div>
@@ -144,15 +147,14 @@
 					aria-labelledby="nav-follower-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followers </h2>
 					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
-				    	<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
+						<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
 					<div th:each="blogger : ${followersList}" class="container m-5 mx-auto" style="max-width:800px;">
 						<div class="author-box mb-5"
-							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"
-						>
+							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-								 alt="Author Profile Picture" class="author-image">
+									alt="Author Profile Picture" class="author-image">
 							</div>
 							<div class="author-details">
 								<h3 class="author-name" th:text="${blogger.name}"></h3>
@@ -167,15 +169,14 @@
 					aria-labelledby="nav-following-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followings </h2>
 					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
-				    	<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
+						<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
 					<div th:each="blogger : ${followingsList}" class="container m-5 mx-auto" style="max-width:800px;">
 						<div class="author-box mb-5"
-							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"
-						>
+							th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
 							<div class="author-profile">
 								<img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-								 alt="Author Profile Picture" class="author-image">
+									alt="Author Profile Picture" class="author-image">
 							</div>
 							<div class="author-details">
 								<h3 class="author-name" th:text="${blogger.name}"></h3>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -85,11 +85,11 @@
                         <a href="/login" class="text-light">Already have an account? Login</a>
                     </div>
                 </div>
-                <div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
-	                <div class="spinner-border text-success"role="status">
-					  <span class="sr-only">Loading...</span>
-					</div>
-				</div>
+                <div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
+                    <div class="spinner-border text-success" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -99,26 +99,26 @@
     <script src="/js/scripts.js"></script>
     <script>
 
-	    let queryParameters = window.location.search.substring(1);
-	
-	    const queries = queryParameters.split("&")
-	
-	    for( let query of queries ){
-	    	const [key, value] = query.split("=");
-	    	if( key === "success" && value === "true" ){
-	    		const loader = document.getElementById("loader");
-	    		const signup = document.getElementById("signup");
-	    		signup.style.display = "none";
-	    		loader.style.display = "show";
-				loader.classList.add("d-flex");
-	    		setTimeout( 
-	    			() => {
-	    				window.location.href = "/secret";
-	    			} , 3000
-	    		);
-	    		break;
-	    	}
-	    }
+        let queryParameters = window.location.search.substring(1);
+
+        const queries = queryParameters.split("&")
+
+        for (let query of queries) {
+            const [key, value] = query.split("=");
+            if (key === "success" && value === "true") {
+                const loader = document.getElementById("loader");
+                const signup = document.getElementById("signup");
+                signup.style.display = "none";
+                loader.style.display = "show";
+                loader.classList.add("d-flex");
+                setTimeout(
+                    () => {
+                        window.location.href = "/secret";
+                    }, 3000
+                );
+                break;
+            }
+        }
 
 
         /* const togglePassword = document.getElementById('togglePassword');
