@@ -186,12 +186,15 @@
 		<h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
 	</div>
 
-	<div th:each="post : ${posts}" class="post mb-1" style="min-width: 300px; ">
-		<div class="post-card p-2">
-			<div class="post-content">
+	<div th:each="post : ${posts}" class="post mb-1" style="min-width: 300px; background-color: var(--border-color);">
+		<div class="post-card p-2" 
+			style="background-color: var(--bg-card); border: 1px solid var(--border-color); padding: 15px; border-radius: 10px;">
+		  <div class="post-content" style="background-color: var(--bg-container); border-radius: 10px; padding: 10px;">
 				<div class="container ">
 
-					<div class="author-box">
+					<div class="author-box" 
+					style="background-color: var(--bg-container); border: 1px solid var(--border-color); border-radius: 10px; padding: 10px;"
+					th:attr="onclick=${post.author != null} ? 'redirectToBlogger(' + ${post.author} + ')' : null">
 						<div class="author-profile">
 							<img th:src="${post.image != null && post.image != '' ? post.image : '/images/logo.jpg'}"
 								alt="Author Profile Picture" class="author-image">
@@ -202,13 +205,22 @@
 							<p class="author-bio" th:text="${post.bio}"></p>
 						</div>
 					</div>
-					<div class="post-header d-flex align-items-center">
+					<!--div class="post-header d-flex align-items-center">
 						<h2 class="post-title mb-0" th:text="${post.title}"></h2>
 						<div class="post-category">
 							<span class="badge bg-secondary" th:text="${post.category}"></span>
 						</div>
+					</div -->
+					<div class="post-header d-flex align-items-center" style="justify-content: space-between; margin-bottom: 10px;">
+					    <h2 class="post-title mb-0" th:text="${post.title}" 
+					        style="font-size: 1.8rem; font-weight: 700; color: var(--text-color);">
+					    </h2>
+					    <div class="post-category">
+					      <span class="badge bg-secondary" th:text="${post.category}" 
+					            style="font-size: 0.9rem;">
+					      </span>
+					    </div>
 					</div>
-
 
 					<div class="row flex-col d-flex my-1">
 						<img th:if="${post.media != null and post.media != ''}" 
@@ -216,13 +228,12 @@
 						     alt="Post Image"
 						     th:class="${post.description.length() < 1000 ? 'col-6' : (post.description.length() <= 2500 ? 'col-12' : 'col-12')}" />
 
-						<!-- Post Content -->
+						<!-- Post Content 
 						<div th:class="${(post.media == null or post.media == '') ? 'post-content col-12 text-center' : (post.description.length() < 1000 ? 'post-content col-6 text-center' : 'post-content col-12 text-center')}" 
 						     style="overflow-wrap:anywhere;">
 							 <p class="post-description" th:if="${post.description.length() <= 1000}"
 								th:utext="${post.description}" style="text-align: left; overflow: hidden;"></p>
 	
-							<!-- Show truncated description if more than 1000 characters -->
 							<p class="post-description" th:if="${post.description.length() > 1000}"
 								style="text-align: left; overflow: hidden;">
 								<span th:utext="${post.description.substring(0, 1000)}"></span>
@@ -231,11 +242,34 @@
 								<button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read
 									more...</button>
 							</p>
-						</div>
+						</div -->
+						<div th:class="${(post.media == null or post.media == '') ? 'post-content col-12 text-center' : (post.description.length() < 1000 ? 'post-content col-6 text-center' : 'post-content col-12 text-center')}" 
+						       style="overflow-wrap:anywhere; color: var(--text-color);">
+						       
+						    <p class="post-description" th:if="${post.description.length() <= 1000}"
+						       th:utext="${post.description}" 
+						       style="text-align: left; overflow: hidden; font-size: 1rem;">
+						    </p>
+
+						    <p class="post-description" th:if="${post.description.length() > 1000}"
+						       style="text-align: left; overflow: hidden; font-size: 1rem;">
+						      <span th:utext="${post.description.substring(0, 1000)}"></span>
+						      <span class="more-text" style="display: none;"
+						            th:utext="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
+						      <button class="toggle-button" 
+						              style="width:auto; background: var(--accent-color); color: var(--button-text); border: none; padding: 5px 10px; border-radius: 5px;" 
+						              onclick="toggleReadMore(this)">
+						        Read more...
+						      </button>
+						    </p>
+
+						  </div>
+					</div>	
+
 					</div>
 				</div>
 				<div class="post-actions d-flex border-top pt-3"
-					style="margin-top :0; gap: 5px; justify-content: center;">
+					style="margin-top:0; gap: 5px; justify-content: center; border-color: var(--border-color);">
 					<button class="articleid" th:text="${post.articleid}" style="display : none; "></button>
 					<button
 						th:class="'like oper btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })"
@@ -302,9 +336,9 @@
 					</div>
 				</div>
 				<div class="mycard d-flex" id="remaining"
-					style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+					style="flex-direction: row; flex-wrap: wrap; min-height: 50px; background-color: var(--bg-container); border: 1px solid var(--border-color); border-radius: 5px; padding: 10px;">
 					<div th:if="${#lists.isEmpty(post.keywords)}">
-						<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>
+						<h2 style="display: inline; color: var(--secondary-text);">Keywords Not Selected</h2>
 					</div>
 					<div th:if="${!#lists.isEmpty(post.keywords)}">
 						<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
@@ -313,7 +347,8 @@
 						<button th:class="'tag color-' + ${iterStat.index} + '-clicked'"
 							th:attr="data-keyword=${keyword}"
 							th:attrappend="data-url='/mass-filter/keyword/' + ${keyword}" class="tag"
-							th:text="${keyword}">
+							th:text="${keyword}"
+							style="background-color: var(--button-bg); color: var(--button-text); border: none; border-radius: 5px; padding: 5px 10px;">
 						</button>
 					</th:block>
 				</div>
