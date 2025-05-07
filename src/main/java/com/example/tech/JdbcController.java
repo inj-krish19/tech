@@ -265,8 +265,8 @@ public class JdbcController {
                 }
                 
                 post.put("postComments", comment);
-                
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -461,6 +461,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -814,6 +815,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -1203,6 +1205,7 @@ public class JdbcController {
                 post.put("postComments", comment);
 	    	            
 	    	            post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	    	            post.put("title", rs.getString("title"));
 	    	            post.put("disable",false);
 	    	            post.put("description", rs.getString("description"));
@@ -1409,6 +1412,7 @@ public class JdbcController {
                 post.put("postComments", comment);
 	            
 	            post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	            post.put("title", rs.getString("title"));
 	            post.put("disable",false);
 	            post.put("description", rs.getString("description"));
@@ -1617,6 +1621,7 @@ public class JdbcController {
                 post.put("postComments", comment);
          
          post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
          post.put("title", rs.getString("title"));
          post.put("disable",false);
          post.put("description", rs.getString("description"));
@@ -1812,6 +1817,7 @@ public class JdbcController {
                 post.put("postComments", comment);
             
             post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
             post.put("title", rs.getString("title"));
             post.put("disable",false);
             post.put("description", rs.getString("description"));
@@ -2233,6 +2239,7 @@ public class JdbcController {
                 
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -2426,6 +2433,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
 	         post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	         post.put("title", rs.getString("title"));
 	         post.put("disable",false);
 	         post.put("description", rs.getString("description"));
@@ -2580,6 +2588,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
 	         post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	         post.put("title", rs.getString("title"));
 	         post.put("disable",false);
 	         post.put("description", rs.getString("description"));
@@ -2742,6 +2751,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
 	            post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	            post.put("title", rs.getString("title"));
 	            post.put("disable",false);
 	            post.put("description", rs.getString("description"));
@@ -3172,6 +3182,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
             post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
             post.put("title", rs.getString("title"));
             post.put("disable",false);
             post.put("description", rs.getString("description"));
@@ -3273,6 +3284,7 @@ public class JdbcController {
             Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
+            tempPost.put("author", null);
             tempPost.put("title", post.get("title") );
             
             String content = post.get("content") != null ? post.get("content").toString() : "";
@@ -3454,6 +3466,7 @@ public class JdbcController {
             Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
+            tempPost.put("author", null);
             tempPost.put("title", post.get("title") );
             
             String content = post.get("content") != null ? post.get("content").toString() : "";
@@ -3587,6 +3600,7 @@ public class JdbcController {
             Long articleId = 0l;
 
             tempPost.put("articleid", articleId);
+            tempPost.put("author", null);
             tempPost.put("title", post.get("title") );
             
             String content = post.get("content") != null ? post.get("content").toString() : "";
@@ -4581,6 +4595,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
 	             post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	             post.put("title", rs.getString("title"));
 	             post.put("disable",false);
 	             post.put("description", rs.getString("description"));
@@ -4746,6 +4761,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -5139,6 +5155,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
 	             post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
 	             post.put("title", rs.getString("title"));
 	             post.put("disable",false);
 	             post.put("description", rs.getString("description"));
@@ -5314,6 +5331,7 @@ public class JdbcController {
                 post.put("postComments", comment);
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
@@ -5982,6 +6000,7 @@ public class JdbcController {
                 
                 
                 post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
                 post.put("title", rs.getString("title"));
                 post.put("disable",false);
                 post.put("description", rs.getString("description"));
