@@ -31,6 +31,10 @@ function setMode(mode) {
     }
 }
 
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
 function toggleReadMore(button) {
     const parent = button.closest('.post-description');
     const moreText = parent.querySelector('.more-text');
