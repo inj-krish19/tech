@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
@@ -12,38 +12,51 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-<body style="background:#343a40">
+<style th:each="color, iterStat : ${colors}">
+	.color--[[${iterStat.index}]]:hover {
+	    color : [[${color}]];
+	    font-weight: 900;
+	}
+	.color--[[${iterStat.index}]] {
+		font-weight: 600;
+		transition : 0.3s;
+		color : #5c5b5b;
+	}
+</style>
+   
+   	
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color: white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+</style>
 
-	<style th:each="color, iterStat : ${colors}">
-        .color-[[${iterStat.index}]] {
-            background-color: white;
-            border : 1px solid [[${color}]];
-            color : [[${color}]];
-        }
-        .color-[[${iterStat.index}]]:hover {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-        
-        .color-[[${iterStat.index}]]:click {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-        
-        .color-[[${iterStat.index}]]-clicked {
-            background-color : [[${color}]];
-            color: white;
-            border: 1px solid [[${color}]];
-        }
-    </style>
+<body>
 
 	<div th:replace="~{header :: nav}"></div>
 	<div class="container mt-4">
-        <h1 class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
-        <div th:replace="~{post :: div}"></div>
-    </div>
+		<h1 class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
+		<div th:replace="~{post :: div}"></div>
+	</div>
 	<div th:replace="~{footer :: div}"></div>
 
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
@@ -12,7 +12,6 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 </head>
-
 <style th:each="color, iterStat : ${colors}">
 	.color--[[${iterStat.index}]]:hover {
 	    color : [[${color}]];
@@ -50,8 +49,7 @@
 	    border: 1px solid [[${color}]];
 	}
 </style>
-
-<body style="background:#343a40">
+<body>
 
 	<div th:replace="~{header :: nav}"></div>
 	<div class="container mt-5">

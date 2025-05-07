@@ -1,168 +1,181 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-  <title th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entity'}"></title>
+	<title th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entity'}"></title>
 
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="/css/style.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 
 </head>
 
 <style>
-
-	.card{
-		border : 0;
-		background : #ced4da;
+	.card {
+		border: 0;
+		background: #ced4da;
 	}
-
 </style>
 
 <style th:each="color, iterStat : ${colors}">
-    .color-[[${iterStat.index}]] {
-        background-color: white;
-        border : 1px solid [[${color}]];
-        color : [[${color}]];
-    }
-    .color-[[${iterStat.index}]]:hover {
-        background-color : [[${color}]];
-        color: white;
-        border: 1px solid [[${color}]];
-    }
-    
-    .color-[[${iterStat.index}]]:click {
-        background-color : [[${color}]];
-        color: white;
-        border: 1px solid [[${color}]];
-    }
-    
-    .color-[[${iterStat.index}]]-clicked {
-        background-color : [[${color}]];
-        color: white;
-        border: 1px solid [[${color}]];
-    }
+	.color--[[${iterStat.index}]]:hover {
+	    color : [[${color}]];
+	    font-weight: 900;
+	}
+	.color--[[${iterStat.index}]] {
+		font-weight: 600;
+		transition : 0.3s;
+		color : #5c5b5b;
+	}
+</style>
+   
+   	
+<style th:each="color, iterStat : ${colors}">
+	.color-[[${iterStat.index}]] {
+	    background-color: white;
+	    border : 1px solid [[${color}]];
+	    color : [[${color}]];
+	}
+	.color-[[${iterStat.index}]]:hover {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]:click {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
+	
+	.color-[[${iterStat.index}]]-clicked {
+	    background-color : [[${color}]];
+	    color: white;
+	    border: 1px solid [[${color}]];
+	}
 </style>
 
-<body style="background:#343a40">
+<body>
 
-  <div th:replace="~{header :: nav}"></div>
+	<div th:replace="~{header :: nav}"></div>
 
-  <div class="container p-4">
+	<div class="container p-4">
 
 		<div class="alert alert-dark text-center mt-4 mb-4">
-	   		<h2 th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entities'}" ></h2>
+			<h2 th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entities'}"></h2>
 		</div>
-	
+
 
 		<div class="container mt-4 mb-4">
-		    <!-- Categories Section -->
-		    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-		        <h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
-		        <th:block th:each="category, iterStat : ${categories}">
-		            <button 
-		                th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
-		                th:attr="data-category=${category}, data-url='/entity/category/' + ${category}" 
-		                th:text="${category}" >
-		            </button>
-		        </th:block>
-		    </div>
-		</div>
-		
-		<div class="container mt-4 mb-4">
-		    <!-- Keywords Section -->
-		    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-		        <h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
-		        <th:block th:each="keyword, iterStat : ${keywords}">
-		            <button 
-		                th:class="'tag color-' + ${iterStat.index}" 
-		                th:attr="data-keyword=${keyword}, data-url='/entity/keyword/' + ${keyword}"  
-		                th:text="${keyword}" >
-		            </button>
-		        </th:block>
-		    </div>
-		</div>
-  	
-  	
-		<div class="container mt-4 mb-4"  id="entityBox"  th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
-		  	<div 
-		  		class="row d-flex align-items-center p-3"
-		  		style=" border-radius: 5px; background: dimgrey; "
-		  	>
-		  		<div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-			  		<div class="card" th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }" >
-			  			<img class="mr-3" th:src="'/uploads/' + ${entity.type == 'category' ? 'categories' : entity.type == 'keyword' ? 'keywords' : '' } + '/' +  ${entity.media}"
-			  				 style=" border-radius: 5px; "
-			  				 alt="Generic placeholder image">
-			  		</div>
-		  		</div>
-		  		
-		        <div class="col-lg-6 col-md-12">
-			  		<div class="card"  >
-				  		<div class="card-body">
-			            	<h2 class="text-light" th:text=" ${entity.title != null && entity.title != '' ? entity.title : ''} "></h2>
-			            	<h3 class="text-secondary" th:text=" ${entity.type != nulll && entity.type != '' ? #strings.toUpperCase( #strings.substring(entity.type, 0, 1) ) + #strings.toLowerCase( #strings.substring(entity.type, 1) ) : '' }">Category</h3>
-			            	<h4 class="text-dark" style=" font-family : 'bootstrap-icons'; " th:text=" ${entity.description != null && entity.description != '' ? entity.description : '' } "></h4>
-						</div>
-			  		</div>
-		  		</div>
-		  	</div>
-		</div>
-  	
-  		<div class="container mt-4" >
-			<div class="container" id="postsBox">
-		        <h1 th:if="${entity.title != null && entity.title != '' }" class="text-center mb-4" th:text="${entity.title} + ' Posts'"></h1>
-				<div th:if="${posts != null}" th:replace="~{post :: div}" ></div>
+			<!-- Categories Section -->
+			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+				<h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
+				<th:block th:each="category, iterStat : ${categories}">
+					<button th:class="'tag color-' + ${iterStat.index} + '-clicked'"
+						th:attr="data-category=${category}, data-url='/entity/category/' + ${category}"
+						th:text="${category}">
+					</button>
+				</th:block>
 			</div>
-			<div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
-	              <div class="spinner-border text-dark"role="status">
-				  <span class="sr-only">Loading...</span>
+		</div>
+
+		<div class="container mt-4 mb-4">
+			<!-- Keywords Section -->
+			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+				<h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
+				<th:block th:each="keyword, iterStat : ${keywords}">
+					<button th:class="'tag color-' + ${iterStat.index}"
+						th:attr="data-keyword=${keyword}, data-url='/entity/keyword/' + ${keyword}"
+						th:text="${keyword}">
+					</button>
+				</th:block>
+			</div>
+		</div>
+
+
+		<div class="container mt-4 mb-4" id="entityBox" th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
+			<div class="row d-flex align-items-center p-3" style=" border-radius: 5px; background: dimgrey; ">
+				<div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
+					<div class="card"
+						th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }">
+						<img class="mr-3"
+							th:src="'/uploads/' + ${entity.type == 'category' ? 'categories' : entity.type == 'keyword' ? 'keywords' : '' } + '/' +  ${entity.media}"
+							style=" border-radius: 5px; " alt="Generic placeholder image">
+					</div>
+				</div>
+
+				<div class="col-lg-6 col-md-12">
+					<div class="card">
+						<div class="card-body">
+							<h2 class="text-light"
+								th:text=" ${entity.title != null && entity.title != '' ? entity.title : ''} "></h2>
+							<h3 class="text-secondary"
+								th:text=" ${entity.type != nulll && entity.type != '' ? #strings.toUpperCase( #strings.substring(entity.type, 0, 1) ) + #strings.toLowerCase( #strings.substring(entity.type, 1) ) : '' }">
+								Category</h3>
+							<h4 class="text-dark" style=" font-family : 'bootstrap-icons'; "
+								th:text=" ${entity.description != null && entity.description != '' ? entity.description : '' } ">
+							</h4>
+						</div>
+					</div>
 				</div>
 			</div>
-	    </div>
-  	
-  </div>
+		</div>
+
+		<div class="container mt-4">
+			<div class="container" id="postsBox">
+				<h1 th:if="${entity.title != null && entity.title != '' }" class="text-center mb-4"
+					th:text="${entity.title} + ' Posts'"></h1>
+				<div th:if="${posts != null}" th:replace="~{post :: div}"></div>
+			</div>
+			<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
+				<div class="spinner-border text-dark" role="status">
+					<span class="sr-only">Loading...</span>
+				</div>
+			</div>
+		</div>
+
+	</div>
 
 
-  <div th:replace="~{footer :: div}"></div>
+	<div th:replace="~{footer :: div}"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/js/scripts.js"></script>
-  <script>
-	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="/js/scripts.js"></script>
+	<script>
+
 		const loader = document.getElementById("loader");
 		const posts = document.getElementById("postsBox");
 		const entity = document.getElementById("entityBox");
-		
-	    document.addEventListener("DOMContentLoaded", function() {
-	        document.querySelectorAll('.tag').forEach(button => {
-	            button.addEventListener('click', function() {
-	                const url = button.getAttribute('data-url');
-	                if (url) {
-	                	
-	                	posts.style.display = "none";
-	                	if( entity !== null ){
-	                		entity.style.display = "none";
-	                	}
-	                	loader.style.display = "show";
-	                	loader.classList.add("d-flex");
-	                	                	
-	                    window.location.href = url;
-	                }
-	            });
-	        });
-	    });
-	    
+
+		document.addEventListener("DOMContentLoaded", function () {
+			document.querySelectorAll('.tag').forEach(button => {
+				button.addEventListener('click', function () {
+					const url = button.getAttribute('data-url');
+					if (url) {
+
+						posts.style.display = "none";
+						if (entity !== null) {
+							entity.style.display = "none";
+						}
+						loader.style.display = "show";
+						loader.classList.add("d-flex");
+
+						window.location.href = url;
+					}
+				});
+			});
+		});
+
 	</script>
-  
+
 </body>
 
 </html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" style="background: #343a40;">
+<html xmlns:th="http://www.thymeleaf.org">
 
 <head>
 	<meta charset="UTF-8">
@@ -13,8 +13,21 @@
 
 </head>
 <style th:each="color, iterStat : ${colors}">
+	.color--[[${iterStat.index}]]:hover {
+	    color : [[${color}]];
+	    font-weight: 900;
+	}
+	.color--[[${iterStat.index}]] {
+		font-weight: 600;
+		transition : 0.3s;
+		color : #5c5b5b;
+	}
+</style>
+   
+   	
+<style th:each="color, iterStat : ${colors}">
 	.color-[[${iterStat.index}]] {
-	    background-color : white;
+	    background-color: white;
 	    border : 1px solid [[${color}]];
 	    color : [[${color}]];
 	}
@@ -37,73 +50,71 @@
 	}
 </style>
 
-<body style="background:#343a40">
+<body>
 
 	<div th:replace="~{header :: nav}"></div>
-	
+
 	<div class="container mt-4 mb-4">
-	    <!-- Categories Section -->
-	    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-	        <h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
-	        <th:block th:each="category, iterStat : ${categories}">
-	            <button 
-	                th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
-	                th:attr="data-category=${category}, data-url='/mass-filter/category/' + ${category}" 
-	                th:text="${category}" >
-	            </button>
-	        </th:block>
-	    </div>
-	</div>
-	
-	<div class="container mt-4 mb-4">
-	    <!-- Keywords Section -->
-	    <div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-	        <h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
-	        <th:block th:each="keyword, iterStat : ${keywords}">
-	            <button 
-	                th:class="'tag color-' + ${iterStat.index}" 
-	                th:attr="data-keyword=${keyword}, data-url='/mass-filter/keyword/' + ${keyword}"  
-	                th:text="${keyword}" >
-	            </button>
-	        </th:block>
-	    </div>
+		<!-- Categories Section -->
+		<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+			<h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
+			<th:block th:each="category, iterStat : ${categories}">
+				<button th:class="'tag color-' + ${iterStat.index} + '-clicked'"
+					th:attr="data-category=${category}, data-url='/mass-filter/category/' + ${category}"
+					th:text="${category}">
+				</button>
+			</th:block>
+		</div>
 	</div>
 
-	<div class="container mt-4" >
-		<div class="container" id="postsBox">
-	        <h1 th:if="${topic != null}" class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
-			<div th:if="${posts != null}" th:replace="~{post :: div}" ></div>
+	<div class="container mt-4 mb-4">
+		<!-- Keywords Section -->
+		<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
+			<h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
+			<th:block th:each="keyword, iterStat : ${keywords}">
+				<button th:class="'tag color-' + ${iterStat.index}"
+					th:attr="data-keyword=${keyword}, data-url='/mass-filter/keyword/' + ${keyword}"
+					th:text="${keyword}">
+				</button>
+			</th:block>
 		</div>
-		<div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
-              <div class="spinner-border text-dark"role="status">
-			  <span class="sr-only">Loading...</span>
+	</div>
+
+	<div class="container mt-4">
+		<div class="container" id="postsBox">
+			<h1 th:if="${topic != null}" class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
+			<div th:if="${posts != null}" th:replace="~{post :: div}"></div>
+		</div>
+		<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
+			<div class="spinner-border text-dark" role="status">
+				<span class="sr-only">Loading...</span>
 			</div>
 		</div>
-    </div>
+	</div>
 	<div th:replace="~{footer :: div}"></div>
 
 	<script>
-	
-	const loader = document.getElementById("loader");
-	const posts = document.getElementById("postsBox");
-	
-    document.addEventListener("DOMContentLoaded", function() {
-        document.querySelectorAll('.tag').forEach(button => {
-            button.addEventListener('click', function() {
-                const url = button.getAttribute('data-url');
-                if (url) {
-                	
-                	posts.style.display = "none";
-                	loader.style.display = "show";
-                	loader.classList.add("d-flex");
-                	                	
-                    window.location.href = url;
-                }
-            });
-        });
-    });
-</script>
-	
+
+		const loader = document.getElementById("loader");
+		const posts = document.getElementById("postsBox");
+
+		document.addEventListener("DOMContentLoaded", function () {
+			document.querySelectorAll('.tag').forEach(button => {
+				button.addEventListener('click', function () {
+					const url = button.getAttribute('data-url');
+					if (url) {
+
+						posts.style.display = "none";
+						loader.style.display = "show";
+						loader.classList.add("d-flex");
+
+						window.location.href = url;
+					}
+				});
+			});
+		});
+	</script>
+
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	<script src="/js/scripts.js"></script>
