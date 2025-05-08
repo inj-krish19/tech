@@ -3386,6 +3386,301 @@ public class JdbcController {
         return response;
     }
     
+    @GetMapping("/load-more-posts2")
+    public String loadMorePost2(@RequestParam("page") int page, HttpServletRequest request, Model model) {
+        int pageSize = 5; // Number of posts per page
+        int offset = (page - 1) * pageSize;
+
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
+        // SQL query to fetch posts with pagination
+        String postSql = """
+                SELECT p.articleid, 
+                       p.primaryAuthor AS author, 
+                       p.title, 
+                       p.description, 
+                       p.likes, 
+                       p.dislikes, 
+                       p.viewscount, 
+                       p.commentscount AS comments, 
+                       p.updatedat, 
+                       p.postmedia AS media,
+                    p.poststatus AS status,
+                       u.name AS name, 
+                       u.username AS username, 
+                       u.bio AS bio, 
+                       u.profilepicture AS image,
+                       c.name AS category
+                FROM Post p 
+                JOIN Blogger u ON p.primaryAuthor = u.authorid 
+                JOIN PostCategoryAssignment pca ON p.articleid = pca.articleid 
+                JOIN Category c ON pca.categoryid = c.categoryid
+                ORDER BY p.createdat DESC
+                LIMIT ? OFFSET ?
+            """;
+
+        List<Map<String, Object>> posts = jdbcTemplate.query(postSql, (rs, rowNum) -> {
+            Map<String, Object> post = new HashMap<>();
+            Long articleId = rs.getLong("articleid");
+                Long tempAuthorId = rs.getLong("author");
+
+                List<HashMap<String,Object>> comment = new ArrayList<>();
+                String commentsSQL = "SELECT authorId, comment, createdAt FROM PostComment WHERE articleId = ?";
+                List<Map<String, Object>> commentTemp = jdbcTemplate.queryForList(commentsSQL, articleId);
+                
+                
+                for( Map<String, Object> temporary : commentTemp ) {
+                	
+                	HashMap<String, Object> isItComment = new HashMap<>();
+
+                	String personalSQL = "SELECT name, username, profilePicture AS image FROM Blogger WHERE authorId = ?";
+                	List<Map<String, Object>> person = jdbcTemplate.queryForList(personalSQL, temporary.get("authorId"));
+                    
+                	isItComment.put("name", person.get(0).get("name"));
+                	isItComment.put("authorId", temporary.get("authorId"));
+                	isItComment.put("username", person.get(0).get("username"));
+                	isItComment.put("comment", temporary.get("comment"));
+                	
+                	Object createdAtValue = temporary.get("createdat");
+                	if (createdAtValue != null && createdAtValue instanceof String) {
+                	    try {
+                	        // Parse the string to a Date object
+                	        String createdAtString = (String) createdAtValue;
+                	        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Adjust format to match input
+                	        Date parsedDate = inputFormat.parse(createdAtString);
+
+                	        // Format the parsed Date to the desired format
+                	        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                	        String formattedDate = outputFormat.format(parsedDate);
+
+                	        isItComment.put("createdat", formattedDate);
+                	    } catch (Exception e) {
+                	        System.err.println("Error parsing date: " + e.getMessage());
+                	        isItComment.put("createdat", null);
+                	    }
+                	} else {
+                	    isItComment.put("createdat", null); // Default value if null or not a String
+                	}
+
+                	
+                	if( person.get(0).get("image") == null || person.get(0).get("image").equals("") ) {
+                		isItComment.put("image", null);
+                	}else {
+                		isItComment.put("image", bloggerRetrieveDirectory + person.get(0).get("image") );
+                	}
+                	
+                	comment.add( isItComment );
+                	
+                }
+                
+                post.put("postComments", comment);
+                
+            post.put("articleid", articleId);
+                post.put("author", rs.getLong("author"));
+            post.put("title", rs.getString("title"));
+            post.put("disable",false);
+            post.put("description", rs.getString("description"));
+            post.put("likes", rs.getInt("likes"));
+            post.put("dislikes", rs.getInt("dislikes"));
+            post.put("viewscount", rs.getInt("viewscount"));
+            post.put("comments", rs.getInt("comments"));
+            Timestamp timestamp = rs.getTimestamp("updatedat");
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    post.put("updatedat", formattedDate);
+                } else {
+                    post.put("updatedat", null);
+                }
+            post.put("name", rs.getString("name"));
+            post.put("username", rs.getString("username"));
+            post.put("bio", rs.getString("bio"));
+                post.put("status", rs.getString("status"));
+            post.put("category", rs.getString("category"));
+            if( rs.getString("media") == null || rs.getString("media").equals("") ) {
+	post.put("media", null);
+}else {
+    post.put("media", postRetrieveDirectory + rs.getString("media"));
+}
+            if( rs.getString("image") == null || rs.getString("image").equals("") ) {
+	post.put("image", null);
+}else {
+    post.put("image", bloggerRetrieveDirectory + rs.getString("image"));
+}
+
+            // Fetch keywords for the current article
+            String keywordQuery = """
+                SELECT name 
+                FROM Keyword k 
+                JOIN KeywordAssignment ka ON k.keywordid = ka.keywordid 
+                WHERE ka.articleid = ?
+            """;
+            List<String> keywords = jdbcTemplate.queryForList(keywordQuery, String.class, articleId);
+            post.put("keywords", keywords);
+
+        	if( authorId != null && authorId > 0 ) {
+
+        		String isReacted = "SELECT COUNT(*) AS liked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'like'";
+        		Long isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+        	
+            	post.put("isLiked", isReact == 0 ? false : true);
+            	
+            	isReacted = "SELECT COUNT(*) AS disliked FROM PostInteraction WHERE articleId = ? AND authorId = ? AND reactiontype = 'dislike'";
+            	isReact= jdbcTemplate.queryForObject(isReacted, Long.class, articleId, authorId );
+            	
+            	post.put("isDisliked", isReact == 0 ? false : true );
+        	
+        	}else {
+        		post.put("isLiked", false );            		
+        		post.put("isDisliked", false );
+        	}
+            
+            return post;
+        }, pageSize, offset);
+
+        // Check if there are more posts to load
+        boolean hasMore = posts.size() == pageSize; 
+
+        String newsApiUrl = "https://newsapi.org/v2/everything";
+        String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
+                .queryParam("q", searchKeyword)
+                .queryParam("page", page - 1)
+                .queryParam("pageSize", pageSize)
+                .queryParam("apiKey", dotenv.get("NEWS_API"))
+                .toUriString();
+        RestTemplate restTemplate = new RestTemplate();
+        HashMap<String, Object> results;
+        
+        try {
+            // Fetching the response as a HashMap
+            results = restTemplate.getForObject(url, HashMap.class);
+            
+            
+        } catch (HttpClientErrorException e) {
+            // Handling errors if the API call fails (e.g., invalid API key, quota exceeded)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "API call failed: " + e.getMessage());
+            return errorResponse.toString();
+        }
+        
+        int totalResults = (int) results.get("totalResults");
+
+        List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
+        // Prepare response
+
+        String keywordSql = "SELECT name FROM Keyword";
+        List<String> keywords = jdbcTemplate.queryForList(keywordSql, String.class);
+       
+        
+        for( HashMap<String, Object> post : result ) {
+
+        	List<String> tempKeywords = new LinkedList<>();
+        	HashMap<String, Object> tempPost = new HashMap<>();
+            Long articleId = 0l;
+
+            tempPost.put("articleid", articleId);
+            tempPost.put("author", null);
+            tempPost.put("title", post.get("title") );
+            
+            String content = post.get("content") != null ? post.get("content").toString() : "";
+            String[] splitContent = content.split("…"); // Split at '...' only once
+            String description = splitContent[0]; // Take the first part
+
+            // Append the 'Read more...' button
+            description += " <button class=\"toggle-button\" style=\"width:auto;\" onclick=\" location.href='" 
+            + post.get("url") 
+            + "'; \"> Read more... </button> ";
+            
+            tempPost.put("description", description );
+            tempPost.put("likes", 0);
+            tempPost.put("dislikes", 0);
+            tempPost.put("viewscount", 0);
+            tempPost.put("comments", 0);
+            try {
+                // Parse the ISO 8601 date-time string to a java.util.Date
+                Instant instant = Instant.parse( post.get("publishedAt").toString() );
+                Timestamp timestamp = Timestamp.from(instant);
+
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    tempPost.put("updatedat", formattedDate);
+                } else {
+                    tempPost.put("updatedat", null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                tempPost.put("updatedat", null);
+            }
+            
+            tempPost.put("name", post.get("author"));
+            tempPost.put("postComments", null);
+            tempPost.put("status", "published");
+            tempPost.put("username", "tech2xplore");
+            tempPost.put("bio", "Tech2Xplore Trending News");
+            tempPost.put("category", "News");
+            tempPost.put("media", post.get("urlToImage"));
+            tempPost.put("image", null);
+            tempPost.put("isLiked", false);
+            tempPost.put("isDisliked", false);
+            tempPost.put("disable", true);
+
+            // Fetch keywords for the current article
+            for( String keyword: keywords ) {
+            	if( 
+            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
+            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
+            		) {
+            		tempKeywords.add( keyword );
+            	}
+            }
+            
+            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+
+            
+            if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
+            	tempPost.put("name", "Tech2Xplore Trending News");
+            }else {
+            	tempPost.put("name", tempPost.get("name") + " via Tech2Xplore and News API");
+            }
+            
+            if( 
+            		tempPost.get("title").equals("[Removed]") 	||
+            		tempPost.get("description").equals("[Removed]") 
+            		
+            ) {	}else {
+            	posts.add( tempPost );
+            }
+        	
+        }
+        
+        hasMore = hasMore || ( totalResults > page * pageSize );
+        
+        System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
+        Map<String, Object> response = new HashMap<>();
+     
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		response.put("personalImage",null);
+        	}else {
+        		response.put("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	response.put("personalImage",null);
+        }
+        
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasMore", hasMore);
+
+        return "post :: div"; 
+    }
+    
     
     @GetMapping("/trendings")
     public String trendingPosts(Model model, HttpServletRequest request) {
