@@ -126,7 +126,7 @@
         <div class="page-content">
             <h1 class="recent-posts-title text-center">Recent Posts</h1>
             <div th:replace="~{post :: div}"></div>
-            <div style="width:62%; margin-left:19%; display:none; " class="alert alert-warning text-center" role="alert" id="alertMessage">
+            <div style="display:none; " class="alert alert-warning text-center" role="alert" id="alertMessage">
                 <span id="content">First Login Please! You are redirected at Login Page In 3 Seconds ...</span>
             </div>
         </div>
@@ -135,7 +135,7 @@
 			  <span class="sr-only">Loading...</span>
 			</div>
 		</div>
-        <button id="load-more" style="width:62%; margin-left:19%;" onclick="loadMorePosts()">Load More</button>
+        <button id="load-more" onclick="loadMorePosts()">Load More</button>
     </div>
 
     <div th:replace="~{footer :: div}"></div>
@@ -154,7 +154,7 @@
        	const content = document.getElementById("alertMessage");
        	var goLogin = null;
        	
-        function loadMorePosts() {
+        /* function loadMorePosts() {
         	
         	loader.style.display = "show";
         	loader.classList.add("d-flex");
@@ -336,9 +336,58 @@
             	if( goLogin ){
                     loader.classList.add("d-flex");
                 	loadMore.style.display = "none";
-            	}
-            
-        }
+            	} 
+        }	*/
+		
+		function loadMorePosts() {
+		    loader.style.display = "show";
+		    loader.classList.add("d-flex");
+		    loadMore.style.display = "none";
+
+		    currentPage++;
+
+		    fetch(`/load-more-posts2?page=${currentPage}`)
+		        .then(response => {
+		            if (!response.ok) {
+		                throw new Error(`Network response was not ok: ${response.statusText}`);
+		            }
+		            return response.text();  // IMPORTANT: Get text not JSON
+		        })
+		        .then(html => {
+					console.log(html);
+		            const postContainer = document.getElementById("post-container");
+		            const tempDiv = document.createElement("div");
+		            tempDiv.innerHTML = html;
+
+		            // 🔥 Pick only `.post` elements (not outer div)
+		            const newPosts = tempDiv.querySelectorAll(".post");
+		            newPosts.forEach(post => {
+		                postContainer.appendChild(post);
+
+		                post.style.opacity = 0;
+		                setTimeout(() => {
+		                    post.style.transition = "opacity 0.5s ease";
+		                    post.style.opacity = 1;
+		                }, 50);
+		            });
+
+		            loader.style.display = "none";
+		            loadMore.style.display = newPosts.length > 0 ? "block" : "none";
+
+		            if (newPosts.length === 0) {
+		                const noMore = document.createElement("p");
+		                noMore.className = "text-center text-muted mt-2";
+		                noMore.textContent = "No more posts to load.";
+		                postContainer.appendChild(noMore);
+		            }
+		        })
+		        .catch(error => {
+		            console.error("Error loading posts:", error);
+		            loader.style.display = "none";
+		            loadMore.style.display = "block";
+		        });
+		}
+
 
         /*postDiv.innerHTML = `
         <div class="post-card p-4">
