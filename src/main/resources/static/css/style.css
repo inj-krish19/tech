@@ -1295,18 +1295,19 @@ body.dark-mode {
 	--button-text: #000;
 	
 	--accent-color: #0d6efd; 
-	
-    --waikawa-gray-50: #f3f7fb;
-    --waikawa-gray-100: #e5ebf4;
-    --waikawa-gray-200: #d1deec;
-    --waikawa-gray-300: #b0c9e0;
-    --waikawa-gray-400: #8babcf;
-    --waikawa-gray-500: #6f92c2;
-    --waikawa-gray-600: #5c7bb4;
-    --waikawa-gray-700: #4c639a;
-    --waikawa-gray-800: #465787;
-    --waikawa-gray-900: #3c4a6c;
-    --waikawa-gray-950: #282f43;
+
+  --waikawa-gray-50:  #F5F5F5;  /* Very light gray */
+  --waikawa-gray-100: #E0E1DD;  /* Light gray from your palette */
+  --waikawa-gray-200: #C5C7C2;  /* Cool soft gray */
+  --waikawa-gray-300: #AAB0B5;  /* Light gray-blue */
+  --waikawa-gray-400: #778DA9;  /* Your mid-light color */
+  --waikawa-gray-500: #5A738F;  /* Muted blue-gray */
+  --waikawa-gray-600: #415A77;  /* Your middle tone */
+  --waikawa-gray-700: #2E405A;  /* Deep muted blue */
+  --waikawa-gray-800: #1B263B;  /* Your dark color */
+  --waikawa-gray-900: #0D1B2A;  /* Deepest black-blue */
+  --waikawa-gray-950: #050A13;  /* Extra dark (blacker than your darkest) */
+
 }
 
 body.light-mode {
