@@ -135,12 +135,14 @@
 					...</span>
 			</div>
 		</div>
-		<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
-			<div class="spinner-border text-dark" role="status">
-				<span class="sr-only">Loading...</span>
+		<div class="justify-content-center mt-5 mb-5 mx-auto"  style="display :none; width: fit-content;" id="loader" >
+              <div class="spinner-border text-dark"role="status">
+			  <span class="sr-only">Loading...</span>
 			</div>
 		</div>
-		<button id="load-more" style="width:62%; margin-left:19%;" onclick="loadMorePosts()">Load More</button>
+		<div class="posts-list mx-auto">
+	        <button id="load-more" onclick="loadMorePosts()">Load More</button>
+    	</div>
 	</div>
 
 	<div th:replace="~{footer :: div}"></div>
@@ -160,191 +162,60 @@
 		var redirectHome = null;
 
 		function loadMorePosts() {
+		    loader.style.display = "show";
+		    loader.classList.add("d-flex");
+		    loadMore.style.display = "none";
 
-			loader.style.display = "show";
-			loader.classList.add("d-flex");
-			loadMore.style.display = "none";
+		    currentPage++;
 
-			currentPage++;
-			fetch(`/trending-more-posts?page=${currentPage}`)
-				.then(response => {
-					if (!response.ok) {
-						throw new Error(`Network response was not ok: ${response.statusText}`);
-					}
-					return response.json(); // Parse JSON
-				})
-				.then(data => {
-					const postContainer = document.getElementById('post-container');
+		    fetch(`/trending-more-posts2?page=${currentPage}`)
+		        .then(response => {
+		            if (!response.ok) {
+		                throw new Error(`Network response was not ok: ${response.statusText}`);
+		            }
+		            return response.text();  // IMPORTANT: Get text not JSON
+		        })
+		        .then(html => {
+					console.log(html);
+		            const postContainer = document.getElementById("post-container");
+		            const tempDiv = document.createElement("div");
+		            tempDiv.innerHTML = html;
 
-					data.posts.forEach(post => {
-						const postDiv = document.createElement('div');
-						postDiv.classList.add('post', 'mb-4');
-						postDiv.style.maxWidth = '800px';
+		            // 🔥 Pick only `.post` elements (not outer div)
+		            const newPosts = tempDiv.querySelectorAll(".post");
+		            newPosts.forEach(post => {
+		                postContainer.appendChild(post);
 
-						postDiv.innerHTML = `
-	                        <div class="post-card p-4">
-	                            <div class="post-content">
-	                                <div class="container">
-	
-	                                    <div class="author-box">
-	                                        <div class="author-profile">
-	                                            <img src="${post.image !== null && post.image !== '' ? post.image : '/images/logo.jpg'}"
-	                                                 alt="Author Profile Picture" class="author-image">
-	                                        </div>
-	                                        <div class="author-details">
-	                                            <h3 class="author-name">${post.name}</h3>
-	                                            <span>@${post.username}</span>
-	                                            <p class="author-bio">${post.bio}</p>
-	                                        </div>
-	                                    </div>
-	
-	                                    <div class="post-header d-flex align-items-center">
-	                                        <h2 class="post-title mb-0">${post.title}</h2>
-	                                        <div class="post-category">
-	                                            <span class="badge bg-secondary">${post.category}</span>
-	                                        </div>
-	                                    </div>
-	
-	                                    <div class="row flex-col d-flex">
-		                                    <img src="${post.media && post.media !== '' ? post.media : ''}" alt="Post Image" class="col-12"
-		                                         style="${post.media == null || post.media === '' ? ' display: none;' : ''}">
-		                                    <div class="post-content col-12 text-center" style="overflow-wrap: anywhere;">
-		                                        ${post.description.length <= 1000 ? `
-		                                            <p class="post-description" style="text-align: left; overflow: hidden;">
-		                                                ${post.description}
-		                                            </p>
-		                                        ` : `
-		                                            <p class="post-description" style="text-align: left; overflow: hidden;">
-		                                                <span>${post.description.substring(0, 1000)}</span>
-		                                                <span class="more-text" style="display: none;">
-		                                                    ${post.description.length > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}
-		                                                </span>
-		                                                <button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read more...</button>
-		                                            </p>
-		                                        `}
-		                                    </div>
-		                                </div>
-	
-		                                <div class="post-actions d-flex border-top pt-3" style="margin-top: 0; gap: 5px; justify-content: center;">
-			                                <button class="articleid" style="display: none;">${post.articleid}</button>
-			                                <button class="like oper btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
-			                                    <i class="${post.isLiked ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}"></i>
-			                                    <span class="likeCount">${post.likes}</span>
-			                                </button>
-			                                <button class="dislike oper btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
-			                                    <i class="${post.isDisliked ? 'bi-hand-thumbs-down-fill' : 'bi-hand-thumbs-down'}"></i>
-			                                    <span class="dislikeCount">${post.dislikes}</span>
-			                                </button>
-			                                <button class="commentBox btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" 
-			                                        style="gap: 5px;" onclick="requestComments(this, 'open');">
-			                                    <i class="bi bi-chat"></i>
-			                                    <span>${post.comments}</span>
-			                                </button>
-			                                <button class="btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;">
-			                                    <i class="bi bi-reply"></i>
-			                                </button>
-			                                <button class="btn btn-dark d-flex align-items-center justify-content-center ${post.disable ? 'disabled' : ''}" style="gap: 5px;"
-			                                        onclick="${post.articleid ? `watchPost(${post.articleid})` : ''}">
-			                                    <i class="bi bi-share"></i>
-			                                </button>
-			                            </div>
-	
-	                                    <div class="postComments card mt-3 mb-3 p-3" style="display: none;">
-		                                    ${post.postComments === null || post.postComments.length === 0
-								? '<div class="container"><h3 class="text-info">Nobody has shared their thoughts.</h3></div>'
-								: post.postComments.map(comment => `
-		                                                <div class="container mb-3">
-		                                                    <div class="author-box">
-		                                                        <div class="author-profile">
-		                                                            <img src="${comment.image ? comment.image : '/images/logo.jpg'}" 
-		                                                                 alt="Author Profile Picture" class="author-image">
-		                                                        </div>
-		                                                        <div class="author-details">
-		                                                            <h3 class="author-name">${comment.name} says,</h3>
-		                                                            <p class="text-light">${comment.comment}</p>
-		                                                        </div>
-		                                                    </div>
-		                                                </div>
-		                                              `).join('')
-							}
-		                                </div>
-	                                    
-	                                    ${post.disable === null || post.disable === false
-								? `<div class="mycard mt-1 mb-3 d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background-color: #f9f9f9;">
-		                                        <div class="d-flex flex-grow-1">					    
-		                                            <img src="${data.personalImage !== null && data.personalImage !== '' ? data.personalImage : '/images/logo.jpg'}" 
-		                                                 alt="User" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
-		                                            <input type="text" placeholder="Write a comment..." class="comment form-control mb-2" style="width: 80%;border-radius: 2rem;box-shadow: none;">
-		                                            <button class="btn btn-info" onclick="${post.articleid ? `sendComment(this, ${post.articleid})` : ''}" style="margin-left: auto; width: 9%; height: 50px; border-radius: 2rem;">
-		                                                <i class="bi bi-send-fill"></i>
-		                                            </button>
-		                                        </div>
-		                                    </div>`
-								: ``}
-	
-	                                    <div class="mycard d-flex" id="remaining" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-	                                        ${post.keywords !== null && post.keywords.length !== 0
-								? `<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
-	                                                ${post.keywords.map((keyword, index) => `
-	                                                    <button class="tag color-${index}-clicked" data-keyword="${keyword}" data-url="/mass-filter/keyword/${keyword}" class="tag">
-	                                                        ${keyword}
-	                                                    </button>
-	                                                `).join('')}`
-								: '<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>'
-							}
-	                                    </div>
-	
-	                                </div>
-	
-	                                <div class="post-metadata">
-	                                    <div class="author-info">
-	                                        <span class="author-bio">@${post.username}</span>
-	                                    </div>
-	                                    <div class="post-date">
-	                                        <i class="bi bi-calendar-fill" style="margin-right : 5px;"></i>
-	                                        <span class="date-text">${post.status === 'draft' ? 'Drafted on ' : ''}${post.status === 'published' ? 'Published on ' : ''}${post.updatedat}</span>
-	                                    </div>
-	                                </div>
-	
-	                            </div>
-	                        </div>
-                			`;
+		                post.style.opacity = 0;
+		                setTimeout(() => {
+		                    post.style.transition = "opacity 0.5s ease";
+		                    post.style.opacity = 1;
+		                }, 50);
+		            });
 
-						postContainer.appendChild(postDiv);
-					});
+		            loader.style.display = "none";
+		            loadMore.style.display = newPosts.length > 0 ? "block" : "none";
 
-					if (!data.hasMore) {
-						//                        alert('No more posts!');
-						redirectHome = true;
-						posts.style.display = "none";
-						message.style.display = "block";
-						message.classList.remove("alert-warning");
-						message.classList.add("alert-info");
-						content.innerHTML = "No More Posts to Show :( ";
-						document.getElementById('load-more').style.display = 'none';
-					}
-				})
-				.catch(error => {
-					//                    alert('Please log in to load more posts.');
+		            if (newPosts.length === 0) {
+		                const noMore = document.createElement("p");
+		                noMore.className = "text-center text-muted mt-2";
+		                noMore.textContent = "No more posts to load.";
+		                postContainer.appendChild(noMore);
+		            }
+		        })
+		        .catch(error => {
 					console.error('Error loading more posts:', error);
-					posts.style.display = "none";
-					setTimeout(() => window.location.href = '/', 3000);
-					message.style.display = "block";
-					redirectHome = true;
-				})
-				.finally(() => {
-					loader.style.display = "none";
-					loader.classList.remove("d-flex");
-					loadMore.style.display = "block";
-				});
-
-			if (redirectHome) {
-				loader.classList.add("d-flex");
-				loadMore.style.display = "none";
-			}
-
+                    posts.style.display = "none";
+                    message.style.display = "block";
+                    setTimeout(() => window.location.href = '/login', 3000);
+		        })
+				.finally( () => {
+                    loader.style.display = "none";
+                    loader.classList.remove("d-flex");
+                	loadMore.style.display = "block";
+            	});
+            
 		}
-
 
 	</script>
 

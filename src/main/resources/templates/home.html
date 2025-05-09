@@ -130,13 +130,15 @@
                 <span id="content">First Login Please! You are redirected at Login Page In 3 Seconds ...</span>
             </div>
         </div>
-    	<div class="justify-content-center mt-5 mb-5 "  style="display :none; " id="loader" >
+    	<div class="justify-content-center mt-5 mb-5 mx-auto"  style="display :none; width: fit-content;" id="loader" >
               <div class="spinner-border text-dark"role="status">
 			  <span class="sr-only">Loading...</span>
 			</div>
 		</div>
-        <button id="load-more" onclick="loadMorePosts()">Load More</button>
-    </div>
+		<div class="posts-list mx-auto">
+	        <button id="load-more" onclick="loadMorePosts()">Load More</button>
+    	</div>
+	</div>
 
     <div th:replace="~{footer :: div}"></div>
 
@@ -382,10 +384,22 @@
 		            }
 		        })
 		        .catch(error => {
-		            console.error("Error loading posts:", error);
-		            loader.style.display = "none";
-		            loadMore.style.display = "block";
-		        });
+					console.error('Error loading more posts:', error);
+                    posts.style.display = "none";
+                    message.style.display = "block";
+                    setTimeout(() => window.location.href = '/login', 3000);
+                    goLogin = true;
+		        })
+				.finally( () => {
+                    loader.style.display = "none";
+                    loader.classList.remove("d-flex");
+                	loadMore.style.display = "block";
+            	});
+            
+            	if( goLogin ){
+                    loader.classList.add("d-flex");
+                	loadMore.style.display = "none";
+            	}
 		}
 
 
