@@ -1311,6 +1311,128 @@ body.dark-mode {
 }
 
 body.light-mode {
+  --bg-page: var(--waikawa-gray-50);
+  --bg-container: var(--waikawa-gray-100);
+  --bg-card: var(--waikawa-gray-50);
+
+  --border-color: var(--waikawa-gray-200);
+  --text-color: var(--waikawa-gray-900);
+  --secondary-text: var(--waikawa-gray-700);
+
+  --button-bg: var(--waikawa-gray-200);
+  --button-text: var(--waikawa-gray-900);
+
+  --accent-color: var(--waikawa-gray-600);
+
+  --navbar-bg: var(--waikawa-gray-50);
+  --navbar-link: var(--waikawa-gray-900);
+  --navbar-link-hover: var(--waikawa-gray-600);
+
+  --section-bg: var(--waikawa-gray-50);
+  --section-text: var(--waikawa-gray-900);
+
+  --search-bg: var(--waikawa-gray-100);
+  --search-text: var(--waikawa-gray-900);
+
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-xs: 12px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-h4: 24px;
+  --font-size-h3: 28px;
+  --font-size-h2: 32px;
+  --font-size-h1: 40px;
+
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-xxl: 64px;
+  --spacing-3xl: 96px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  --footer-bg: var(--waikawa-gray-100);
+  --footer-text: var(--waikawa-gray-900);
+  --footer-link: var(--waikawa-gray-700);
+  --footer-input-bg: var(--waikawa-gray-50);
+}
+
+body.dark-mode {
+  --bg-page: var(--waikawa-gray-950);
+  --bg-container: var(--waikawa-gray-900);
+  --bg-card: var(--waikawa-gray-800);
+
+  --border-color: var(--waikawa-gray-700);
+  --text-color: var(--waikawa-gray-100);
+  --secondary-text: var(--waikawa-gray-300);
+
+  --button-bg: var(--waikawa-gray-700);
+  --button-text: var(--waikawa-gray-50);
+
+  --accent-color: var(--waikawa-gray-400);
+
+  --navbar-bg: var(--waikawa-gray-900);
+  --navbar-link: var(--waikawa-gray-100);
+  --navbar-link-hover: var(--waikawa-gray-400);
+
+  --section-bg: var(--waikawa-gray-800);
+  --section-text: var(--waikawa-gray-100);
+
+  --search-bg: var(--waikawa-gray-900);
+  --search-text: var(--waikawa-gray-100);
+
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: 'Poppins', sans-serif;
+
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-xs: 12px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-h4: 24px;
+  --font-size-h3: 28px;
+  --font-size-h2: 32px;
+  --font-size-h1: 40px;
+
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-xxl: 64px;
+  --spacing-3xl: 96px;
+
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  --footer-bg: var(--waikawa-gray-900);
+  --footer-text: var(--waikawa-gray-100);
+  --footer-link: var(--waikawa-gray-400);
+  --footer-input-bg: var(--waikawa-gray-800);
+	
+}
+	
+
+	
+
+/* body.light-mode {
   --bg-page: var(--waikawa-gray-50); 
   --bg-container: var(--waikawa-gray-100); 
   --bg-card: var(--waikawa-gray-50); 
@@ -1427,7 +1549,7 @@ body.dark-mode {
   --footer-link: #0d6efd;
   --footer-input-bg: #343a40;
 }
-
+*/
 
 .search-div {
   background-color: var(--search-bg);
