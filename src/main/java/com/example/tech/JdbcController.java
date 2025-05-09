@@ -3996,6 +3996,153 @@ public class JdbcController {
         return response;
     }
 
+
+    @GetMapping("/trending-more-posts2")
+    public String trendingMorePost2(@RequestParam("page") int page, HttpServletRequest request, Model model) {
+        int pageSize = 15; // Number of posts per page
+        
+        List<Map<String, Object>> posts = new LinkedList<>();
+
+        // Check if there are more posts to load
+        boolean hasMore = false; 
+
+        String keywordSql = "SELECT name FROM Keyword";
+        List<String> keywords = jdbcTemplate.queryForList(keywordSql, String.class);
+       
+        String newsApiUrl = "https://newsapi.org/v2/everything";
+        String url = UriComponentsBuilder.fromHttpUrl(newsApiUrl)
+                .queryParam("q", searchKeyword)
+                .queryParam("page", page)
+                .queryParam("pageSize", pageSize)
+                .queryParam("apiKey", dotenv.get("NEWS_API"))
+                .toUriString();
+        RestTemplate restTemplate = new RestTemplate();
+        HashMap<String, Object> results;
+        
+        try {
+            // Fetching the response as a HashMap
+            results = restTemplate.getForObject(url, HashMap.class);
+            
+            
+        } catch (HttpClientErrorException e) {
+            // Handling errors if the API call fails (e.g., invalid API key, quota exceeded)
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "API call failed: " + e.getMessage());
+            return errorResponse.toString();
+        }
+        int totalResults = (int) results.get("totalResults");
+
+        List<HashMap<String, Object>> result = (List<HashMap<String, Object>>) results.get("articles");
+        // Prepare response
+        for( HashMap<String, Object> post : result ) {
+
+        	List<String> tempKeywords = new LinkedList<>();
+        	HashMap<String, Object> tempPost = new HashMap<>();
+            Long articleId = 0l;
+
+            tempPost.put("articleid", articleId);
+            tempPost.put("author", null);
+            tempPost.put("title", post.get("title") );
+            
+            String content = post.get("content") != null ? post.get("content").toString() : "";
+            String[] splitContent = content.split("…"); // Split at '...' only once
+            String description = splitContent[0]; // Take the first part
+
+            // Append the 'Read more...' button
+            description += " <button class=\"toggle-button\" style=\"width:auto;\" onclick=\" location.href='" 
+            + post.get("url") 
+            + "'; \"> Read more... </button> ";
+            
+            tempPost.put("postComments", null );
+            tempPost.put("description", description );
+            tempPost.put("likes", 0);
+            tempPost.put("dislikes", 0);
+            tempPost.put("viewscount", 0);
+            tempPost.put("comments", 0);
+            try {
+                // Parse the ISO 8601 date-time string to a java.util.Date
+                Instant instant = Instant.parse( post.get("publishedAt").toString() );
+                Timestamp timestamp = Timestamp.from(instant);
+
+                if (timestamp != null) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd-MM-yyyy");
+                    String formattedDate = sdf.format(timestamp);
+                    tempPost.put("updatedat", formattedDate);
+                } else {
+                    tempPost.put("updatedat", null);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                tempPost.put("updatedat", null);
+            }
+            tempPost.put("name", post.get("author"));
+            tempPost.put("status", "published");
+            tempPost.put("username", "tech2xplore");
+            tempPost.put("bio", "Tech2Xplore Trending News");
+            tempPost.put("category", "News");
+            tempPost.put("media", post.get("urlToImage"));
+            tempPost.put("image", null);
+            tempPost.put("status", "published");
+            tempPost.put("isLiked", false);
+            tempPost.put("isDisliked", false);
+            tempPost.put("disable", true);
+
+            // Fetch keywords for the current article
+            for( String keyword: keywords ) {
+            	if( 
+            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
+            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
+            		) {
+            		tempKeywords.add( keyword );
+            	}
+            }
+            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+
+            if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
+            	tempPost.put("name", "Tech2Xplore Trending News");
+            }else {
+            	tempPost.put("name", tempPost.get("name") + " via Tech2Xplore and News API");
+            }
+            
+            if( 
+            		tempPost.get("title").equals("[Removed]") 	||
+            		tempPost.get("description").equals("[Removed]") 
+            		
+            ) {	}else {
+            	posts.add( tempPost );
+            }
+        	
+        }
+        
+        hasMore = hasMore || ( totalResults > page * pageSize );
+        
+        System.out.print("\n\n\n\n\nPosts : " + posts + "\n\n\n\n");
+        Map<String, Object> response = new HashMap<>();
+        Long authorId = (Long) request.getSession().getAttribute("authorId");
+        
+        if( authorId != null && authorId > 0 ) {
+        	
+        	String imageSQL = "SELECT profilePicture AS image FROM Blogger WHERE authorId = ?";
+        	imageSQL = jdbcTemplate.queryForObject( imageSQL, String.class, authorId );
+        	
+        	if( imageSQL == null || imageSQL.equals("") ) {
+        		response.put("personalImage",null);
+        	}else {
+        		response.put("personalImage", bloggerRetrieveDirectory + imageSQL);
+        	}
+        	
+        	
+        }else {
+        	response.put("personalImage",null);
+        }
+        
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasMore", hasMore);
+
+        return "post :: div";
+    }
+
+    
     @GetMapping("/runQuery")
     public String boomBaam(){
 
