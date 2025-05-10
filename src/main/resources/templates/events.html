@@ -16,35 +16,38 @@
 <body>
 
     <div th:replace="~{header :: nav}"></div>
-    <div class="container py-5">
-        <h1 class="text-center mb-4">Upcoming Events</h1>
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Blogging 101 Workshop</h5>
-                        <p class="card-text">Join us for an interactive workshop where you’ll learn the basics of
-                            blogging
-                            and SEO strategies.</p>
-                        <p><i class="bi bi-calendar-event"></i> Date: 15th December 2024</p>
-                        <button class="btn btn-primary">Register Now</button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Content Creator Meetup</h5>
-                        <p class="card-text">Network with top content creators and get insights into the latest trends
-                            in
-                            the blogging world.</p>
-                        <p><i class="bi bi-calendar-event"></i> Date: 20th December 2024</p>
-                        <button class="btn btn-primary">Learn More</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container py-5">
+	  <h1 class="text-center mb-4">Upcoming Events</h1>
+
+	  <div class="row">
+
+	    <!-- Event 1 -->
+	    <div class="col-md-6 mb-4">
+	      <div class="card shadow-sm bg-body text-body">
+	        <div class="card-body">
+	          <h5 class="card-title">Blogging 101 Workshop</h5>
+	          <p class="card-text">Join us for an interactive workshop where you’ll learn the basics of blogging and SEO strategies.</p>
+	          <p><i class="bi bi-calendar-event"></i> Date: 15th December 2024</p>
+	          <button class="btn btn-primary">Register Now</button>
+	        </div>
+	      </div>
+	    </div>
+
+	    <!-- Event 2 -->
+	    <div class="col-md-6 mb-4">
+	      <div class="card shadow-sm bg-body text-body">
+	        <div class="card-body">
+	          <h5 class="card-title">Content Creator Meetup</h5>
+	          <p class="card-text">Network with top content creators and get insights into the latest trends in the blogging world.</p>
+	          <p><i class="bi bi-calendar-event"></i> Date: 20th December 2024</p>
+	          <button class="btn btn-primary">Learn More</button>
+	        </div>
+	      </div>
+	    </div>
+
+	  </div>
+	</div>
+
     <div th:replace="~{footer :: div}"></div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
