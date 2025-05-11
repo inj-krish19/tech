@@ -1083,16 +1083,16 @@ body.dark-mode {
   /* Waikawa Gray Scale */
   --waikawa-gray-50:  #F5F5F5;
   --waikawa-gray-100: #E0E1DD;
-  --waikawa-gray-150: #D0D2CE; /* Between 100 & 200 */
+  --waikawa-gray-150: #D0D2CE; 
   --waikawa-gray-200: #C5C7C2;
-  --waikawa-gray-250: #B5B8B3; /* Between 200 & 300 */
+  --waikawa-gray-250: #B5B8B3; 
   --waikawa-gray-300: #AAB0B5;
   --waikawa-gray-400: #778DA9;
   --waikawa-gray-500: #5A738F;
   --waikawa-gray-600: #415A77;
   --waikawa-gray-700: #2E405A;
   --waikawa-gray-800: #1B263B;
-  --waikawa-gray-850: #141C2F; /* Between 800 & 900 */
+  --waikawa-gray-850: #141C2F; 
   --waikawa-gray-900: #0D1B2A;
   --waikawa-gray-950: #050A13;
 }
@@ -1659,7 +1659,7 @@ button {
   width: 35px;
   padding: 6px 4px;
   text-align: center;
-  margin-right: 5px;
+  margin-right: 6px 4px;
   border: 1px solid;
   border-radius: 5px;
   transition: all 0.5s;
