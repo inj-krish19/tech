@@ -7,55 +7,64 @@
     <title>Login </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}"> <!-- Include your custom stylesheet -->
-    <link rel="stylesheet" th:href="@{/css/login.css}"> <!-- Include your custom stylesheet for login -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<body class="bg-dark text-light">
+<body>
 
     <div th:replace="~{header :: nav}"></div>
-    <div class="container mt-5 d-flex justify-content-center">
-        <div class="col-md-6">
-            <div class="card bg-secondary border-light">
-                <div class="card-header text-center">
-                    <h2 class="mb-0">Login</h2>
-                </div>
-                <div th:if="${param.success}" class="alert alert-success text-center" role="alert">
-                    <span th:text="'Login successful! You are redirected at Home Page In 3 Seconds ...'"></span>
-                </div>
-                <div class="card-body" id="login">
-                    <div th:if="${param.error}" class="alert alert-danger" role="alert">
-                        <span th:text="'Login failed. Please check your username and password.'"></span>
-                    </div>
+	<div class="container mt-5 d-flex justify-content-center">
+	    <div class="col-md-6">
+	        <div class="card border">
+	            <div class="card-header text-center border-bottom ">
+	                <h2 class="mb-0">Login</h2>
+	            </div>
 
-                    <div th:if="${param.logout}" class="alert alert-primary" role="alert">
-                        <span th:text="'Logout Successfully.'"></span>
-                    </div>
+	            <!-- Success Message -->
+	            <div th:if="${param.success}" class="alert alert-success text-center" role="alert">
+	                <span th:text="'Login successful! You are redirected at Home Page In 3 Seconds ...'"></span>
+	            </div>
 
-                    <form th:action="@{/login}" method="post"> <!-- Fixed form action -->
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-                    <div class="mt-3 text-center">
-                        <a href="/register" class="text-light">Don't have an account? Sign Up</a>
-                    </div>
-                </div>
-                <div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
-                    <div class="spinner-border text-success" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	            <div class="card-body" id="login">
+
+	                <!-- Error Message -->
+	                <div th:if="${param.error}" class="alert alert-danger" role="alert">
+	                    <span th:text="'Login failed. Please check your username and password.'"></span>
+	                </div>
+
+	                <!-- Logout Message -->
+	                <div th:if="${param.logout}" class="alert alert-primary" role="alert">
+	                    <span th:text="'Logout Successfully.'"></span>
+	                </div>
+
+	                <!-- Login Form -->
+	                <form th:action="@{/login}" method="post">
+	                    <div class="mb-3">
+	                        <label for="username" class="form-label">Username</label>
+	                        <input type="text" class="form-control " id="username" name="username" required>
+	                    </div>
+	                    <div class="mb-3">
+	                        <label for="password" class="form-label">Password</label>
+	                        <input type="password" class="form-control " id="password" name="password" required>
+	                    </div>
+	                    <button type="submit" class="btn btn-primary w-100">Login</button>
+	                </form>
+
+	                <div class="mt-3 text-center">
+	                    <a href="/register" class="link-primary">Don't have an account? Sign Up</a>
+	                </div>
+	            </div>
+
+	            <!-- Loader -->
+	            <div class="justify-content-center mt-5 mb-5" style="display: none;" id="loader">
+	                <div class="spinner-border text-success" role="status">
+	                    <span class="visually-hidden">Loading...</span>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</div>
 
     <div th:replace="~{footer :: div}"></div>
 
