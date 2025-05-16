@@ -14,57 +14,64 @@
 <body>
 
     <div th:replace="~{header :: nav}"></div>
+	
 	<div class="container mt-5 d-flex justify-content-center">
-	    <div class="col-md-6">
-	        <div class="card border">
-	            <div class="card-header text-center border-bottom ">
-	                <h2 class="mb-0">Login</h2>
+    	<div class="col-md-6">
+        	<div class="mycard">
+            
+	            <!-- Card Header -->
+	            <div class="text-center border-bottom">
+	                <h2 class="card-title m-2">Login</h2>
 	            </div>
-
+	
 	            <!-- Success Message -->
-	            <div th:if="${param.success}" class="alert alert-success text-center" role="alert">
+				<div th:if="${param.success}" class="alert alert-success text-center" role="alert">
 	                <span th:text="'Login successful! You are redirected at Home Page In 3 Seconds ...'"></span>
 	            </div>
-
+	
 	            <div class="card-body" id="login">
 
-	                <!-- Error Message -->
-	                <div th:if="${param.error}" class="alert alert-danger" role="alert">
-	                    <span th:text="'Login failed. Please check your username and password.'"></span>
-	                </div>
+                <!-- Error Message -->
+                <div th:if="${param.error}" class="alert alert-danger" role="alert">
+                    <span th:text="'Login failed. Please check your username and password.'"></span>
+                </div>
 
-	                <!-- Logout Message -->
-	                <div th:if="${param.logout}" class="alert alert-primary" role="alert">
-	                    <span th:text="'Logout Successfully.'"></span>
-	                </div>
+                <!-- Logout Message -->
+                <div th:if="${param.logout}" class="alert alert-primary" role="alert">
+                    <span th:text="'Logout Successfully.'"></span>
+                </div>
 
-	                <!-- Login Form -->
+            <!-- Login Form -->
+	            <div class="card-body p-3" id="login">
 	                <form th:action="@{/login}" method="post">
+	
 	                    <div class="mb-3">
-	                        <label for="username" class="form-label">Username</label>
-	                        <input type="text" class="form-control " id="username" name="username" required>
+	                        <label for="username" class="username">Username</label>
+	                        <input type="text" class="form-control" id="username" name="username" required>
 	                    </div>
+	
 	                    <div class="mb-3">
-	                        <label for="password" class="form-label">Password</label>
-	                        <input type="password" class="form-control " id="password" name="password" required>
+	                        <label for="password" class="username">Password</label>
+	                        <input type="password" class="form-control" id="password" name="password" required>
 	                    </div>
-	                    <button type="submit" class="btn btn-primary w-100">Login</button>
+	
+	                    <button type="submit" class="tag color-1-clicked w-100 mt-3">Login</button>
 	                </form>
-
-	                <div class="mt-3 text-center">
-	                    <a href="/register" class="link-primary">Don't have an account? Sign Up</a>
+	
+	                <div class="mt-4 text-center">
+	                    <a href="/register" class="link">Don't have an account? Sign Up</a>
 	                </div>
 	            </div>
-
-	            <!-- Loader -->
-	            <div class="justify-content-center mt-5 mb-5" style="display: none;" id="loader">
-	                <div class="spinner-border text-success" role="status">
-	                    <span class="visually-hidden">Loading...</span>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	</div>
+			</div>
+            <!-- Loader -->
+			<div class="justify-content-center mt-5 mb-5" style="display: none;" id="loader">
+                <div class="spinner-border text-success" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <div th:replace="~{footer :: div}"></div>
 
