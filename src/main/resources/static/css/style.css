@@ -1659,7 +1659,7 @@ button {
   width: 35px;
   padding: 6px 4px;
   text-align: center;
-  margin-right: 6px 4px;
+  margin: 6px 4px;
   border: 1px solid;
   border-radius: 5px;
   transition: all 0.5s;
