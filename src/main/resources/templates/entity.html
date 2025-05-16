@@ -100,8 +100,8 @@
 		</div>
 
 
-		<div class="container mt-4 mb-4" id="entityBox" th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
-			<div class="row d-flex align-items-center p-3" style=" border-radius: 5px; background: dimgrey; ">
+		<div class="container post mt-4 mb-4" id="entityBox" th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
+			<div class="row d-flex align-items-center p-3 " style=" border-radius: 5px; ">
 				<div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
 					<div class="card"
 						th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }">
@@ -114,12 +114,12 @@
 				<div class="col-lg-6 col-md-12">
 					<div class="card">
 						<div class="card-body">
-							<h2 class="text-light"
+							<h2 class="post-title"
 								th:text=" ${entity.title != null && entity.title != '' ? entity.title : ''} "></h2>
-							<h3 class="text-secondary"
+							<h3 class="username"
 								th:text=" ${entity.type != nulll && entity.type != '' ? #strings.toUpperCase( #strings.substring(entity.type, 0, 1) ) + #strings.toLowerCase( #strings.substring(entity.type, 1) ) : '' }">
 								Category</h3>
-							<h4 class="text-dark" style=" font-family : 'bootstrap-icons'; "
+							<h4 class="bio" 
 								th:text=" ${entity.description != null && entity.description != '' ? entity.description : '' } ">
 							</h4>
 						</div>
