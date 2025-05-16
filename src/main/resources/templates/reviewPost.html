@@ -47,82 +47,12 @@
 		<div class="post-content" id="post-content">
 			<div class="container">
 
-
-				<div class="author-box">
-					<div class="author-profile">
-						<img th:src="${post.image != null && post.image != '' ? post.image : '/images/logo.jpg'}"
-							alt="Author Profile Picture" class="author-image">
-					</div>
-					<div class="author-details">
-						<h3 class="author-name" th:text="${post.name}"></h3><span
-							th:text="'@' + ${post.username}"></span>
-						<p class="author-bio" th:text="${post.bio}"></p>
-					</div>
-				</div>
-
-				<div class="d-flex text-center">
-
-					<h2 class="post-title" th:text="${post.title}"></h2>
-
-					<div class="post-category" style="margin-top : auto; margin-bottom: auto; ">
-						<span class="category-name" th:text="${post.category}"></span>
-					</div>
-
-				</div>
-
-				<div th:classappend="${#strings.length(post.description) > 1000} ? 'post-image-large' : 'post-image-flex'"
-					class="post-image">
-					<img th:if="${post.media != null and post.media != '' }"
-						th:src="${post.media != null && post.media != '' ? post.media : ''}" alt="Post Image"
-						th:style="${#strings.length(post.description) > 1000} ? 'width: inherit; height: inherit;' : 'width: 300px; height: 300px;'" />
-
-					<div class="post-content" style="overflow-wrap:anywhere;">
-						<!-- Show full description if less than or equal to 1000 characters -->
-						<p class="post-description" th:if="${post.description.length() <= 1000}"
-							th:text="${post.description}" style="text-align: left;"></p>
-
-						<!-- Show truncated description if more than 1000 characters -->
-						<p class="post-description" th:if="${post.description.length() > 1000}"
-							style="text-align: left;">
-							<span th:text="${post.description.substring(0, 1000)}"></span>
-							<span class="more-text" style="display: none;"
-								th:text="${post.description.length() > 2500 ? post.description.substring(1000, 2500) : post.description.substring(1000)}"></span>
-							<button class="toggle-button" style="width:auto;" onclick="toggleReadMore(this)">Read
-								more...</button>
-						</p>
-					</div>
-				</div>
-
-				<div class="mycard d-flex" id="remaining"
-					style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-					<div th:if="${#lists.isEmpty(post.keywords)}">
-						<h2 style="display: inline; color: #5c5b5b;">Keywords Not Selected</h2>
-					</div>
-					<div th:if="${!#lists.isEmpty(post.keywords)}">
-						<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
-					</div>
-					<th:block th:each="keyword, iterStat : ${post.keywords}">
-						<button th:class="'tag color-' + ${post.buttonIndex.get(iterStat.index)} + '-clicked'"
-							th:attr="data-keyword=${keyword}" class="tag" th:text="${keyword}">
-						</button>
-					</th:block>
-				</div>
-
-				<div class="post-metadata">
-					<div class="author-info">
-						<i class="icon-user"></i>
-						<span class="author-bio" th:text="'@' + ${post.username}"></span>
-					</div>
-					<div class="post-date">
-						<i class="icon-calendar"></i>
-						<span class="date-text" th:text="${post.updatedat}"></span>
-					</div>
-				</div>
+				<div th:replace="~{post :: div} "></div>
 
 				<!-- Action Buttons -->
 				<div class="post-actions">
 					<form th:action="@{/doPost}" method="post">
-						<input type="hidden" name="id" th:value="${post.articleid}" />
+						<input type="hidden" name="id" th:value="${articleid}" />
 						<button type="submit" class="btn-confirm" onclick="hidePost()">Confirm</button>
 					</form>
 					<a onclick="cancel(event)" class="btn-cancel" style="margin-top: 5px; height:100%;">Cancel</a>

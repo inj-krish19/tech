@@ -1121,7 +1121,7 @@ public class JdbcController {
 	                    System.out.println("Keyword Assignments Inserted." +  insertKeywordAssignmentSql);
 	                }
 	            }
-	        }
+	        }	
 	        
 	        String sql = """
 	    	        SELECT p.articleid, 
@@ -1205,7 +1205,7 @@ public class JdbcController {
                 post.put("postComments", comment);
 	    	            
 	    	            post.put("articleid", articleId);
-                post.put("author", rs.getLong("author"));
+	    	            post.put("author", rs.getLong("author"));
 	    	            post.put("title", rs.getString("title"));
 	    	            post.put("disable",false);
 	    	            post.put("description", rs.getString("description"));
@@ -1224,7 +1224,7 @@ public class JdbcController {
 	    	            post.put("name", rs.getString("name"));
 	    	            post.put("username", rs.getString("username"));
 	    	            post.put("bio", rs.getString("bio"));
-                post.put("status", rs.getString("status"));
+	    	            post.put("status", rs.getString("status"));
 	    	            post.put("category", rs.getString("category"));
 	                    if( rs.getString("media") == null || rs.getString("media").equals("") ) {
 	    	post.put("media", null);
@@ -1269,7 +1269,8 @@ public class JdbcController {
 	    	            return post;
 
 	            }, newArticleId);
-	    	
+
+	        	model.addAttribute("title", newArticleId);	    	
 	            List<String> colors = new ArrayList<>(
 	        			List.of(
 	        				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
@@ -1277,7 +1278,7 @@ public class JdbcController {
 	        		);
 	            
 	            model.addAttribute("colors", colors);
-	            model.addAttribute("post", posts.get(0));
+	            model.addAttribute("posts", posts);
 	        
 	        if (this.userExist != "" && userExist != null ) {
 	            model.addAttribute("loggedInUser", userExist); // Add the logged-in username
@@ -2045,6 +2046,8 @@ public class JdbcController {
             	}
 	            current.put("comments", comments );
 
+	            current.put("status", false);
+	            
 	            sql = """
 	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
 	            		""" + author;
@@ -2059,6 +2062,7 @@ public class JdbcController {
             	current.put("followers", 0);
             	current.put("followersList", null);
             	current.put("likes", 0);
+            	current.put("status", false);
             	current.put("comments", 0);
 	        }                       
             
@@ -6246,6 +6250,10 @@ public class JdbcController {
             		
             	}
 	            current.put("comments", comments );
+	            
+                sql = "SELECT COUNT(*) FROM Connection WHERE followerId = " + id + " AND followingId = " + author ;
+                Long count = jdbcTemplate.queryForObject(sql, Long.class);
+                current.put("status", count != null && count > 0 ); 
 
 	            sql = """
 	            		SELECT COUNT(*) AS posts FROM Post WHERE primaryAuthor =
@@ -6261,6 +6269,7 @@ public class JdbcController {
             	current.put("followers", 0);
             	current.put("followersList", null);
             	current.put("likes", 0);
+            	current.put("status", false);
             	current.put("comments", 0);
 	        }                       
             
