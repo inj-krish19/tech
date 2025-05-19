@@ -4231,7 +4231,7 @@ public class JdbcController {
     	return "show";
     }
     
-    */
+    *//*
     @GetMapping("/enums")
     public String enums() {
 
@@ -4480,13 +4480,14 @@ public class JdbcController {
         	    $$;
         	""");
             
+            /*
+             * Now not needed cause
+             * Backup Script is created
+
             Long count = jdbcTemplate.queryForObject("""
                 SELECT COUNT(*) FROM Category
             """,Long.class);
             
-            /*
-             * Now not needed cause
-             * Backup Script is created
         	jdbcTemplate.execute("""
             			INSERT INTO Category (categoryid, createdat, updatedat, createdby, categorydescription, categoryicon, name)
             			VALUES 
@@ -4511,7 +4512,7 @@ public class JdbcController {
 				(4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'Rust is general purpose fast in computation programming language', 'rust.jpg', 'Rust');
                  """);
             }
-            */
+            / * /
 
             // Add triggers to tables with `updated_at` column
             jdbcTemplate.execute("""
@@ -4576,7 +4577,7 @@ public class JdbcController {
             
     } 
     
-    /*
+    *//*
     @GetMapping("/xyz")
     public String xyz() {
 
