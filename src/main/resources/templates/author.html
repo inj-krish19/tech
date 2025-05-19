@@ -54,44 +54,47 @@
 		<div class="container p-5" id="blogger-container">
 			<div th:each="blogger : ${bloggers}" class="col-12 mb-4">
 
-            <div th:class="'card blogger-card flex-row ' + (${isMe == blogger.authorId ? 'me' : ''})"
-                 th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
+			<div th:class="'card blogger-card flex-column flex-md-row ' + (${isMe == blogger.authorId ? 'me' : ''})"
+			     th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
 
-                <!-- Profile Image -->
-                <div class="d-flex flex-column gap-2 align-items-center p-3">
-                    <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-                         class="rounded-circle border" alt="Blogger Image" style="width: 120px; height: 120px; object-fit: cover;">
-					 <button
-                         th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
-                         th:class="'btn btn-outline-primary mt-1 ' + (${blogger.status == null ? 'disabled' : ''})">
-                         <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
-                     </button>
-                </div>
+			    <!-- Profile Image -->
+			    <div class="d-flex flex-md-column flex-row gap-3 align-items-center justify-content-center p-3 text-center">
+			        <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
+			             class="rounded-circle border"
+			             alt="Blogger Image"
+			             style="width: 100px; height: 100px; object-fit: cover;">
 
-                <!-- Blogger Info -->
-                <div class="flex-grow-1 p-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h5 class="card-title mb-1" th:text="${blogger.name}"></h5>
-                            <p class="username mb-1 " th:text="'@' + ${blogger.username}"></p>
-                            <p class="joined-date mb-2" th:text="'Joined: ' + ${blogger.createdat}"></p>
-                        </div>
-                    </div>
+			        <button
+			            th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
+			            th:class="'btn btn-outline-primary mt-md-2 mt-0 ' + (${blogger.status == null ? 'disabled' : ''})">
+			            <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
+			        </button>
+			    </div>
 
-                    <!-- Stats -->
-                    <div class="blogger-stats d-flex flex-wrap gap-3 mt-3 text-secondary">
-                        <p><strong th:text="'Followers: ' + ${blogger.followers}"></strong></p>
-                        <p><strong th:text="'Followings: ' + ${blogger.followings}"></strong></p>
-                        <p><strong th:text="${blogger.posts} + ' Posts'"></strong></p>
-                        <p><strong th:text="${blogger.likes} + ' Likes'"></strong></p>
-                        <p><strong th:text="${blogger.comments} + ' Comments'"></strong></p>
-                    </div>
+			    <!-- Blogger Info -->
+			    <div class="flex-grow-1 p-3">
+			        <div class="d-flex justify-content-between align-items-start flex-wrap">
+			            <div>
+			                <h5 class="card-title mb-1" th:text="${blogger.name}"></h5>
+			                <p class="username mb-1 " th:text="'@' + ${blogger.username}"></p>
+			                <p class="joined-date mb-2 small" th:text="'Joined: ' + ${blogger.createdat}"></p>
+			            </div>
+			        </div>
 
-                    <!-- Bio -->
-                    <p class="card-text bio mt-2 mb-0 " th:text="${blogger.bio != null ? blogger.bio : 'No bio available. This user prefers to keep an air of mystery.'}"></p>
-                </div>
+			        <!-- Stats -->
+			        <div class="blogger-stats d-flex flex-wrap gap-3 mt-2 text-secondary small">
+			            <p class="mb-0"><strong th:text="'Followers: ' + ${blogger.followers}"></strong></p>
+			            <p class="mb-0"><strong th:text="'Followings: ' + ${blogger.followings}"></strong></p>
+			            <p class="mb-0"><strong th:text="${blogger.posts} + ' Posts'"></strong></p>
+			            <p class="mb-0"><strong th:text="${blogger.likes} + ' Likes'"></strong></p>
+			            <p class="mb-0"><strong th:text="${blogger.comments} + ' Comments'"></strong></p>
+			        </div>
 
-            </div>
+			        <!-- Bio -->
+			        <p class="card-text bio mt-3 mb-0 small"
+			           th:text="${blogger.bio != null ? blogger.bio : 'No bio available. This user prefers to keep an air of mystery.'}"></p>
+			    </div>
+			</div>
 		</div>
 
 
