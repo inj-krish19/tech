@@ -78,7 +78,7 @@
 			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
 				<h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
 				<th:block th:each="category, iterStat : ${categories}">
-					<button th:class="'tag color-' + ${iterStat.index} + '-clicked'"
+					<button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'"
 						th:attr="data-category=${category}, data-url='/entity/category/' + ${category}"
 						th:text="${category}">
 					</button>
@@ -91,7 +91,7 @@
 			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
 				<h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
 				<th:block th:each="keyword, iterStat : ${keywords}">
-					<button th:class="'tag color-' + ${iterStat.index}"
+					<button th:class="'tag color-' + ${iterStat.index % colors.size()}"
 						th:attr="data-keyword=${keyword}, data-url='/entity/keyword/' + ${keyword}"
 						th:text="${keyword}">
 					</button>

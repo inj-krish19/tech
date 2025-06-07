@@ -335,8 +335,16 @@ public class JdbcController {
 
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                )
     		);
     	
     	model.addAttribute("colors", colors);
@@ -529,8 +537,16 @@ public class JdbcController {
 
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                )
     		);
     	
     	model.addAttribute("colors", colors);
@@ -883,8 +899,16 @@ public class JdbcController {
 
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-    				)
+    				"red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+    			)
     		);
     	
     	model.addAttribute("colors", colors);
@@ -981,8 +1005,16 @@ public class JdbcController {
 
         List<String> colors = new ArrayList<>(
 			List.of(
-				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-				)
+                "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+            )
 		);
     	
     	System.out.println("Keywords : " + keywords);
@@ -1273,8 +1305,16 @@ public class JdbcController {
 	        	model.addAttribute("title", newArticleId);	    	
 	            List<String> colors = new ArrayList<>(
 	        			List.of(
-	        				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-	        				)
+                            "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                            "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                            "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                            "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                            "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                            "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                            "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                            "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                            "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                        )
 	        		);
 	            
 	            model.addAttribute("colors", colors);
@@ -1484,8 +1524,16 @@ public class JdbcController {
 	
 		List<String> colors = new ArrayList<>(
 				List.of(
-					"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-					)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+				)
 			);
 		
 		model.addAttribute("colors", colors);
@@ -1559,8 +1607,16 @@ public class JdbcController {
 
         List<String> colors = new ArrayList<>(
     			List.of(
-    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+    			)
     		);
     	model.addAttribute("colors", colors);
         
@@ -1756,8 +1812,16 @@ public class JdbcController {
         
         List<String> colors = new ArrayList<>(
     			List.of(
-    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+    			)
     		);
     	model.addAttribute("colors", colors);
 
@@ -1917,8 +1981,16 @@ public class JdbcController {
     	
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                )
     		);
     	
     	model.addAttribute("colors", colors);
@@ -2311,8 +2383,16 @@ public class JdbcController {
 
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"	
+                )
     		);
     	
     	model.addAttribute("colors", colors);
@@ -2822,9 +2902,16 @@ public class JdbcController {
 	
 	    List<String> colors = new ArrayList<>(
 	    		List.of(
-	    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-	    				)
-	    		);
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"                )
+            );
 	    
 	    model.addAttribute("colors", colors);
 
@@ -3845,8 +3932,16 @@ public class JdbcController {
 
   	List<String> colors = new ArrayList<>(
   			List.of(
-  				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-  				)
+                "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"	
+            )
   		);
   	
   	model.addAttribute("colors", colors);
@@ -4860,8 +4955,16 @@ public class JdbcController {
         
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                )
     		);
     	
         if (this.userExist != null && !this.userExist.isEmpty()) {
@@ -5277,8 +5380,16 @@ public class JdbcController {
         
     	List<String> colors = new ArrayList<>(
 			List.of(
-				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-				)
+                "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+            )
 		);
     	
     	model.addAttribute("topic", this.capitalize(target.substring(1,target.length() - 1)) ); 
@@ -5429,8 +5540,15 @@ public class JdbcController {
         
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-    				)
+    			    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"                )
     		);
     	
         if (this.userExist != null && !this.userExist.isEmpty()) {
@@ -5847,8 +5965,16 @@ public class JdbcController {
         
     	List<String> colors = new ArrayList<>(
 			List.of(
-				"purple", "cyan",  "green", "red", "blue", "black", "aliceblue", "yellow", "brown", "lightgreen", "lightblue", "pink"
-				)
+                "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"	
+            )
 		);
     	
     	model.addAttribute("topic", this.capitalize(target.substring(1,target.length() - 1)) ); 
@@ -6520,8 +6646,16 @@ public class JdbcController {
 
     	List<String> colors = new ArrayList<>(
     			List.of(
-    				"green", "blue","red", "purple", "lightgreen", "lightblue", "pink", "aliceblue", "black", "cyan",  "yellow", "brown"
-    				)
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"
+                )
     		);
     	
     	model.addAttribute("colors", colors);

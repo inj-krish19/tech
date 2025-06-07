@@ -106,7 +106,7 @@
                             <div class="mycard d-flex" id="remaining"
                                 style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
                                 <th:block th:each="keyword, iterStat : ${keywords}">
-                                    <button th:class="'tag color-' + ${iterStat.index}"
+                                    <button th:class="'tag color-' + ${iterStat.index % colors.size()}"
                                         th:attr="data-keyword=${keyword}" class="tag" th:text="${keyword}"
                                         onclick="selectKeyword(this, event)">
                                     </button>
