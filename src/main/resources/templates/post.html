@@ -111,7 +111,7 @@
 				    <h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
 				</div>
 			    <th:block th:each="keyword, iterStat : ${post.keywords}">
-			        <button th:class="'tag color-' + ${iterStat.index} + '-clicked'" 
+			        <button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'" 
 			                th:attr="data-keyword=${keyword}" 
 					        th:attrappend="data-url='/mass-filter/keyword/' + ${keyword}" 
 					        class="tag" 
@@ -365,7 +365,7 @@
 					<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
 				</div>
 				<th:block th:each="keyword, iterStat : ${post.keywords}">
-					<button th:class="'tag color-' + ${iterStat.index} + '-clicked'" th:attr="data-keyword=${keyword}"
+					<button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'" th:attr="data-keyword=${keyword}"
 						th:attrappend="data-url='/mass-filter/keyword/' + ${keyword}" class="tag" th:text="${keyword}"
 						style="background-color: var(--button-bg); color: var(--button-text); border: none; border-radius: 5px; padding: 5px 10px;">
 					</button>
