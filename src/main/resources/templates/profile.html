@@ -14,13 +14,6 @@
 
 
 </head>
-
-<style>
-	.special {
-		color: #fff;
-		width: 100%;
-	}
-</style>
    	
 <style th:each="color, iterStat : ${colors}">
 	.color-[[${iterStat.index}]] {
@@ -133,6 +126,17 @@
 
 					<h2 class="text-center" style="margin-bottom: 15px;">Profile </h2>
 					<div class="mb-3">
+						<label for="name" class="form-label">Name</label>
+						<div class="input-group">
+							<input type="text" class="form-control custom-input-box" id="name" name="name"
+								th:value="${user.name}" disabled>
+							<button class="btn btn-outline-primary custom-icon-box" type="button" data-bs-toggle="modal"
+								data-bs-target="#editNameModal">
+								<i class="bi bi-pencil"></i>
+							</button>
+						</div>
+					</div>
+					<div class="mb-3">
 						<label for="username" class="form-label">Username</label>
 						<div class="input-group">
 							<input type="text" class="form-control custom-input-box" id="username" name="username"
@@ -193,6 +197,31 @@
 
 
 					<!-- Modals for Editing -->
+					<!-- Edit Username Modal -->
+					<div class="modal fade" id="editNameModal" tabindex="-1"
+						aria-labelledby="editNameModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content bg-secondary text-light">
+								<div class="modal-header">
+									<h5 class="modal-title" id="editUsernameModalLabel">Edit Name</h5>
+									<button type="button" class="btn-close" data-bs-dismiss="modal"
+										aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<input type="text" class="form-control" id="editName" name="editName"
+										th:value="${user.name}">
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary"
+										data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary"
+										onclick="updateProfile('name')">Save
+										changes</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					
 					<!-- Edit Username Modal -->
 					<div class="modal fade" id="editUsernameModal" tabindex="-1"
 						aria-labelledby="editUsernameModalLabel" aria-hidden="true">
@@ -296,7 +325,7 @@
 				<div class="container tab-pane fade" id="nav-follower" role="tabpanel"
 					aria-labelledby="nav-follower-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followers </h2>
-					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followersList)}" class="post-content text-center">
 						<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
 					<div th:each="blogger : ${followersList}" class="container m-5 mx-auto" style="max-width:800px;">
@@ -318,7 +347,7 @@
 				<div class="container tab-pane fade" id="nav-following" role="tabpanel"
 					aria-labelledby="nav-following-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followings </h2>
-					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followingsList)}" class="post-content text-center">
 						<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
 					<div th:each="blogger : ${followingsList}" class="container m-5 mx-auto" style="max-width:800px;">
@@ -344,7 +373,7 @@
 			</div>
 		</div>
 	</div>
-	
+	</div>
 	
 
 	<div th:replace="~{footer :: div}"></div>
@@ -415,6 +444,9 @@
 		function updateProfile(field) {
 			let value;
 			switch (field) {
+			case 'name':
+				value = document.getElementById('editName').value;
+				break;
 				case 'username':
 					value = document.getElementById('editUsername').value;
 					break;

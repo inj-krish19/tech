@@ -15,13 +15,6 @@
 
 </head>
 
-<style>
-	.special {
-		color: #fff;
-		width: 100%;
-	}
-</style>
-
 <style th:each="color, iterStat : ${colors}">
 	.color-[[${iterStat.index}]] {
 	    background-color: white;
@@ -129,7 +122,7 @@
 				<div class="container tab-pane fade" id="nav-follower" role="tabpanel"
 					aria-labelledby="nav-follower-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followers </h2>
-					<div th:if="${#lists.isEmpty(followersList)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followersList)}" class="post-content text-center">
 						<h2 th:text="${news != null ? news : 'Yet to start journey to find Followers'}"></h2>
 					</div>
 					<div th:each="blogger : ${followersList}" class="container m-5 mx-auto" style="max-width:800px;">
@@ -151,7 +144,7 @@
 				<div class="container tab-pane fade" id="nav-following" role="tabpanel"
 					aria-labelledby="nav-following-tab">
 					<h2 class="text-center" style="margin-bottom: 15px;">Followings </h2>
-					<div th:if="${#lists.isEmpty(followingsList)}" class="alert alert-dark text-center">
+					<div th:if="${#lists.isEmpty(followingsList)}" class="post-content text-center">
 						<h2 th:text="${news != null ? news : 'Yet to explore experts in Journey '}"></h2>
 					</div>
 					<div th:each="blogger : ${followingsList}" class="container m-5 mx-auto" style="max-width:800px;">

@@ -1,13 +1,12 @@
 <div class="container" id="blogger-container">
-    <div th:if="${#lists.isEmpty(bloggers)}" class="alert alert-dark text-center">
+    <div th:if="${#lists.isEmpty(bloggers)}" class="post-content text-center">
         <h2 th:text="${news == null ? 'Our Bloggers' : 'Bloggers Are Inactive Right Now'}"></h2>
     </div>
 
     <div class="row mb-4" id="blogger-list">
         <div th:each="blogger : ${bloggers}" class="col-12 col-md-6 col-lg-4 mb-4">
 
-            <div th:class="'card blogger-card ' + (${isMe == blogger.authorId ? 'me' : ''} )"
-                 th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null">
+            <div th:class="'card blogger-card ' + (${isMe == blogger.authorId ? 'me' : ''} )" >
 
                 <div class="card-body text-center">
 
@@ -21,12 +20,19 @@
                     <h5 class="card-title" th:text="${blogger.name}"></h5>
                     <p class="card-text username" th:text="'@' + ${blogger.username}"></p>
 
-                    <!-- Follow/Unfollow Button -->
-                    <button
-                        th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
-                        th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
-                        <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
-                    </button>
+					<div class="d-flex flex-row gap-2">
+	                    <!-- Follow/Unfollow Button -->
+	                    <button
+	                        th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
+	                        th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
+	                        <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
+	                    </button>
+						
+						<button
+	                        th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
+	                        <i class="bi bi-eye"></i>
+						</button>
+					</div>
 
                     <!-- Blogger Stats -->
                     <div class="blogger-stats mt-3">
