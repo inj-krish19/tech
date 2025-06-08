@@ -1,5 +1,5 @@
 <!-- div class="deep-posts-list" id="post-container">
-    <div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
+    <div th:if="${#lists.isEmpty(posts)}" class="post-content text-center">
         <h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
     </div>
 
@@ -182,7 +182,7 @@
 
 
 <div class="posts-list mx-auto" id="post-container">
-	<div th:if="${#lists.isEmpty(posts)}" class="alert alert-dark text-center">
+	<div th:if="${#lists.isEmpty(posts)}" class="post-content text-center">
 		<h2 th:text="${news != null ? news : 'Posts Are Currently Not Available'}"></h2>
 	</div>
 
@@ -324,7 +324,7 @@
 			</div>
 			<div class="postComments card mt-3 mb-3 p-3" style="display: none; ">
 				<div class="container" th:if="${#lists.isEmpty(post.postComments)}">
-					<h3 class="text-info"> Anybody hasn't shared their thoughts. </h3>
+					<h3 class="post-title"> Anybody hasn't shared their thoughts. </h3>
 				</div>
 				<div th:if="${!#lists.isEmpty(post.postComments)}" th:each="comment : ${post.postComments}"
 					class="container mb-3">
@@ -336,14 +336,14 @@
 						<div class="author-details">
 							<h3 class="author-name" th:text="${comment.name} + ' says, '"></h3>
 							<!-- span th:text="'@'+${comment.username}"></span -->
-							<p class="text-light" th:text="${comment.comment}"></p>
+							<p class="comment-text py-2" th:text="${comment.comment}"></p>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div th:if="${ post.disable == null or post.disable == false}" class="mycard mt-1 mb-3 d-flex"
 				id="remaining"
-				style="flex-direction: row; flex-wrap: wrap; min-height: 50px; border: 1px solid #ddd; border-radius: 5px; padding: 10px; background-color: #f9f9f9;">
+				style="flex-direction: row; flex-wrap: wrap; min-height: 50px; border-radius: 5px; padding: 10px; ">
 				<div class="d-flex flex-grow-1">
 					<img th:src="${personalImage != null && personalImage != '' ? personalImage : '/images/logo.jpg'}"
 						alt="User" class="rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">

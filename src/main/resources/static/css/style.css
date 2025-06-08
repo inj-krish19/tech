@@ -922,7 +922,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   height: 400px;
-  overflow: scroll;
+  overflow-x: scroll;
 }
 
 .operations {
@@ -957,6 +957,12 @@ button {
     color: #495057;
     background-color: #ced4da;
     border-radius: 10px;
+}
+
+.container > .mycard{
+	padding: 1rem;
+	max-height: 250px;
+	overflow-x: scroll;
 }
 
 .tag {
@@ -1156,6 +1162,7 @@ body.light-mode {
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
+
 }
 
 body.dark-mode {
@@ -1436,6 +1443,15 @@ body.dark-mode {
   display: block;
 }
 
+.special {
+	color: var(--text-color);
+	width: 100%;
+}
+
+.special.active{
+	background-color: var(--waikawa-gray-400) !important;
+}
+
 .slider-container {
   height: 550px; /* slightly bigger than image height */
 }
@@ -1482,10 +1498,20 @@ body.dark-mode {
     margin-bottom: 0.5rem;
 }
 
+.card-body{
+	background: var(--bg-page);
+}
+
 .username {
     color: var(--accent-color);
     font-size: var(--font-size-sm);
     margin-bottom: var(--spacing-xs);
+}
+
+.comment-text{
+	color: var(--accent-color);
+	font-size: var(--font-size-sm);
+	margin-bottom: var(--spacing-xs);
 }
 
 /* Follow Button */
