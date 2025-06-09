@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -92,18 +93,36 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-    	
-        List<UserDetails> users = new ArrayList<>();
-        users.add(new MyUserDetails(admin_username, passwordEncoder.encode(admin_password), List.of(new SimpleGrantedAuthority("ROLE_ADMIN")), null));
-        jdbcTemplate.query("SELECT authorId, username, password FROM Blogger", 
-            (rs, rowNum) -> users.add(new MyUserDetails(
-                rs.getString("username"), 
-                rs.getString("password"), 
-                List.of(new SimpleGrantedAuthority("ROLE_USER")), 
-                rs.getInt("authorId"))
-            )
-        );
-        return new InMemoryUserDetailsManager(users);
+    	return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+                // Check if username matches admin (can be hardcoded)
+                if (username.equals(admin_username)) {
+                    return new MyUserDetails(
+                        admin_username,
+                        passwordEncoder.encode(admin_password),
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN")),
+                        null
+                    );
+                }
+
+                // Query for user in DB
+                try {
+                    return jdbcTemplate.queryForObject(
+                        "SELECT authorId, username, password FROM Blogger WHERE username = ?",
+                        (rs, rowNum) -> new MyUserDetails(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            List.of(new SimpleGrantedAuthority("ROLE_USER")),
+                            rs.getInt("authorId")
+                        ),
+                        username
+                    );
+                } catch (EmptyResultDataAccessException e) {
+                    throw new UsernameNotFoundException("User not found");
+                }
+            }
+        };
     }
 
     @Bean

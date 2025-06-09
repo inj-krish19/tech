@@ -5523,7 +5523,38 @@ public class JdbcController {
     }
 
     @PostMapping("/change")
-    public String changePassword(@RequestParam String username, @RequestParam String password, @RequestParam String confirmPassword, Model model) {
+    public String changePassword(@RequestParam String email, @RequestParam String password, @RequestParam String confirmPassword, Model model) {
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match!");
+            return "change"; // return to same page with error
+        }
+
+        String sqlCheck = "SELECT COUNT(*) FROM blogger WHERE email = ?";
+        Integer count = jdbcTemplate.queryForObject(sqlCheck, Integer.class, email);
+
+        if (count == null || count == 0) {
+            model.addAttribute("error", "User not found!");
+            return "redirect:/change?error=true";
+        }
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        
+        String encodedPassword = passwordEncoder.encode(password);
+        String sqlUpdate = "UPDATE blogger SET password = ? WHERE email = ?";
+        int rows = jdbcTemplate.update(sqlUpdate, encodedPassword, email);
+
+        if (rows > 0) {
+            model.addAttribute("success", "Password changed successfully!");
+        } else {
+            model.addAttribute("error", "Password update failed!");
+        }
+
+        model.addAttribute("success", "Password changed successfully!");
+        return "redirect:/change?success=true"; // you can redirect or show success on same page
+    }
+
+    @PostMapping("/unacess-secret")
+    public String unaccessed(@RequestParam String username, @RequestParam String password, @RequestParam String confirmPassword, Model model) {
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match!");
             return "change"; // return to same page with error
@@ -5534,7 +5565,7 @@ public class JdbcController {
 
         if (count == null || count == 0) {
             model.addAttribute("error", "User not found!");
-            return ":/change?error=true";
+            return "redirect:/change?error=true";
         }
 
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -5550,9 +5581,8 @@ public class JdbcController {
         }
 
         model.addAttribute("success", "Password changed successfully!");
-        return ":/change?success=true"; // you can redirect or show success on same page
+        return "redirect:/change?success=true"; // you can redirect or show success on same page
     }
-
 
     @GetMapping("/entity")
     public String hideEntityPage(Model model) {
