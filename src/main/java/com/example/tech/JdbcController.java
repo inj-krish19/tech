@@ -5516,8 +5516,44 @@ public class JdbcController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
-
     
+    @GetMapping("/change")
+    public String forgotPassword() {
+    	return "change";
+    }
+
+    @PostMapping("/change")
+    public String changePassword(@RequestParam String username, @RequestParam String password, @RequestParam String confirmPassword, Model model) {
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("error", "Passwords do not match!");
+            return "change"; // return to same page with error
+        }
+
+        String sqlCheck = "SELECT COUNT(*) FROM blogger WHERE username = ?";
+        Integer count = jdbcTemplate.queryForObject(sqlCheck, Integer.class, username);
+
+        if (count == null || count == 0) {
+            model.addAttribute("error", "User not found!");
+            return ":/change?error=true";
+        }
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        
+        String encodedPassword = passwordEncoder.encode(password);
+        String sqlUpdate = "UPDATE blogger SET password = ? WHERE username = ?";
+        int rows = jdbcTemplate.update(sqlUpdate, encodedPassword, username);
+
+        if (rows > 0) {
+            model.addAttribute("success", "Password changed successfully!");
+        } else {
+            model.addAttribute("error", "Password update failed!");
+        }
+
+        model.addAttribute("success", "Password changed successfully!");
+        return ":/change?success=true"; // you can redirect or show success on same page
+    }
+
+
     @GetMapping("/entity")
     public String hideEntityPage(Model model) {
 
