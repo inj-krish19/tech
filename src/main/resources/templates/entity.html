@@ -66,82 +66,85 @@
 
 	<div th:replace="~{header :: nav}"></div>
 
-	<div class="container p-4">
+	<div class="container-fluid mt-4 mb-4">
+	    <div class="row">
 
-		<div class="post-title text-center mt-4 mb-4">
-			<h2 th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entities'}"></h2>
-		</div>
+	        <div class="col-lg-3 col-md-12 mb-4">
+	            <div class="mycard d-flex flex-wrap">
+	                <h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
+	                <th:block th:each="category, iterStat : ${categories}">
+	                    <button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'"
+	                        th:attr="data-category=${category}, data-url='/entity/category/' + ${category}"
+	                        th:text="${category}">
+	                    </button>
+	                </th:block>
+	            </div>
+	        </div>
 
+	        <div class="col-lg-6 col-md-12 mb-4">
+	            <div class="container post" id="entityBox" 
+	                 th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
+	                 
+	                <div class="post-title text-center mt-4 mb-4">
+	                    <h2 th:text="${entity.title != null && entity.title != '' ? entity.title : 'Entities'}"></h2>
+	                </div>
 
-		<div class="container mt-4 mb-4">
-			<!-- Categories Section -->
-			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-				<h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
-				<th:block th:each="category, iterStat : ${categories}">
-					<button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'"
-						th:attr="data-category=${category}, data-url='/entity/category/' + ${category}"
-						th:text="${category}">
-					</button>
-				</th:block>
-			</div>
-		</div>
+	                <!-- Entity Media + Description -->
+	                <div class="row align-items-center p-3" style="border-radius: 5px;">
+	                    <div class="col-md-6 mb-4">
+	                        <div class="card"
+	                            th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }">
+	                            <img class="mr-3"
+	                                th:src="'/uploads/' + ${entity.type == 'category' ? 'categories' : entity.type == 'keyword' ? 'keywords' : '' } + '/' +  ${entity.media}"
+	                                style="border-radius: 5px;" alt="Generic placeholder image">
+	                        </div>
+	                    </div>
 
-		<div class="container mt-4 mb-4">
-			<!-- Keywords Section -->
-			<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-				<h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
-				<th:block th:each="keyword, iterStat : ${keywords}">
-					<button th:class="'tag color-' + ${iterStat.index % colors.size()}"
-						th:attr="data-keyword=${keyword}, data-url='/entity/keyword/' + ${keyword}"
-						th:text="${keyword}">
-					</button>
-				</th:block>
-			</div>
-		</div>
+	                    <div class="col-md-6">
+	                        <div class="card">
+	                            <div class="card-body">
+	                                <h2 class="post-title"
+	                                    th:text="${entity.title != null && entity.title != '' ? entity.title : ''}"></h2>
+	                                <h3 class="username"
+	                                    th:text="${entity.type != null && entity.type != '' ? #strings.toUpperCase( #strings.substring(entity.type, 0, 1) ) + #strings.toLowerCase( #strings.substring(entity.type, 1) ) : ''}">
+	                                    Category</h3>
+	                                <h4 class="bio"
+	                                    th:text="${entity.description != null && entity.description != '' ? entity.description : ''}">
+	                                </h4>
+	                            </div>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
 
+	            <div class="container mt-4" id="postsBox">
+	                <h1 th:if="${entity.title != null && entity.title != ''}" class="text-center mb-4"
+	                    th:text="${entity.title} + ' Posts'"></h1>
+	                <div th:if="${posts != null}" th:replace="~{post :: div}"></div>
 
-		<div class="container post mt-4 mb-4" id="entityBox" th:if="${entity.hasPosts != null && entity.hasPosts != ''}">
-			<div class="row d-flex align-items-center p-3 " style=" border-radius: 5px; ">
-				<div class="col-lg-6 col-md-12 mb-4 mb-lg-0">
-					<div class="card"
-						th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }">
-						<img class="mr-3"
-							th:src="'/uploads/' + ${entity.type == 'category' ? 'categories' : entity.type == 'keyword' ? 'keywords' : '' } + '/' +  ${entity.media}"
-							style=" border-radius: 5px; " alt="Generic placeholder image">
-					</div>
-				</div>
-
-				<div class="col-lg-6 col-md-12">
-					<div class="card">
-						<div class="card-body">
-							<h2 class="post-title"
-								th:text=" ${entity.title != null && entity.title != '' ? entity.title : ''} "></h2>
-							<h3 class="username"
-								th:text=" ${entity.type != nulll && entity.type != '' ? #strings.toUpperCase( #strings.substring(entity.type, 0, 1) ) + #strings.toLowerCase( #strings.substring(entity.type, 1) ) : '' }">
-								Category</h3>
-							<h4 class="bio" 
-								th:text=" ${entity.description != null && entity.description != '' ? entity.description : '' } ">
-							</h4>
+					<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
+						<div class="spinner-border text-dark" role="status">
+							<span class="sr-only">Loading...</span>
 						</div>
 					</div>
-				</div>
-			</div>
-		</div>
+	            </div>
+	        </div>
 
-		<div class="container mt-4">
-			<div class="container" id="postsBox">
-				<h1 th:if="${entity.title != null && entity.title != '' }" class="text-center mb-4"
-					th:text="${entity.title} + ' Posts'"></h1>
-				<div th:if="${posts != null}" th:replace="~{post :: div}"></div>
-			</div>
-			<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
-				<div class="spinner-border text-dark" role="status">
-					<span class="sr-only">Loading...</span>
-				</div>
-			</div>
-		</div>
+	        <div class="col-lg-3 col-md-12 mb-4">
+	            <div class="mycard d-flex flex-wrap">
+	                <h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
+	                <th:block th:each="keyword, iterStat : ${keywords}">
+	                    <button th:class="'tag color-' + ${iterStat.index % colors.size()}"
+	                        th:attr="data-keyword=${keyword}, data-url='/entity/keyword/' + ${keyword}"
+	                        th:text="${keyword}">
+	                    </button>
+	                </th:block>
+	            </div>
+	        </div>
 
+	    </div>
 	</div>
+
 
 
 	<div th:replace="~{footer :: div}"></div>

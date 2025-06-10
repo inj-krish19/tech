@@ -50,47 +50,52 @@
 	}
 </style>
 
-<body>
+<div>
 
 	<div th:replace="~{header :: nav}"></div>
+	<div class="container-fluid mt-4 mb-4">
+	    <div class="row">
 
-	<div class="container mt-4 mb-4">
-		<!-- Categories Section -->
-		<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-			<h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
-			<th:block th:each="category, iterStat : ${categories}">
-				<button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'"
-					th:attr="data-category=${category}, data-url='/mass-filter/category/' + ${category}"
-					th:text="${category}">
-				</button>
-			</th:block>
-		</div>
+	        <div class="col-lg-3 col-md-12 mb-4">
+	            <div class="mycard d-flex flex-wrap" style="min-height: 50px;">
+	                <h2 th:text="${#lists.isEmpty(categories) ? 'Categories Are Not Available' : 'Categories :'}"></h2>
+	                <th:block th:each="category, iterStat : ${categories}">
+	                    <button th:class="'tag color-' + ${iterStat.index % colors.size()} + '-clicked'"
+	                        th:attr="data-category=${category}, data-url='/mass-filter/category/' + ${category}"
+	                        th:text="${category}">
+	                    </button>
+	                </th:block>
+	            </div>
+	        </div>
+
+	        <div class="col-lg-6 col-md-12 mb-4">
+	            <div class="container" id="postsBox">
+	                <h1 th:if="${topic != null}" class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
+	                <div th:if="${posts != null}" th:replace="~{post :: div}"></div>
+	            </div>
+
+	            <div class=" justify-content-center mt-5 mb-5" style="display: none;" id="loader">
+	                <div class="spinner-border text-dark" role="status">
+	                    <span class="sr-only">Loading...</span>
+	                </div>
+	            </div>
+	        </div>
+
+	        <div class="col-lg-3 col-md-12 mb-4">
+	            <div class="mycard d-flex flex-wrap" style="min-height: 50px;">
+	                <h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
+	                <th:block th:each="keyword, iterStat : ${keywords}">
+	                    <button th:class="'tag color-' + ${iterStat.index % colors.size()}"
+	                        th:attr="data-keyword=${keyword}, data-url='/mass-filter/keyword/' + ${keyword}"
+	                        th:text="${keyword}">
+	                    </button>
+	                </th:block>
+	            </div>
+	        </div>
+
+	    </div>
 	</div>
 
-	<div class="container mt-4 mb-4">
-		<!-- Keywords Section -->
-		<div class="mycard d-flex" style="flex-direction: row; flex-wrap: wrap; min-height: 50px;">
-			<h2 th:text="${#lists.isEmpty(keywords) ? 'Keywords Are Not Available' : 'Keywords :'}"></h2>
-			<th:block th:each="keyword, iterStat : ${keywords}">
-				<button th:class="'tag color-' + ${iterStat.index % colors.size()}"
-					th:attr="data-keyword=${keyword}, data-url='/mass-filter/keyword/' + ${keyword}"
-					th:text="${keyword}">
-				</button>
-			</th:block>
-		</div>
-	</div>
-
-	<div class="container mt-4">
-		<div class="container" id="postsBox">
-			<h1 th:if="${topic != null}" class="text-center mb-4" th:text="${topic} + ' Posts'"></h1>
-			<div th:if="${posts != null}" th:replace="~{post :: div}"></div>
-		</div>
-		<div class="justify-content-center mt-5 mb-5 " style="display :none; " id="loader">
-			<div class="spinner-border text-dark" role="status">
-				<span class="sr-only">Loading...</span>
-			</div>
-		</div>
-	</div>
 	<div th:replace="~{footer :: div}"></div>
 
 	<script>
