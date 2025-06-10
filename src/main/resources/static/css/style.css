@@ -866,10 +866,6 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-.post-card h2 {
-  color: #f8f9fa;
-}
-
 .post-category .badge {
   background-color: #444950;
 }
@@ -961,7 +957,7 @@ button {
 
 .container > .mycard{
 	padding: 1rem;
-	max-height: 250px;
+	max-width: 250px;
 	overflow-x: scroll;
 }
 
