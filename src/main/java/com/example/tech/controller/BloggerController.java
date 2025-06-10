@@ -3,6 +3,7 @@ package com.example.tech.controller;
 import com.example.tech.model.Blogger;
 import com.example.tech.service.BloggerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

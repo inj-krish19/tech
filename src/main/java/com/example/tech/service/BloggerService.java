@@ -10,9 +10,12 @@ import java.util.Optional;
 
 @Service
 public class BloggerService {
+	
+    private final BloggerRepository bloggerRepository;
 
-    @Autowired
-    private BloggerRepository bloggerRepository;
+    public BloggerService(BloggerRepository bloggerRepository) {
+        this.bloggerRepository = bloggerRepository;
+    }
 
     // Get all bloggers
     public List<Blogger> getAllBloggers() {
