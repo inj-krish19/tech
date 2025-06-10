@@ -1,5 +1,6 @@
 package com.example.tech;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,13 +12,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.servlet.http.HttpSession;
-
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.MediaType;
+import org.springframework.util.StreamUtils;
 @Controller
 public class HomeController {
 
@@ -27,6 +31,18 @@ public class HomeController {
     
     String userExist = "";
 	
+    @GetMapping("/favicon.ico")
+    public ResponseEntity<byte[]> getFavicon() throws IOException {
+        ClassPathResource imgFile = new ClassPathResource("static/images/logo.jpg");
+        byte[] bytes = StreamUtils.copyToByteArray(imgFile.getInputStream());
+
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.parseMediaType("image/x-icon"))
+                .body(bytes);
+    }
+
+    
     @GetMapping("/login") // Maps to /login (http://localhost:8080/login)
     public String login(Model model, Principal principal) {
         

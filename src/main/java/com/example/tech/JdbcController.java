@@ -3421,17 +3421,7 @@ public class JdbcController {
             tempPost.put("isDisliked", false);
             tempPost.put("disable", true);
 
-            // Fetch keywords for the current article
-            for( String keyword: keywords ) {
-            	if( 
-            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
-            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
-            		) {
-            		tempKeywords.add( keyword );
-            	}
-            }
-            
-            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+            tempPost.put("keywords", null  );
 
             
             if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
@@ -3715,18 +3705,8 @@ public class JdbcController {
             tempPost.put("isLiked", false);
             tempPost.put("isDisliked", false);
             tempPost.put("disable", true);
-
-            // Fetch keywords for the current article
-            for( String keyword: keywords ) {
-            	if( 
-            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
-            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
-            		) {
-            		tempKeywords.add( keyword );
-            	}
-            }
             
-            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+            tempPost.put("keywords", null );
 
             
             if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
@@ -3765,6 +3745,23 @@ public class JdbcController {
         }else {
         	response.put("personalImage",null);
         }
+        
+
+      	List<String> colors = new ArrayList<>(
+      			List.of(
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"	
+                )
+      		);
+      	
+      	model.addAttribute("colors", colors);
         
         model.addAttribute("posts", posts);
         model.addAttribute("hasMore", hasMore);
@@ -3898,17 +3895,8 @@ public class JdbcController {
             tempPost.put("isDisliked", false);
             tempPost.put("disable", true);
 
-            // Fetch keywords for the current article
-            for( String keyword: keywords ) {
-            	if( 
-            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
-            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
-            		) {
-            		tempKeywords.add( keyword );
-            	}
-            }
             
-            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+            tempPost.put("keywords", null );
 
             if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
             	tempPost.put("name", "Tech2Xplore Trending News");
@@ -4040,16 +4028,7 @@ public class JdbcController {
             tempPost.put("isDisliked", false);
             tempPost.put("disable", true);
 
-            // Fetch keywords for the current article
-            for( String keyword: keywords ) {
-            	if( 
-            			tempPost.get("description").toString().toLowerCase().contains( keyword.toLowerCase() ) 	||
-            			tempPost.get("title").toString().toLowerCase().contains( keyword.toLowerCase() )		
-            		) {
-            		tempKeywords.add( keyword );
-            	}
-            }
-            tempPost.put("keywords", tempKeywords.size() == 0 ? null : tempKeywords );
+            tempPost.put("keywords", null );
 
             if( tempPost.get("name") == null || tempPost.get("name") == "" ) {
             	tempPost.put("name", "Tech2Xplore Trending News");
@@ -4234,6 +4213,23 @@ public class JdbcController {
         }else {
         	response.put("personalImage",null);
         }
+        
+
+      	List<String> colors = new ArrayList<>(
+      			List.of(
+                    "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
+                    "lime", "teal", "indigo", "gold", "deeppink", "mediumseagreen", "darkorange",
+                    "dodgerblue", "crimson", "orangered", "mediumvioletred", "chartreuse",
+                    "turquoise", "darkturquoise", "springgreen", "mediumspringgreen", "lightseagreen",
+                    "steelblue", "mediumblue", "mediumorchid", "mediumturquoise", "darkcyan",
+                    "royalblue", "forestgreen", "seagreen", "cadetblue", "tomato", "sienna",
+                    "hotpink", "salmon", "darksalmon", "lightsalmon", "cornflowerblue", "slateblue",
+                    "mediumslateblue", "skyblue", "mediumaquamarine", "palevioletred",
+                    "darkgoldenrod", "olive", "darkkhaki", "darkseagreen", "firebrick", "peru"	
+                )
+      		);
+      	
+      	model.addAttribute("colors", colors);
         
         model.addAttribute("posts", posts);
         model.addAttribute("hasMore", hasMore);
