@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/bloggers")
 public class BloggerController {
 
     @Autowired
     private BloggerService bloggerService;
 
     // Get all bloggers
-    @GetMapping("/api/bloggers")
+    @GetMapping("/")
     public List<Blogger> getAllBloggers() {
         return bloggerService.getAllBloggers();
     }
