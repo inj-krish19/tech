@@ -221,14 +221,28 @@ function watchPost(id) {
 }
 
 
+function showToast(message) {
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.visibility = "visible";
+    toast.style.opacity = 1;
+
+    setTimeout(() => {
+        toast.style.opacity = 0;
+        toast.style.visibility = "hidden";
+    }, 2000); // hide after 2 seconds
+}
+
 function copyPost(id) {
     const url = `${window.location.origin}/post/${id}`;
     navigator.clipboard.writeText(url)
         .then(() => {
             console.log("Text copied to clipboard!");
+            showToast("Copied to clipboard!");
         })
         .catch(err => {
             console.error("Failed to copy text: ", err);
+            showToast("Failed to copy text.");
         });
 }
 
