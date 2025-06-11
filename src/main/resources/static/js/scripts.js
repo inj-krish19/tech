@@ -32,7 +32,7 @@ function setMode(mode) {
 }
 
 function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('dark-mode');
 }
 
 function toggleReadMore(button) {
@@ -51,17 +51,17 @@ function toggleReadMore(button) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.tag').forEach(function (button) {
-            button.addEventListener('click', function () {
-                const url = button.getAttribute('data-url');
-                if( ! location.href.includes("create_post") ){	location.href = url;	}
-            });
+    document.querySelectorAll('.tag').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const url = button.getAttribute('data-url');
+            if (!location.href.includes("create_post")) { location.href = url; }
         });
     });
+});
 
 /* function sendRequest( other, blogger, action ){
 	
-	fetch(`/connection/${action}/${blogger}`, {
+    fetch(`/connection/${action}/${blogger}`, {
         method: 'POST'
     })
         .then(response => {
@@ -79,80 +79,80 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 } */
 
-function requestComments( commentButton, status ){
-	
-	console.log(`Post Box is shifting to ${status}`);
-	let commentBox = commentButton.parentElement.parentElement.querySelector(".postComments.card");
-	
-	if( status === "open" ){
-	
-		commentBox.style.display = "block";
-		commentButton.setAttribute("onclick", `requestComments(this, 'close')`);
-		
-	}
-	else if( status === "close" ){
-		
-		commentBox.style.display = "none";
-		commentButton.setAttribute("onclick", `requestComments(this, 'open')`);
-		
-	}
-	
-	
+function requestComments(commentButton, status) {
+
+    console.log(`Post Box is shifting to ${status}`);
+    let commentBox = commentButton.parentElement.parentElement.querySelector(".postComments.card");
+
+    if (status === "open") {
+
+        commentBox.style.display = "block";
+        commentButton.setAttribute("onclick", `requestComments(this, 'close')`);
+
+    }
+    else if (status === "close") {
+
+        commentBox.style.display = "none";
+        commentButton.setAttribute("onclick", `requestComments(this, 'open')`);
+
+    }
+
+
 }
 
-function sendComment( other, articleId ){
-	
-	const comment = other.parentElement.querySelector(".comment");
-	const commentBox = other.parentElement.parentElement.parentElement.querySelector(".postComments > .container");
-	
-	const authorBox = other.parentElement.parentElement.parentElement.querySelector(".author-box");
-	
-	let message = comment.value;
-	let image = "/uploads" + authorBox.querySelector(".author-profile > img").src.split("/uploads")[1];
-	let username = authorBox.querySelector(".author-details > h3").innerHTML;
-	let name = authorBox.querySelector(".author-details > span").innerHTML;
-	let temp;
-	
-	console.log( `Name : ${name}, Image : ${image}, Username : ${username}, Message : ${message}  ` )
-	
-	fetch(`/comment/${articleId}`, {
-	        method: 'POST',
-			headers: {
-	            'Content-Type': 'application/json', // Specify JSON content
-	        },
-	        body: JSON.stringify({
-	            message: comment.value // Use .value to get input or textarea content
-	        })
-	    })
-	        .then(response => {
-				
-	            if (!response.ok) {
-					if( response.status === 400 ){
-						temp = "Failed to Comment"
-						throw new Error("Bad Request")
-					} else if( response.status === 401 ){
-						temp = "Inappropriate Comment. Hate Speech Not Allowed."
-						throw new Error("Unauthorized")
-					} else{
-					temp = "Failed to Comment"
-						throw new Error(`Network response was not ok: ${response.statusText}`);						
-					}
-	            }
-				temp = "Failed to comment";
-	            return response.json(); // Parse JSON
-	        })
-			.then(data => {
-				temp = "Comment Posted Successfully";				
-			    console.log("Server response:", data);
-			})
-			.catch(error => {
-	            console.error("Error:", error);
-	        })
-			.finally( () => {
-				comment.placeholder = temp;	
-				comment.value = "";
-			});
-	
+function sendComment(other, articleId) {
+
+    const comment = other.parentElement.querySelector(".comment");
+    const commentBox = other.parentElement.parentElement.parentElement.querySelector(".postComments > .container");
+
+    const authorBox = other.parentElement.parentElement.parentElement.querySelector(".author-box");
+
+    let message = comment.value;
+    let image = "/uploads" + authorBox.querySelector(".author-profile > img").src.split("/uploads")[1];
+    let username = authorBox.querySelector(".author-details > h3").innerHTML;
+    let name = authorBox.querySelector(".author-details > span").innerHTML;
+    let temp;
+
+    console.log(`Name : ${name}, Image : ${image}, Username : ${username}, Message : ${message}  `)
+
+    fetch(`/comment/${articleId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json', // Specify JSON content
+        },
+        body: JSON.stringify({
+            message: comment.value // Use .value to get input or textarea content
+        })
+    })
+        .then(response => {
+
+            if (!response.ok) {
+                if (response.status === 400) {
+                    temp = "Failed to Comment"
+                    throw new Error("Bad Request")
+                } else if (response.status === 401) {
+                    temp = "Inappropriate Comment. Hate Speech Not Allowed."
+                    throw new Error("Unauthorized")
+                } else {
+                    temp = "Failed to Comment"
+                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                }
+            }
+            temp = "Failed to comment";
+            return response.json(); // Parse JSON
+        })
+        .then(data => {
+            temp = "Comment Posted Successfully";
+            console.log("Server response:", data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        })
+        .finally(() => {
+            comment.placeholder = temp;
+            comment.value = "";
+        });
+
 }
 
 function sendRequest(other, blogger, action) {
@@ -160,7 +160,7 @@ function sendRequest(other, blogger, action) {
     let followingsText = meCard.querySelector(".card-body > p.following > strong");
     //  let otherButton = other.querySelector("button");
     let otherIcon = other.querySelector("i");
-	let godFather = other.parentElement.parentElement.parentElement;
+    let godFather = other.parentElement.parentElement.parentElement;
     let followersText = godFather.querySelector(".card-body > p.follower > strong");
 
     fetch(`/connection/${action}/${blogger}`, {
@@ -187,21 +187,21 @@ function sendRequest(other, blogger, action) {
             }
 
             // Increment followings count for "me"
-			if (action === "follow") {
-			    let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
-			    followingsText.textContent = `Followings : ${currentFollowings + 1}`;
-				
-				currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
-				followersText.textContent = `Followers : ${currentFollowings + 1}`;
-			} else if (action === "unfollow") {
-			    let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
-			    let newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
-			    followingsText.textContent = `Followings : ${newFollowings}`;
-				
-				currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
-			    newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
-			    followersText.textContent = `Followers : ${newFollowings}`;
-			}
+            if (action === "follow") {
+                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+                followingsText.textContent = `Followings : ${currentFollowings + 1}`;
+
+                currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
+                followersText.textContent = `Followers : ${currentFollowings + 1}`;
+            } else if (action === "unfollow") {
+                let currentFollowings = parseInt(followingsText.textContent.split(":")[1].trim());
+                let newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
+                followingsText.textContent = `Followings : ${newFollowings}`;
+
+                currentFollowings = parseInt(followersText.textContent.split(":")[1].trim());
+                newFollowings = Math.max(0, currentFollowings - 1); // Ensure it doesn't go below 0
+                followersText.textContent = `Followers : ${newFollowings}`;
+            }
 
         })
         .catch(error => {
@@ -210,13 +210,26 @@ function sendRequest(other, blogger, action) {
         });
 }
 
-function redirectToBlogger(id){
-	window.location.href = `/blogger/${id}`;
+function redirectToBlogger(id) {
+    window.location.href = `/blogger/${id}`;
 }
 
 
-function watchPost( id ){
-	window.location.href = `/post/${id}`;
+function watchPost(id) {
+    window.location.href = `/post/${id}`;
+    showToast("Previewing Post ...");
+}
+
+
+function copyPost(id) {
+    const url = `${window.location.origin}/post/${id}`;
+    navigator.clipboard.writeText(url)
+        .then(() => {
+            console.log("Text copied to clipboard!");
+        })
+        .catch(err => {
+            console.error("Failed to copy text: ", err);
+        });
 }
 
 
@@ -406,13 +419,13 @@ document.querySelectorAll('.oper').forEach(button => {
 
 $(document).ready(function () {
 
-      $('.menu-toggle').click(function () {
+    $('.menu-toggle').click(function () {
         $('.menu-toggle').toggleClass('active');
         $('nav').toggleClass('active');
         $('nav ul').toggleClass('showing');
-      });
+    });
 
-      $('.posts-wrapper').slick({
+    $('.posts-wrapper').slick({
         slidesToShow: 3,
         slidesToScroll: 1,
         autoplay: true,
@@ -422,36 +435,36 @@ $(document).ready(function () {
         responsive: [{
             breakpoint: 1024,
             settings: {
-              slidesToShow: 3,
-              slidesToScroll: 3,
-              infinite: true,
-              dots: false
+                slidesToShow: 3,
+                slidesToScroll: 3,
+                infinite: true,
+                dots: false
             }
-          },
-          {
+        },
+        {
             breakpoint: 880,
             settings: {
-              slidesToShow: 2,
-              slidesToScroll: 2,
-              infinite: true,
-              dots: false
+                slidesToShow: 2,
+                slidesToScroll: 2,
+                infinite: true,
+                dots: false
             }
-          },
-          {
+        },
+        {
             breakpoint: 480,
             settings: {
-              slidesToShow: 1,
-              slidesToScroll: 1
+                slidesToShow: 1,
+                slidesToScroll: 1
             }
-          }
+        }
         ]
-      });
     });
+});
 
-ClassicEditor.create( document.querySelector( '#body' ) )
-.then( editor => {
-        console.log( editor );
-} )
-.catch( error => {
-        console.error( error );
-} );
+ClassicEditor.create(document.querySelector('#body'))
+    .then(editor => {
+        console.log(editor);
+    })
+    .catch(error => {
+        console.error(error);
+    });

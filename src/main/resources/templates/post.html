@@ -312,14 +312,15 @@
 				</button>
 				<button
 					th:class="'btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })"
-					style="gap: 5px;">
-					<i class="bi bi-reply"></i>
-				</button>
-				<button
-					th:class="'btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })"
 					style="gap: 5px; "
 					th:attr="onclick=${post.articleid != null} ? 'watchPost(' + ${post.articleid} + ')' : null">
-					<i class="bi bi-share"></i>
+					<i class="bi bi-eye"></i>
+				</button>
+				<button
+					th:class="'copyBoard btn btn-dark d-flex align-items-center justify-content-center ' + (${ post.disable != null && post.disable == true ? 'disabled' : '' })"
+					style="gap: 5px;"					
+					th:attr="onclick=${post.articleid != null} ? 'copyPost(' + ${post.articleid} + ')' : null">
+					<i class="bi bi-clipboard"></i>
 				</button>
 			</div>
 			<div class="postComments card mt-3 mb-3 p-3" style="display: none; ">
