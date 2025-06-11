@@ -1145,6 +1145,8 @@ public class JdbcController {
 	                			SELECT COALESCE(MAX(keywordAssignmentId), 0) + 1 FROM KeywordAssignment
 	                		""", Long.class);
 	                	
+	                	System.out.println("KAS ID" + keywordAssignmentId);
+	                	
 	                    String insertKeywordAssignmentSql = """
 	                        INSERT INTO KeywordAssignment ( articleid, keywordid, assignedBy, createdat) 
 	                        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
@@ -1302,7 +1304,7 @@ public class JdbcController {
 
 	            }, newArticleId);
 
-	        	model.addAttribute("title", newArticleId);	    	
+	        	model.addAttribute("articleid", newArticleId);	    	
 	            List<String> colors = new ArrayList<>(
 	        			List.of(
                             "red", "green", "blue", "yellow", "cyan", "magenta", "orange", "purple",
