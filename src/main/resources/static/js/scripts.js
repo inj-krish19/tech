@@ -246,6 +246,18 @@ function copyPost(id) {
         });
 }
 
+function copyBlogger(id) {
+    const url = `${window.location.origin}/blogger/${id}`;
+    navigator.clipboard.writeText(url)
+        .then(() => {
+            console.log("Text copied to clipboard!");
+            showToast("Copied to clipboard!");
+        })
+        .catch(err => {
+            console.error("Failed to copy text: ", err);
+            showToast("Failed to copy text.");
+        });
+}
 
 /* document.querySelectorAll('.oper').forEach(button => {
     button.addEventListener('click', function () {

@@ -6,33 +6,41 @@
     <div class="row mb-4" id="blogger-list">
         <div th:each="blogger : ${bloggers}" class="col-12 col-md-6 col-lg-4 mb-4">
 
-            <div th:class="'card blogger-card ' + (${isMe == blogger.authorId ? 'me' : ''} )" >
+            <div th:class="'card blogger-card ' + (${isMe == blogger.authorId ? 'me' : ''} )">
 
                 <div class="card-body text-center">
 
                     <!-- Profile Image -->
                     <div class="blogger-image-container">
                         <img th:src="${blogger.image != null && blogger.image != '' ? blogger.image : '/images/logo.jpg'}"
-                             class="blogger-image" alt="Blogger Image">
+                            class="blogger-image" alt="Blogger Image">
                     </div>
 
                     <!-- Name & Username -->
                     <h5 class="card-title" th:text="${blogger.name}"></h5>
                     <p class="card-text username" th:text="'@' + ${blogger.username}"></p>
 
-					<div class="d-flex flex-row gap-2">
-	                    <!-- Follow/Unfollow Button -->
-	                    <button
-	                        th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
-	                        th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
-	                        <i th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
-	                    </button>
-						
-						<button
-	                        th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
-	                        <i class="bi bi-eye"></i>
-						</button>
-					</div>
+                    <div class="d-flex flex-row gap-2">
+                        <!-- Follow/Unfollow Button -->
+                        <button
+                            th:attr="onclick=${blogger.authorId != null} ? 'sendRequest(this,' + ${blogger.authorId} + ', &quot;' + (${blogger.status != null && blogger.status == true ? 'unfollow' : 'follow' }) + '&quot;)' : null"
+                            th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
+                            <i
+                                th:class="'bi ' + (${blogger.status != null && blogger.status == true ? 'bi-person-check-fill' : 'bi-person-plus-fill'})"></i>
+                        </button>
+
+                        <button
+                            th:attr="onclick=${blogger.authorId != null} ? 'redirectToBlogger(' + ${blogger.authorId} + ')' : null"
+                            th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
+                            <i class="bi bi-eye"></i>
+                        </button>
+
+                        <button
+                            th:attr="onclick=${blogger.authorId != null} ? 'copyBlogger(' + ${blogger.authorId} + ')' : null"
+                            th:class="'btn follow-btn ' + (${blogger.status == null ? 'disabled' : ''} )">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
 
                     <!-- Blogger Stats -->
                     <div class="blogger-stats mt-3">
@@ -45,7 +53,9 @@
                     </div>
 
                     <!-- Bio -->
-                    <p class="card-text bio" th:text="${blogger.bio != null ? blogger.bio : 'No bio available. This user prefers to keep an air of mystery.'}"></p>
+                    <p class="card-text bio"
+                        th:text="${blogger.bio != null ? blogger.bio : 'No bio available. This user prefers to keep an air of mystery.'}">
+                    </p>
 
                 </div>
 
