@@ -54,8 +54,31 @@
 	}
 </style>
 
+<style>
+    .text-input {
+        transition: color 0.3s ease;
+    }
+
+    .text-input::placeholder {
+        color: #999;
+        opacity: 1;
+        transition: opacity 0.4s ease;
+    }
+
+    .text-input.fade-placeholder::placeholder {
+        opacity: 0;
+    }
+</style>
+
 
 <body>
+
+	<div id="preloader">
+	    <div class="loader-container">
+	        <div class="spinner"></div>
+	        <div class="loader-text">Loading...</div>
+	    </div>
+	</div>
 
 	<div id="toast" style="visibility:hidden; min-width:200px; background:#333; color:#fff; text-align:center; border-radius:5px; padding:10px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:1000;">
 	  Copied to clipboard!
@@ -103,7 +126,7 @@
                     <div class="slider">
                         <div class="search-div">
                             <form th:action="@{/search}" method="post">
-                                <input type="text" name="keyword" class="text-input" placeholder="Search...">
+                                <input id="search" type="text" name="keyword" class="text-input" placeholder="Search...">
                             </form>
                         </div>
                         <!-- // Search -->
@@ -155,6 +178,8 @@
     <script src="/js/scripts.js"></script>
 
     <script>
+		
+		let currentIndex = 0;
         let currentPage = 1;
         const pageSize = 5; // Number of posts to load per request
        	const loader = document.getElementById("loader");
@@ -163,6 +188,33 @@
        	const message = document.getElementById("alertMessage");
        	const content = document.getElementById("alertMessage");
        	var goLogin = null;
+		
+		const search = document.getElementById("search");
+		const text = [
+			"Search Posts ...",
+			"Search Catgeories ...",
+			"Search Keywords ...",
+			"Find Articles ...",
+			"Explore Topics ...",
+			"Search Tags ...",
+			"Find out Bugs ...",
+			"Discuss Solution ...",
+			"Search Blogs ...",
+			"Help out Others ..."
+		];
+		
+		setInterval(() => {
+		    search.classList.add('fade-placeholder');
+
+		    setTimeout(() => {
+
+				const newPlaceholder = text[currentIndex];
+		        search.setAttribute('placeholder', newPlaceholder);
+		        search.classList.remove('fade-placeholder');
+		        currentIndex = (currentIndex + 1) % text.length;
+		    
+			}, 400); 
+		}, 6000);
        	
         /* function loadMorePosts() {
         	

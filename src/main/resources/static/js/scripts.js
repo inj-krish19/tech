@@ -1,6 +1,35 @@
 const toggleBtn = document.getElementById('toggleModeBtn');
 const modeIcon = document.getElementById('modeIcon');
 const body = document.body;
+const preloader = document.getElementById('preloader');
+
+// Hide on page fully loaded
+window.addEventListener('load', () => {
+    preloader.classList.add('hidden');
+});
+
+// Show preloader again when navigating to another page
+document.addEventListener('DOMContentLoaded', () => {
+    // All internal links
+    document.querySelectorAll('a[href]').forEach(link => {
+        link.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            const isExternal = href.startsWith('http') || href.startsWith('//');
+            const isNewTab = this.target === '_blank';
+
+            if (!isExternal && !isNewTab && !href.startsWith('#')) {
+                preloader.classList.remove('hidden');
+            }
+        });
+    });
+
+    // All form submits
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function () {
+            preloader.classList.remove('hidden');
+        });
+    });
+});
 
 // Load saved mode from localStorage
 let savedMode = localStorage.getItem('mode') || 'dark';
