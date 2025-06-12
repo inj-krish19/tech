@@ -672,7 +672,7 @@ public class JdbcController {
             try {
                 sql = "SELECT COUNT(*) FROM Connection WHERE followerId = " + authorId + " AND followingId = " + author ;
                 Long count = jdbcTemplate.queryForObject(sql, Long.class);
-                System.out.println(sql);  // This should print the parameterized query
+            	System.out.println(author + " records fetched already.");
                 blogger.put("status", count != null && count > 0 ); 
             } catch (Exception e) {
                 e.printStackTrace();
