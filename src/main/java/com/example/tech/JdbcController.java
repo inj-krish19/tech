@@ -1131,22 +1131,19 @@ public class JdbcController {
 	        // Step 4: Insert Keywords
 	        String keyword = selectedKeywords;
 	        System.out.print("Keyword " + keyword);
+	        
 	        List<String> keywords = new ArrayList<>();
-
-	        List<Long> buttonIndex = new ArrayList<>();
 	        StringTokenizer tokens = new StringTokenizer(keyword, ",");
 
 	        keyword = "";
 	        
 	        while (tokens.hasMoreTokens()) {
 	            String token = tokens.nextToken();
-	            String[] splitToken = token.split("-");
-	            if (splitToken.length > 1) {
-	            	keywords.add(splitToken[0]);
-	            	keyword += splitToken[0] +  ",";// Add the token (keyword) to the keywords list
-	                buttonIndex.add(Long.valueOf(splitToken[1]));
-	            }
+            	keywords.add(token);
+            	keyword += token +  ",";
 	        }
+	        
+	        System.out.println("Keywords : " + keywords);
 	        
 	        if (keywords.size() > 0) {
 	            for (String currentKeyword : keywords) {
@@ -1318,7 +1315,6 @@ public class JdbcController {
 	                		post.put("isDisliked", false );
 	                	}
 	    	        	
-	    	            post.put("buttonIndex", buttonIndex);
 	    	        	model.addAttribute("title", post.get("title"));
 	    	            return post;
 
