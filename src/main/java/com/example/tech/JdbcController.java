@@ -20,7 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.example.tech.mails.EmailSenderService;
+
 import io.github.cdimascio.dotenv.Dotenv;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -30,6 +33,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,8 +64,10 @@ public class JdbcController {
     @Autowired
     private HttpSession session;
 
+    @Autowired
+    private EmailSenderService emailSenderService;
+
     private static final ResourceUrlProvider resourceUrlProvider = new ResourceUrlProvider();
-   
     
     Dotenv dotenv = Dotenv.load();
     
@@ -127,6 +133,20 @@ public class JdbcController {
 		            String sql = "SELECT authorId FROM Blogger WHERE username = ?";
 		            Long authorId = jdbcTemplate.queryForObject(sql, Long.class, username );
 
+		            String query = "SELECT email, name FROM Blogger WHERE username = ?";
+		            Map<String, Object> result = jdbcTemplate.queryForMap(query, username);
+
+		            String email = (String) result.get("email");
+		            String name = (String) result.get("name");
+
+		            
+		            Map<String, String> placeholders = new HashMap<>();
+		            placeholders.put("username", username);
+		            placeholders.put("name", name);
+		            
+		            emailSenderService.sendEmail(email, "New Login Detected on Your Tech2Xplore Account", "login", placeholders );
+		            
+		            
 		            if ( headPrincipal != null && userExist != null) {
 		                model.addAttribute("loggedInUser", userExist = headPrincipal.getName()); // Add the logged-in username
 		            } else {
@@ -4898,7 +4918,13 @@ public class JdbcController {
         """;
 
         int rowsAffected = jdbcTemplate.update(insertUserSql, newAuthorId, name, username, email, hashedPassword, bio, uploadedImagePath);
-
+        
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("username", username);
+        placeholders.put("name", name);
+        
+        emailSenderService.sendEmail(email, "Welcome to Tech2Xplore — Your Registration is Successful!", "register", placeholders );
+        
         request.getSession().setAttribute("authorId", newAuthorId);
 
         model.addAttribute("loggedInUser", (Long) request.getSession().getAttribute("authorId") ); // Add the logged-in username
@@ -4917,7 +4943,9 @@ public class JdbcController {
     @PostMapping("/contact")
     public String submitSuggestion(HttpServletRequest request, Model model, @RequestParam("type") String type, @RequestParam("message") String message) {
     	
-        if( (Long) request.getSession().getAttribute("authorId") == null ) {
+    	Long author = (Long) request.getSession().getAttribute("authorId");
+    	
+        if( author == null || message.isEmpty() ) {
         	System.out.print(request.getSession().toString());
         	return "redirect:/login";
         }
@@ -4928,13 +4956,21 @@ public class JdbcController {
             VALUES ( ?,  CAST(? AS feedback_type_enum) , ?, CURRENT_TIMESTAMP)
         """;
         
+        String email = "select email from Blogger where authorId = " + author;
+        email = jdbcTemplate.queryForObject(email, String.class);
+        
         if (this.userExist != null && !this.userExist.isEmpty()) {
             model.addAttribute("loggedInUser", userExist); // Add the logged-in username
         } else {
             model.addAttribute("loggedInUser", null); // No user logged in
         }
 
-        int rowsAffected = jdbcTemplate.update(insertUserSql, (Long) request.getSession().getAttribute("authorId") , type, message);
+        int rowsAffected = jdbcTemplate.update(insertUserSql, author , type, message);
+
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("content", message);
+        
+        emailSenderService.sendEmail(email, "Thanks for your feedback!", "feedback", placeholders);
 
     	return "redirect:/";
     }
@@ -5508,6 +5544,25 @@ public class JdbcController {
     	
         Map<String, String> responseMap = new HashMap<>();
     	if (success) {
+    		
+    		if( field.equals("password") ) {
+
+    	        String query = "SELECT username, name, email FROM Blogger WHERE authorId = ?";
+    	        Map<String, Object> result = jdbcTemplate.queryForMap(query, authorId);
+
+    	        String username = (String) result.get("username");
+    	        String name = (String) result.get("name");
+    	        String email = (String) result.get("email");
+    	        
+    	        Map<String, String> placeholders = new HashMap<>();
+    	        placeholders.put("username", username);
+    	        placeholders.put("name", name);
+    	        placeholders.put("email", email);
+    	        
+    	        emailSenderService.sendEmail(email, "Your Tech2Xplore Password Was Changed", "change-password", placeholders );
+    	        
+    		}
+    		
     	    responseMap.put(field, value);  // Assuming data[0] and data[1] are valid keys and values
     	    return ResponseEntity.ok(responseMap);
         } else {
@@ -5547,6 +5602,20 @@ public class JdbcController {
             model.addAttribute("error", "Password update failed!");
         }
 
+
+        String query = "SELECT username, name FROM Blogger WHERE email = ?";
+        Map<String, Object> result = jdbcTemplate.queryForMap(query, email);
+
+        String username = (String) result.get("username");
+        String name = (String) result.get("name");
+        
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("username", username);
+        placeholders.put("name", name);
+        
+        emailSenderService.sendEmail(email, "Your Tech2Xplore Password Was Changed", "change-password", placeholders );
+        
+        
         model.addAttribute("success", "Password changed successfully!");
         return "redirect:/change?success=true"; // you can redirect or show success on same page
     }
