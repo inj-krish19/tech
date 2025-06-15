@@ -1,5 +1,7 @@
 package com.example.tech.mails;
 
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,10 +15,9 @@ public class EmailController {
         this.emailSenderService = emailSenderService;
     }
 
-//    @GetMapping("/login/send-mail")
-    public String sendEmail(@RequestParam String to, @RequestParam String subject, @RequestParam String content) {
+    public String sendEmailViaRoute(String to, String subject, String content, Map<String, String> placeHolders) {
         try {
-            emailSenderService.sendEmail(to, subject, content);
+            emailSenderService.sendEmail(to, subject, content, placeHolders);
             return "Email sent successfully to " + to;
         } catch (Exception e) {
             return "Failed to send email: " + e.getMessage();
