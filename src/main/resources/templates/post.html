@@ -359,7 +359,7 @@
 			</div>
 			<div class="mycard d-flex" id="remaining"
 				style="flex-direction: row; flex-wrap: wrap; min-height: 50px; background-color: var(--bg-container); border: 1px solid var(--border-color); border-radius: 5px; padding: 10px;"
-				th:if="${!#lists.isEmpty(post.keywords) or post.keywords == null }">
+				th:if="${!#lists.isEmpty(post.keywords) and post.keywords != null }">
 				<div th:if="${!#lists.isEmpty(post.keywords)}">
 					<h2 style="display: inline; color: #5c5b5b;">Keywords: </h2>
 				</div>
