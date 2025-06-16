@@ -33,7 +33,19 @@
   </style>
 </head>
 
-<body >
+<body>
+
+  <div id="preloader">
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <div class="loader-text">Loading...</div>
+    </div>
+  </div>
+
+  <div id="toast"
+    style="visibility:hidden; min-width:200px; background:#333; color:#fff; text-align:center; border-radius:5px; padding:10px; position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:1000;">
+    Copied to clipboard!
+  </div>
 
   <div th:replace="~{header :: nav}"></div>
 
@@ -43,12 +55,8 @@
       <!-- Profile Image -->
       <div class="col-lg-4 mb-4">
         <div class="img-holder text-center">
-          <img 
-            src="http://rentac.infinityfreeapp.com/Rentac/Images/developers/krish.jpg" 
-            alt="Krish Shah"
-            class="img-fluid rounded shadow"
-            style="width: 250px; height: 350px; object-fit: cover;"
-          >
+          <img src="http://rentac.infinityfreeapp.com/Rentac/Images/developers/krish.jpg" alt="Krish Shah"
+            class="img-fluid rounded shadow" style="width: 250px; height: 350px; object-fit: cover;">
         </div>
         <div class="text-center mt-3">
           <h4 class="fw-bold">Krish Shah</h4>
@@ -57,60 +65,66 @@
       </div>
 
       <!-- Profile Details -->
-	  <div class="col-lg-8">
-	    <div class="ps-lg-4">
+      <div class="col-lg-8">
+        <div class="ps-lg-4">
 
-	      <!-- LinkedIn -->
-	      <h4>
-	        <i class="bi bi-linkedin text-primary"></i> 
-	        <a href="https://www.linkedin.com/in/inj-krish19/" class="text-decoration-none text-info">LinkedIn</a>
-	      </h4>
-	      <p>Hello, I am Krish. I’m currently pursuing Computer Science. For collaborations, connect with me on LinkedIn!</p>
+          <!-- LinkedIn -->
+          <h4>
+            <i class="bi bi-linkedin text-primary"></i>
+            <a href="https://www.linkedin.com/in/inj-krish19/" class="text-decoration-none text-info">LinkedIn</a>
+          </h4>
+          <p>Hello, I am Krish. I’m currently pursuing Computer Science. For collaborations, connect with me on
+            LinkedIn!</p>
 
-	      <!-- GitHub -->
-	      <h4>
-	        <i class="bi bi-github " style=" color : var(----text-color);"></i> 
-	        <a href="https://github.com/inj-krish19" class="text-decoration-none" style=" color : var(----text-color);">GitHub</a>
-	      </h4>
-	      <p>Explore my projects and skills on GitHub.</p>
+          <!-- GitHub -->
+          <h4>
+            <i class="bi bi-github " style=" color : var(----text-color);"></i>
+            <a href="https://github.com/inj-krish19" class="text-decoration-none"
+              style=" color : var(----text-color);">GitHub</a>
+          </h4>
+          <p>Explore my projects and skills on GitHub.</p>
 
-	      <!-- Projects -->
-	      <ul style="list-style: none; padding-left: 0;">
-	        <li class="mb-2">
-	          <i class="bi bi-controller" style="color: blueviolet;"></i> 
-	          <a href="https://inj-krish19.github.io/Project-Racing-Car/" class="text-decoration-none" style="color: blueviolet;">Racing Car</a>
-	        </li>
-	        <li class="mb-2">
-	          <i class="bi bi-headphones" style="color: seagreen;"></i> 
-	          <a href="https://github.com/inj-krish19/Soundbot" class="text-decoration-none" style="color: seagreen;">Soundbot</a>
-	        </li>
-	      </ul>
+          <!-- Projects -->
+          <ul style="list-style: none; padding-left: 0;">
+            <li class="mb-2">
+              <i class="bi bi-controller" style="color: blueviolet;"></i>
+              <a href="https://inj-krish19.github.io/Project-Racing-Car/" class="text-decoration-none"
+                style="color: blueviolet;">Racing Car</a>
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-headphones" style="color: seagreen;"></i>
+              <a href="https://github.com/inj-krish19/Soundbot" class="text-decoration-none"
+                style="color: seagreen;">Soundbot</a>
+            </li>
+          </ul>
 
-	      <!-- Instagram -->
-	      <h4>
-	        <i class="bi bi-instagram" style="color: rebeccapurple;"></i> 
-	        <a href="https://www.instagram.com/inj_krish19/" class="text-decoration-none" style="color: rebeccapurple;">Instagram</a>
-	      </h4>
-	      <p>Connect on Instagram for personal updates and interaction.</p>
+          <!-- Instagram -->
+          <h4>
+            <i class="bi bi-instagram" style="color: rebeccapurple;"></i>
+            <a href="https://www.instagram.com/inj_krish19/" class="text-decoration-none"
+              style="color: rebeccapurple;">Instagram</a>
+          </h4>
+          <p>Connect on Instagram for personal updates and interaction.</p>
 
-	      <!-- Facebook -->
-	      <h4>
-	        <i class="bi bi-facebook text-primary"></i> 
-	        <a href="https://www.facebook.com/inj.krish19/" class="text-decoration-none text-primary">Facebook</a>
-	      </h4>
-	      <p>Learn more about my background and education on Facebook.</p>
+          <!-- Facebook -->
+          <h4>
+            <i class="bi bi-facebook text-primary"></i>
+            <a href="https://www.facebook.com/inj.krish19/" class="text-decoration-none text-primary">Facebook</a>
+          </h4>
+          <p>Learn more about my background and education on Facebook.</p>
 
-	      <!-- Email -->
-	      <h4>
-	        <i class="bi bi-envelope" style="color: cornflowerblue;"></i> 
-			<ahref="mailto:kglivee19@gmail.com"  class="text-decoration-none" style="color: cornflowerblue;">Email :</a>
-	      </h4>
-	      <p>
-	        <a href="mailto:kglivee19@gmail.com" class="text-decoration-none" style="color: cornflowerblue;">kglivee19@gmail.com</a>
-	      </p>
+          <!-- Email -->
+          <h4>
+            <i class="bi bi-envelope" style="color: cornflowerblue;"></i>
+            <ahref="mailto:kglivee19@gmail.com" class="text-decoration-none" style="color: cornflowerblue;">Email :</a>
+          </h4>
+          <p>
+            <a href="mailto:kglivee19@gmail.com" class="text-decoration-none"
+              style="color: cornflowerblue;">kglivee19@gmail.com</a>
+          </p>
 
-	    </div>
-	  </div>
+        </div>
+      </div>
     </div>
   </div>
 
