@@ -31,10 +31,14 @@ import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.http.HttpHeaders;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,6 +89,22 @@ public class JdbcController {
     
     public String capitalize(String target) {
     	return target.substring(0,1).toUpperCase() + target.substring(1).toLowerCase() ;
+    }
+    
+    @GetMapping("/drive/image/{id}")
+    public ResponseEntity<byte[]> proxyImage(@PathVariable String id) throws IOException {
+        String url = "https://drive.google.com/uc?export=view&id=" + id;
+        HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+        conn.setRequestMethod("GET");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (InputStream is = conn.getInputStream()) {
+            is.transferTo(baos);
+        }
+
+        return ResponseEntity.ok()
+            .header("Content-Type", conn.getContentType())
+            .body(baos.toByteArray());
     }
     
     @GetMapping("/secret")

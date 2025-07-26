@@ -48,9 +48,15 @@ public class SecurityConfig {
         	.csrf(
         			csrf -> csrf.disable()
         	)
+        	.headers(headers -> headers
+                .frameOptions(frame -> frame.sameOrigin())
+                .contentSecurityPolicy(csp -> 
+                    csp.policyDirectives("img-src 'self' https://drive.google.com")
+                )
+            )
             .authorizeHttpRequests(authorize -> authorize
 //                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/about", "/entity/**", "/error").permitAll()
-                .requestMatchers( "/login/", "/register", "/change", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/blogger/**", "/error", "/favicon.ico").permitAll()
+                .requestMatchers( "/login/", "/register", "/change", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/blogger/**", "/error", "/favicon.ico", "https://").permitAll()
                 .requestMatchers("/profile","/load-more-posts").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
