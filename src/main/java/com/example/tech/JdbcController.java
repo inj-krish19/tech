@@ -5772,7 +5772,7 @@ public class JdbcController {
         	List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql, target);
         	
         	entityInfo.put("title", this.capitalize( temp.get(0).get("name").toString() ) );
-        	entityInfo.put("media", temp.get(0).get("media") );
+        	entityInfo.put("media", postRetrieveDirectory + temp.get(0).get("media") );
         	entityInfo.put("description", temp.get(0).get("description") );
         	
         	
@@ -5943,7 +5943,7 @@ public class JdbcController {
         	List<Map<String, Object>> temp = jdbcTemplate.queryForList(sql, target);
         	
         	entityInfo.put("title", this.capitalize( temp.get(0).get("name").toString() ) );
-        	entityInfo.put("media", temp.get(0).get("media") );
+        	entityInfo.put("media", postRetrieveDirectory + temp.get(0).get("media") );
         	entityInfo.put("description", temp.get(0).get("description") );
         	
         	sql = "SELECT keywordId FROM Keyword WHERE LOWER(name) LIKE LOWER(?)";

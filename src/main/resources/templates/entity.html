@@ -107,7 +107,7 @@
 	                        <div class="card"
 	                            th:if="${entity.type != null && entity.type != '' && entity.media != null && entity.media != '' }">
 	                            <img class="mr-3"
-	                                th:src="'/uploads/' + ${entity.type == 'category' ? 'categories' : entity.type == 'keyword' ? 'keywords' : '' } + '/' +  ${entity.media}"
+	                                th:src="${entity.media}"
 	                                style="border-radius: 5px;" alt="Generic placeholder image">
 	                        </div>
 	                    </div>
