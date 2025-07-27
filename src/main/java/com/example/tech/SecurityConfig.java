@@ -56,7 +56,7 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(authorize -> authorize
 //                .requestMatchers("/login/", "/register", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/about", "/entity/**", "/error").permitAll()
-                .requestMatchers( "/login/", "/register", "/change", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/blogger/**", "/error", "/favicon.ico", "https://").permitAll()
+                .requestMatchers( "/login/", "/register", "/change", "/css/**", "/js/**", "/images/**", "/uploads/**",  "/uploads/posts/**", "/uploads/bloggers/**", "/uploads/categories/**", "/uploads/keywords/**", "/uploads/communities/**",  "/", "/post/**", "/blogger/**", "/error", "/favicon.ico", "https://", "/drive/image/**").permitAll()
                 .requestMatchers("/profile","/load-more-posts").hasRole("USER")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
