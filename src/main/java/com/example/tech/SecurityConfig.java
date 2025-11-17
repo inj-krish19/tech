@@ -45,13 +45,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-        	.csrf(
+	        .csrf(
         			csrf -> csrf.disable()
         	)
         	.headers(headers -> headers
                 .frameOptions(frame -> frame.sameOrigin())
                 .contentSecurityPolicy(csp -> 
-                    csp.policyDirectives("img-src 'self' https://drive.google.com")
+                    csp.policyDirectives("img-src 'self' *")
                 )
             )
             .authorizeHttpRequests(authorize -> authorize

@@ -1,5 +1,5 @@
 # Start from an official Java 17 base image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 
 # Set environment variables for Maven
 ENV MAVEN_VERSION=3.8.6
