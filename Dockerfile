@@ -1,23 +1,48 @@
-# Start from an official Java 17 base image
-FROM eclipse-temurin:21-jdk-alpine
+# ----------------------------------------
+# 1. Build Stage (Maven + JDK)
+# ----------------------------------------
+FROM eclipse-temurin:21-jdk AS builder
 
-# Set the working directory in the container
+# Install Maven
+ARG MAVEN_VERSION=3.8.6
+RUN apt-get update && apt-get install -y wget tar && \
+    wget https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz && \
+    tar -xzf apache-maven-${MAVEN_VERSION}-bin.tar.gz -C /opt && \
+    ln -s /opt/apache-maven-${MAVEN_VERSION} /opt/maven
+
+ENV PATH="/opt/maven/bin:${PATH}"
+
 WORKDIR /app
 
-# Copy the Maven project files
-COPY pom.xml ./
+# Copy dependencies first for caching
+COPY pom.xml .
+
+# Download dependencies (Better build caching)
+RUN mvn dependency:go-offline -B
+
+# Copy source code and other folders
 COPY src ./src
 COPY uploads ./uploads
-COPY .env /app/.env
+COPY .env .env
 
-RUN java -version
+# Build the application (creates target/*.jar)
+RUN mvn clean package -DskipTests
 
-# Set the JAR file path
-ARG JAR_FILE=target/*.jar
-COPY ${JAR_FILE} app.jar
 
-# Run the Spring Boot application
-ENTRYPOINT ["sh", "-c", "java -jar $JAR_FILE"]
+# ----------------------------------------
+# 2. Run Stage (Lightweight JDK Image)
+# ----------------------------------------
+FROM eclipse-temurin:21-jdk-jammy
 
-# Expose the port the application will run on (9950)
+WORKDIR /app
+
+# Copy JAR file from builder stage
+COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/uploads ./uploads
+COPY --from=builder /app/.env .env
+
+# Expose Spring Boot port
 EXPOSE 10000
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
