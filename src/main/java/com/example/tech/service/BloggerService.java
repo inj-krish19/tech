@@ -2,7 +2,6 @@ package com.example.tech.service;
 
 import com.example.tech.model.Blogger;
 import com.example.tech.repository.BloggerRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
