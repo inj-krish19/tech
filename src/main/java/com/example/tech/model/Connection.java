@@ -22,4 +22,37 @@ public class Connection {
     @Column(name = "createdAt", updatable = false, nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    // === Getters and Setters ===
+
+    public Long getConnectionId() {
+        return connectionId;
+    }
+
+    public void setConnectionId(Long connectionId) {
+        this.connectionId = connectionId;
+    }
+
+    public Blogger getFollowerId() {
+        return followerId;
+    }
+
+    public void setFollowerId(Blogger followerId) {
+        this.followerId = followerId;
+    }
+
+    public Blogger getFollowingId() {
+        return followingId;
+    }
+
+    public void setFollowingId(Blogger followingId) {
+        this.followingId = followingId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
