@@ -30,4 +30,61 @@ public class Community {
     @Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
+    // === Getters and Setters ===
+
+    public Long getCommunityId() {
+        return communityId;
+    }
+
+    public void setCommunityId(Long communityId) {
+        this.communityId = communityId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCommunityDescription() {
+        return communityDescription;
+    }
+
+    public void setCommunityDescription(String communityDescription) {
+        this.communityDescription = communityDescription;
+    }
+
+    public String getCommunityIcon() {
+        return communityIcon;
+    }
+
+    public void setCommunityIcon(String communityIcon) {
+        this.communityIcon = communityIcon;
+    }
+
+    public Blogger getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Blogger createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }
