@@ -22,4 +22,37 @@ public class Membership {
     @Column(name = "joinedAt", updatable = false, nullable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();
 
+    // === Getters and Setters ===
+
+    public Long getMembershipId() {
+        return membershipId;
+    }
+
+    public void setMembershipId(Long membershipId) {
+        this.membershipId = membershipId;
+    }
+
+    public Community getGroup() {
+        return group;
+    }
+
+    public void setGroup(Community group) {
+        this.group = group;
+    }
+
+    public Blogger getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(Blogger author) {
+        this.author = author;
+    }
+
+    public LocalDateTime getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(LocalDateTime joinedAt) {
+        this.joinedAt = joinedAt;
+    }
 }
